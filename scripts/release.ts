@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { parseArgs } from "util";
+import { cli, command, info, success, error } from "../packages/boune/src/index.ts";
 
 import bounePkg from "../packages/boune/package.json";
 import createBounePkg from "../packages/create-boune/package.json";
@@ -106,111 +106,83 @@ async function publishToJsr(pkgDir: string, dryRun: boolean): Promise<boolean> {
   return exitCode === 0;
 }
 
-async function main() {
-  const { values, positionals } = parseArgs({
-    args: Bun.argv.slice(2),
-    options: {
-      bump: { type: "string", short: "b" },
-      package: { type: "string", short: "p" },
-      "dry-run": { type: "boolean", short: "d", default: false },
-      "skip-npm": { type: "boolean", default: false },
-      "skip-jsr": { type: "boolean", default: false },
-      help: { type: "boolean", short: "h", default: false },
-    },
-    allowPositionals: true,
+const releaseCommand = command("release")
+  .description("Bump versions and publish packages to npm and jsr")
+  .option("-b, --bump <type>", "Version bump type: patch, minor, major", { required: true })
+  .option("-p, --package <name>", "Package to release: boune, create-boune, or all", {
+    required: true,
+  })
+  .option("-d, --dry-run", "Run without actually publishing")
+  .option("--skip-npm", "Skip npm publish")
+  .option("--skip-jsr", "Skip jsr publish")
+  .action(async ({ options }) => {
+    const bumpType = options.bump as BumpType;
+    const packageName = options.package as string;
+    const dryRun = options["dry-run"] as boolean;
+    const skipNpm = options["skip-npm"] as boolean;
+    const skipJsr = options["skip-jsr"] as boolean;
+
+    if (!["patch", "minor", "major"].includes(bumpType)) {
+      console.log(error("--bump must be one of: patch, minor, major"));
+      process.exit(1);
+    }
+
+    const packagesToRelease =
+      packageName === "all" ? PACKAGES : PACKAGES.filter((p) => p.name === packageName);
+
+    if (packagesToRelease.length === 0) {
+      console.log(error(`Package "${packageName}" not found`));
+      process.exit(1);
+    }
+
+    console.log(info("\nRelease Plan:\n"));
+
+    for (const pkg of packagesToRelease) {
+      const newVersion = bumpVersion(pkg.version, bumpType);
+      console.log(`  ${pkg.name}: ${pkg.version} → ${newVersion}`);
+    }
+
+    if (dryRun) {
+      console.log(info("\nDry run mode - no changes will be made\n"));
+    }
+
+    console.log("");
+
+    // Update versions and publish
+    for (const pkg of packagesToRelease) {
+      const newVersion = bumpVersion(pkg.version, bumpType);
+
+      console.log(info(`Updating ${pkg.name} to ${newVersion}...`));
+      if (!dryRun) {
+        await updateVersion(pkg.name, newVersion);
+      }
+
+      if (!skipNpm) {
+        console.log(info(`\nPublishing ${pkg.npmName}@${newVersion} to npm...`));
+        const npmSuccess = await publishToNpm(pkg.dir, dryRun);
+        if (!npmSuccess) {
+          console.log(error(`Failed to publish ${pkg.npmName} to npm`));
+          process.exit(1);
+        }
+        console.log(success(`Published ${pkg.npmName}@${newVersion} to npm`));
+      }
+
+      if (!skipJsr) {
+        console.log(info(`\nPublishing ${pkg.jsrName}@${newVersion} to jsr...`));
+        const jsrSuccess = await publishToJsr(pkg.dir, dryRun);
+        if (!jsrSuccess) {
+          console.log(error(`Failed to publish ${pkg.jsrName} to jsr`));
+          process.exit(1);
+        }
+        console.log(success(`Published ${pkg.jsrName}@${newVersion} to jsr`));
+      }
+    }
+
+    console.log(success("\nRelease complete!\n"));
   });
 
-  if (values.help) {
-    console.log(`
-Usage: bun scripts/release.ts [options]
-
-Options:
-  -b, --bump <type>     Version bump type: patch, minor, major
-  -p, --package <name>  Package to release: boune, create-boune, or "all"
-  -d, --dry-run         Run without actually publishing
-  --skip-npm            Skip npm publish
-  --skip-jsr            Skip jsr publish
-  -h, --help            Show this help message
-
-Examples:
-  bun scripts/release.ts -b patch -p all           # Bump all packages patch version and publish
-  bun scripts/release.ts -b minor -p boune         # Bump boune minor version and publish
-  bun scripts/release.ts -b patch -p all --dry-run # Dry run to see what would happen
-`);
-    return;
-  }
-
-  const bumpType = values.bump as BumpType | undefined;
-  const packageName = values.package;
-  const dryRun = values["dry-run"] ?? false;
-  const skipNpm = values["skip-npm"] ?? false;
-  const skipJsr = values["skip-jsr"] ?? false;
-
-  if (!bumpType || !["patch", "minor", "major"].includes(bumpType)) {
-    console.error("Error: --bump must be one of: patch, minor, major");
-    process.exit(1);
-  }
-
-  if (!packageName) {
-    console.error('Error: --package is required (boune, create-boune, or "all")');
-    process.exit(1);
-  }
-
-  const packagesToRelease =
-    packageName === "all" ? PACKAGES : PACKAGES.filter((p) => p.name === packageName);
-
-  if (packagesToRelease.length === 0) {
-    console.error(`Error: Package "${packageName}" not found`);
-    process.exit(1);
-  }
-
-  console.log("\n📦 Release Plan:\n");
-
-  for (const pkg of packagesToRelease) {
-    const newVersion = bumpVersion(pkg.version, bumpType);
-    console.log(`  ${pkg.name}: ${pkg.version} → ${newVersion}`);
-  }
-
-  if (dryRun) {
-    console.log("\n🔍 Dry run mode - no changes will be made\n");
-  }
-
-  console.log("");
-
-  // Update versions and publish
-  for (const pkg of packagesToRelease) {
-    const newVersion = bumpVersion(pkg.version, bumpType);
-
-    console.log(`📝 Updating ${pkg.name} to ${newVersion}...`);
-    if (!dryRun) {
-      await updateVersion(pkg.name, newVersion);
-    }
-
-    if (!skipNpm) {
-      console.log(`\n📤 Publishing ${pkg.npmName}@${newVersion} to npm...`);
-      const success = await publishToNpm(pkg.dir, dryRun);
-      if (!success) {
-        console.error(`❌ Failed to publish ${pkg.npmName} to npm`);
-        process.exit(1);
-      }
-      console.log(`✅ Published ${pkg.npmName}@${newVersion} to npm`);
-    }
-
-    if (!skipJsr) {
-      console.log(`\n📤 Publishing ${pkg.jsrName}@${newVersion} to jsr...`);
-      const success = await publishToJsr(pkg.dir, dryRun);
-      if (!success) {
-        console.error(`❌ Failed to publish ${pkg.jsrName} to jsr`);
-        process.exit(1);
-      }
-      console.log(`✅ Published ${pkg.jsrName}@${newVersion} to jsr`);
-    }
-  }
-
-  console.log("\n🎉 Release complete!\n");
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+cli("release")
+  .version("0.1.0")
+  .description("Release tool for boune monorepo")
+  .command(releaseCommand)
+  .run();
