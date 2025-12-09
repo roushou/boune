@@ -1,6 +1,6 @@
 {
   "name": "@boune/cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A batteries-included CLI framework for Bun — prompts, colors, spinners, and more",
   "exports": {
     ".": "./src/index.ts",

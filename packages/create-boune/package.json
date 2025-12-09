@@ -1,6 +1,6 @@
 {
   "name": "create-boune",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Scaffold a new CLI project with boune",
   "author": "Kenji Lau",
@@ -32,6 +32,6 @@
     "bun": ">=1.3.0"
   },
   "dependencies": {
-    "boune": "^0.1.1"
+    "boune": "^0.1.2"
   }
 }
