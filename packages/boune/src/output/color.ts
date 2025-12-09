@@ -1,5 +1,5 @@
 /**
- * Terminal color utilities using Bun.color
+ * Terminal color utilities
  */
 
 type ColorName =
@@ -49,16 +49,16 @@ function colorize(text: string, code: string): string {
 }
 
 export const color = {
-  black: (text: string) => colorize(text, colors.black),
-  red: (text: string) => colorize(text, colors.red),
-  green: (text: string) => colorize(text, colors.green),
-  yellow: (text: string) => colorize(text, colors.yellow),
-  blue: (text: string) => colorize(text, colors.blue),
-  magenta: (text: string) => colorize(text, colors.magenta),
-  cyan: (text: string) => colorize(text, colors.cyan),
-  white: (text: string) => colorize(text, colors.white),
-  gray: (text: string) => colorize(text, colors.gray),
-  bold: (text: string) => colorize(text, bold),
-  dim: (text: string) => colorize(text, dim),
-  underline: (text: string) => colorize(text, underline),
+  black: (text: string): string => colorize(text, colors.black),
+  red: (text: string): string => colorize(text, colors.red),
+  green: (text: string): string => colorize(text, colors.green),
+  yellow: (text: string): string => colorize(text, colors.yellow),
+  blue: (text: string): string => colorize(text, colors.blue),
+  magenta: (text: string): string => colorize(text, colors.magenta),
+  cyan: (text: string): string => colorize(text, colors.cyan),
+  white: (text: string): string => colorize(text, colors.white),
+  gray: (text: string): string => colorize(text, colors.gray),
+  bold: (text: string): string => colorize(text, bold),
+  dim: (text: string): string => colorize(text, dim),
+  underline: (text: string): string => colorize(text, underline),
 };
