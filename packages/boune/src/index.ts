@@ -54,3 +54,12 @@ export type {
 // Suggestions
 export { suggestCommands, formatSuggestions, levenshtein } from "./suggest.ts";
 export type { Suggestion } from "./suggest.ts";
+
+// Shell completions
+export {
+  generateCompletion,
+  generateBashCompletion,
+  generateZshCompletion,
+  generateFishCompletion,
+} from "./completions/index.ts";
+export type { ShellType } from "./completions/index.ts";

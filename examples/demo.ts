@@ -10,6 +10,7 @@ import {
   createSpinner,
   createProgressBar,
   v,
+  type ShellType,
 } from "../packages/boune/src/index.ts";
 import { text, confirm, select } from "../packages/boune/src/prompt/index.ts";
 
@@ -136,8 +137,23 @@ const download = command("download")
     progress.complete(`Downloaded ${count} files`);
   });
 
+// Completions command to generate shell completion scripts
+const completions = command("completions")
+  .description("Generate shell completion scripts")
+  .argument("<shell>", "Shell type (bash, zsh, fish)")
+  .action(({ args }) => {
+    const shell = args.shell as ShellType;
+    if (!["bash", "zsh", "fish"].includes(shell)) {
+      console.error(color.red(`Error: Invalid shell "${shell}". Use bash, zsh, or fish.`));
+      process.exit(1);
+    }
+    // Generate and output completion script
+    const script = app.completions(shell);
+    console.log(script);
+  });
+
 // Create the CLI
-cli("demo")
+const app = cli("demo")
   .version("1.0.0")
   .description("A demo CLI built with boune")
   .command(greet)
@@ -145,4 +161,6 @@ cli("demo")
   .command(init)
   .command(serve)
   .command(download)
-  .run();
+  .command(completions);
+
+app.run();

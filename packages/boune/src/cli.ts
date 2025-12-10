@@ -15,6 +15,7 @@ import { generateCliHelp, generateCommandHelp } from "./output/help.ts";
 import { error as formatError } from "./output/format.ts";
 import { closeStdin } from "./prompt/stdin.ts";
 import { suggestCommands, formatSuggestions } from "./suggest.ts";
+import { generateCompletion, type ShellType } from "./completions/index.ts";
 
 /**
  * Main CLI builder class
@@ -107,6 +108,20 @@ export class Cli {
     handlers.push(handler);
     this.config.hooks.set(type, handlers);
     return this;
+  }
+
+  /**
+   * Generate shell completion script
+   */
+  completions(shell: ShellType): string {
+    return generateCompletion(this.config, shell);
+  }
+
+  /**
+   * Get the CLI configuration (for advanced use cases)
+   */
+  getConfig(): CliConfig {
+    return this.config;
   }
 
   /**
