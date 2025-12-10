@@ -227,9 +227,23 @@ class BooleanValidatorImpl extends BaseValidator<boolean> implements BooleanVali
 }
 
 /**
+ * Validator factory interface
+ */
+export type ValidatorFactory = {
+  /** Create a string validator */
+  string(): StringValidator;
+  /** Create a number validator */
+  number(): NumberValidator;
+  /** Create a boolean validator */
+  boolean(): BooleanValidator;
+  /** Create a custom validator from a function */
+  custom<T>(rule: ValidationRule<T>): Validator<T>;
+};
+
+/**
  * Validator factory - main entry point
  */
-export const v = {
+export const v: ValidatorFactory = {
   /** Create a string validator */
   string(): StringValidator {
     return new StringValidatorImpl();
