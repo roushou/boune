@@ -15,9 +15,8 @@ const add = command("add")
     if (options.all) {
       console.log(color.green("Adding all changes..."));
     } else {
-      const files = args.files as string[];
-      console.log(color.green(`Adding ${files.length} file(s):`));
-      for (const file of files) {
+      console.log(color.green(`Adding ${args.files.length} file(s):`));
+      for (const file of args.files) {
         console.log(`  ${color.cyan("+")} ${file}`);
       }
     }
@@ -71,7 +70,7 @@ const log = command("log")
       { hash: "ghi9012", msg: "chore: update dependencies", date: "3 days ago" },
     ];
 
-    const count = Math.min(options["max-count"] as number, commits.length);
+    const count = Math.min(options["max-count"], commits.length);
 
     for (let i = 0; i < count; i++) {
       const c = commits[i]!;
@@ -94,12 +93,10 @@ const branch = command("branch")
   .option("-d, --delete", "Delete a branch")
   .option("-a, --all", "List all branches")
   .action(({ args, options }) => {
-    const name = args.name as string | undefined;
-
-    if (options.delete && name) {
-      console.log(color.green(`Deleted branch ${name}`));
-    } else if (name) {
-      console.log(color.green(`Created branch ${name}`));
+    if (options.delete && args.name) {
+      console.log(color.green(`Deleted branch ${args.name}`));
+    } else if (args.name) {
+      console.log(color.green(`Created branch ${args.name}`));
     } else {
       console.log(`* ${color.green("main")}`);
       console.log("  feature/auth");

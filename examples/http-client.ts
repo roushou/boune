@@ -14,17 +14,16 @@ const get = command("get")
   .option("-v, --verbose", "Show response headers")
   .option("--json", "Parse response as JSON")
   .action(async ({ args, options }) => {
-    const url = args.url as string;
-    const spinner = createSpinner(`GET ${url}`).start();
+    const spinner = createSpinner(`GET ${args.url}`).start();
 
     try {
       const headers: Record<string, string> = {};
       if (options.header) {
-        const [key, value] = (options.header as string).split(":");
+        const [key, value] = options.header.split(":");
         if (key && value) headers[key.trim()] = value.trim();
       }
 
-      const response = await fetch(url, { headers });
+      const response = await fetch(args.url, { headers });
 
       if (options.verbose) {
         spinner.stop();
@@ -37,7 +36,7 @@ const get = command("get")
 
       if (options.output) {
         const content = await response.arrayBuffer();
-        await Bun.write(options.output as string, content);
+        await Bun.write(options.output, content);
         spinner.succeed(`Saved to ${options.output}`);
       } else if (options.json) {
         const json = await response.json();
@@ -64,29 +63,28 @@ const post = command("post")
   .option("-t, --content-type <type>", "Content-Type header", { default: "application/json" })
   .option("-v, --verbose", "Show response headers")
   .action(async ({ args, options }) => {
-    const url = args.url as string;
-    const spinner = createSpinner(`POST ${url}`).start();
+    const spinner = createSpinner(`POST ${args.url}`).start();
 
     try {
       let body: string;
       if (options.file) {
-        body = await Bun.file(options.file as string).text();
+        body = await Bun.file(options.file).text();
       } else if (options.data) {
-        body = options.data as string;
+        body = options.data;
       } else {
         spinner.fail("No data provided (use --data or --file)");
         process.exit(1);
       }
 
       const headers: Record<string, string> = {
-        "Content-Type": options["content-type"] as string,
+        "Content-Type": options["content-type"],
       };
       if (options.header) {
-        const [key, value] = (options.header as string).split(":");
+        const [key, value] = options.header.split(":");
         if (key && value) headers[key.trim()] = value.trim();
       }
 
-      const response = await fetch(url, {
+      const response = await fetch(args.url, {
         method: "POST",
         headers,
         body,
@@ -119,11 +117,10 @@ const head = command("head")
   .description("Make a HEAD request (headers only)")
   .argument("<url>", "URL to check")
   .action(async ({ args }) => {
-    const url = args.url as string;
-    const spinner = createSpinner(`HEAD ${url}`).start();
+    const spinner = createSpinner(`HEAD ${args.url}`).start();
 
     try {
-      const response = await fetch(url, { method: "HEAD" });
+      const response = await fetch(args.url, { method: "HEAD" });
       spinner.stop();
 
       console.log(color.cyan(`HTTP/${response.status} ${response.statusText}`));
@@ -144,13 +141,12 @@ const download = command("download")
   .argument("[output]", "Output filename")
   .option("-q, --quiet", "Suppress progress output")
   .action(async ({ args, options }) => {
-    const url = args.url as string;
-    const output = (args.output as string) || url.split("/").pop() || "download";
+    const output = args.output || args.url.split("/").pop() || "download";
 
-    const spinner = options.quiet ? null : createSpinner(`Downloading ${url}`).start();
+    const spinner = options.quiet ? null : createSpinner(`Downloading ${args.url}`).start();
 
     try {
-      const response = await fetch(url);
+      const response = await fetch(args.url);
 
       if (!response.ok) {
         spinner?.fail(`HTTP ${response.status}: ${response.statusText}`);
@@ -167,7 +163,7 @@ const download = command("download")
       spinner?.succeed(`Downloaded ${output} (${size})`);
 
       if (!options.quiet) {
-        console.log(color.dim(`  URL: ${url}`));
+        console.log(color.dim(`  URL: ${args.url}`));
         console.log(color.dim(`  Size: ${size}`));
       }
     } catch (err) {

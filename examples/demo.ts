@@ -21,13 +21,9 @@ const greet = command("greet")
   .option("-l, --loud", "Shout the greeting")
   .option("-t, --times <number>", "Number of times to greet", { type: "number", default: 1 })
   .action(({ args, options }) => {
-    const name = args.name as string;
-    const loud = options.loud as boolean;
-    const times = options.times as number;
-
-    for (let i = 0; i < times; i++) {
-      const msg = `Hello, ${name}!`;
-      console.log(loud ? msg.toUpperCase() : msg);
+    for (let i = 0; i < options.times; i++) {
+      const msg = `Hello, ${args.name}!`;
+      console.log(options.loud ? msg.toUpperCase() : msg);
     }
   });
 
@@ -123,18 +119,16 @@ const download = command("download")
   .description("Simulate downloading files")
   .argument("<count>", "Number of files to download", { type: "number" })
   .action(async ({ args }) => {
-    const count = args.count as number;
+    console.log(color.bold(`\nDownloading ${args.count} files...\n`));
 
-    console.log(color.bold(`\nDownloading ${count} files...\n`));
+    const progress = createProgressBar("Downloading files", { total: args.count });
 
-    const progress = createProgressBar("Downloading files", { total: count });
-
-    for (let i = 1; i <= count; i++) {
+    for (let i = 1; i <= args.count; i++) {
       await new Promise((resolve) => setTimeout(resolve, 200));
-      progress.update(i, `Downloading file ${i}/${count}`);
+      progress.update(i, `Downloading file ${i}/${args.count}`);
     }
 
-    progress.complete(`Downloaded ${count} files`);
+    progress.complete(`Downloaded ${args.count} files`);
   });
 
 // Completions command to generate shell completion scripts
@@ -142,13 +136,12 @@ const completions = command("completions")
   .description("Generate shell completion scripts")
   .argument("<shell>", "Shell type (bash, zsh, fish)")
   .action(({ args }) => {
-    const shell = args.shell as ShellType;
-    if (!["bash", "zsh", "fish"].includes(shell)) {
-      console.error(color.red(`Error: Invalid shell "${shell}". Use bash, zsh, or fish.`));
+    if (!["bash", "zsh", "fish"].includes(args.shell)) {
+      console.error(color.red(`Error: Invalid shell "${args.shell}". Use bash, zsh, or fish.`));
       process.exit(1);
     }
     // Generate and output completion script
-    const script = app.completions(shell);
+    const script = app.completions(args.shell as ShellType);
     console.log(script);
   });
 

@@ -52,14 +52,14 @@ const list = command("list")
 
     if (options.status) {
       conditions.push("status = ?");
-      params.push(options.status as string);
+      params.push(options.status);
     } else if (!options.all) {
       conditions.push("status != 'done'");
     }
 
     if (options.priority) {
       conditions.push("priority = ?");
-      params.push(options.priority as string);
+      params.push(options.priority);
     }
 
     if (conditions.length > 0) {
@@ -91,7 +91,7 @@ const add = command("add")
   .argument("[title]", "Task title")
   .option("-p, --priority <level>", "Priority level (low, medium, high)", { default: "medium" })
   .action(async ({ args, options }) => {
-    let title = args.title as string | undefined;
+    let title = args.title;
 
     if (!title) {
       title = await text({
@@ -121,13 +121,12 @@ const done = command("done")
   .description("Mark task as done")
   .argument("<id>", "Task ID", { type: "number" })
   .action(({ args }) => {
-    const id = args.id as number;
-    const result = db.run("UPDATE tasks SET status = 'done' WHERE id = ?", [id]);
+    const result = db.run("UPDATE tasks SET status = 'done' WHERE id = ?", [args.id]);
 
     if (result.changes > 0) {
-      console.log(color.green(`Task #${id} marked as done`));
+      console.log(color.green(`Task #${args.id} marked as done`));
     } else {
-      console.error(color.red(`Task #${id} not found`));
+      console.error(color.red(`Task #${args.id} not found`));
     }
   });
 
@@ -136,13 +135,12 @@ const start = command("start")
   .description("Mark task as in-progress")
   .argument("<id>", "Task ID", { type: "number" })
   .action(({ args }) => {
-    const id = args.id as number;
-    const result = db.run("UPDATE tasks SET status = 'in-progress' WHERE id = ?", [id]);
+    const result = db.run("UPDATE tasks SET status = 'in-progress' WHERE id = ?", [args.id]);
 
     if (result.changes > 0) {
-      console.log(color.cyan(`Started working on task #${id}`));
+      console.log(color.cyan(`Started working on task #${args.id}`));
     } else {
-      console.error(color.red(`Task #${id} not found`));
+      console.error(color.red(`Task #${args.id} not found`));
     }
   });
 
@@ -153,11 +151,9 @@ const remove = command("remove")
   .argument("<id>", "Task ID", { type: "number" })
   .option("-f, --force", "Skip confirmation")
   .action(async ({ args, options }) => {
-    const id = args.id as number;
-
-    const task = db.query("SELECT * FROM tasks WHERE id = ?").get(id) as Task | null;
+    const task = db.query("SELECT * FROM tasks WHERE id = ?").get(args.id) as Task | null;
     if (!task) {
-      console.error(color.red(`Task #${id} not found`));
+      console.error(color.red(`Task #${args.id} not found`));
       return;
     }
 
@@ -172,8 +168,8 @@ const remove = command("remove")
       }
     }
 
-    db.run("DELETE FROM tasks WHERE id = ?", [id]);
-    console.log(color.yellow(`Removed task #${id}`));
+    db.run("DELETE FROM tasks WHERE id = ?", [args.id]);
+    console.log(color.yellow(`Removed task #${args.id}`));
   });
 
 // Clear completed tasks

@@ -30,8 +30,7 @@ const deploy = command("deploy")
   .option("-f, --force", "Skip confirmation")
   .option("--dry-run", "Show what would be deployed")
   .hook("preAction", ({ args }) => {
-    const env = args.env as string;
-    if (env === "production") {
+    if (args.env === "production") {
       console.log(color.yellow("⚠️  Deploying to PRODUCTION"));
     }
   })
@@ -39,14 +38,12 @@ const deploy = command("deploy")
     console.log(color.green("✓ Deployment hooks completed"));
   })
   .action(async ({ args, options }) => {
-    const env = args.env as string;
-
     if (options["dry-run"]) {
-      console.log(color.cyan(`[DRY RUN] Would deploy to ${env}`));
+      console.log(color.cyan(`[DRY RUN] Would deploy to ${args.env}`));
       return;
     }
 
-    console.log(`Deploying to ${color.bold(env)}...`);
+    console.log(`Deploying to ${color.bold(args.env)}...`);
 
     // Simulate deployment steps
     const steps = ["Building assets", "Running tests", "Uploading files", "Restarting services"];
@@ -56,7 +53,7 @@ const deploy = command("deploy")
       await new Promise((r) => setTimeout(r, 200));
     }
 
-    console.log(color.green(`\n✓ Deployed to ${env}`));
+    console.log(color.green(`\n✓ Deployed to ${args.env}`));
   });
 
 // Command that throws an error

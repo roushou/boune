@@ -1,15 +1,23 @@
 import type {
   ActionHandler,
+  ArgumentConfig,
   ArgumentDef,
   ArgumentType,
   CommandConfig,
+  ExtractArgName,
+  ExtractOptionName,
   HookHandler,
   HookType,
+  InferOptionType,
+  IsArgRequired,
+  IsArgVariadic,
+  MapArgType,
+  OptionConfig,
   OptionDef,
+  OptionHasValue,
   ParsedArgs,
   ParsedOptions,
 } from "./types.ts";
-import type { AnyValidator } from "./validation/types.ts";
 
 /**
  * Parse argument syntax like "<name>" or "[name]" or "<files...>"
@@ -104,11 +112,18 @@ export class Command<
    * @param description - Argument description
    * @param options - Additional options
    */
-  argument<TName extends string>(
-    syntax: TName,
+  argument<TSyntax extends string, TType extends ArgumentType = "string">(
+    syntax: TSyntax,
     description: string,
-    options?: { type?: ArgumentType; default?: unknown; validate?: AnyValidator },
-  ): Command<TArgs & { [K in TName]: unknown }, TOpts> {
+    options?: ArgumentConfig<TType>,
+  ): Command<
+    TArgs & {
+      [K in ExtractArgName<TSyntax>]: IsArgRequired<TSyntax> extends true
+        ? MapArgType<TType, IsArgVariadic<TSyntax>>
+        : MapArgType<TType, IsArgVariadic<TSyntax>> | undefined;
+    },
+    TOpts
+  > {
     const parsed = parseArgumentSyntax(syntax);
     this.config.arguments.push({
       ...parsed,
@@ -117,7 +132,14 @@ export class Command<
       default: options?.default,
       validate: options?.validate,
     });
-    return this as unknown as Command<TArgs & { [K in TName]: unknown }, TOpts>;
+    return this as unknown as Command<
+      TArgs & {
+        [K in ExtractArgName<TSyntax>]: IsArgRequired<TSyntax> extends true
+          ? MapArgType<TType, IsArgVariadic<TSyntax>>
+          : MapArgType<TType, IsArgVariadic<TSyntax>> | undefined;
+      },
+      TOpts
+    >;
   }
 
   /**
@@ -126,17 +148,17 @@ export class Command<
    * @param description - Option description
    * @param options - Additional options
    */
-  option<TName extends string>(
-    syntax: TName,
+  option<
+    TSyntax extends string,
+    TType extends ArgumentType = OptionHasValue<TSyntax> extends true ? "string" : "boolean",
+  >(
+    syntax: TSyntax,
     description: string,
-    options?: {
-      type?: ArgumentType;
-      default?: unknown;
-      required?: boolean;
-      env?: string;
-      validate?: AnyValidator;
-    },
-  ): Command<TArgs, TOpts & { [K in TName]: unknown }> {
+    options?: OptionConfig<TType>,
+  ): Command<
+    TArgs,
+    TOpts & { [K in ExtractOptionName<TSyntax>]: InferOptionType<OptionHasValue<TSyntax>, TType> }
+  > {
     const parsed = parseOptionSyntax(syntax);
     this.config.options.push({
       ...parsed,
@@ -147,7 +169,10 @@ export class Command<
       env: options?.env,
       validate: options?.validate,
     });
-    return this as unknown as Command<TArgs, TOpts & { [K in TName]: unknown }>;
+    return this as unknown as Command<
+      TArgs,
+      TOpts & { [K in ExtractOptionName<TSyntax>]: InferOptionType<OptionHasValue<TSyntax>, TType> }
+    >;
   }
 
   /**

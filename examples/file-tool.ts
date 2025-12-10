@@ -14,15 +14,14 @@ const list = command("list")
   .option("-l, --long", "Use long listing format")
   .option("-h, --human", "Human-readable sizes")
   .action(async ({ args, options }) => {
-    const path = args.path as string;
     const glob = new Bun.Glob(options.all ? "{*,.*}" : "*");
 
     const entries: string[][] = [];
 
-    for await (const file of glob.scan({ cwd: path, onlyFiles: false })) {
+    for await (const file of glob.scan({ cwd: args.path, onlyFiles: false })) {
       if (file === "." || file === "..") continue;
 
-      const fullPath = `${path}/${file}`;
+      const fullPath = `${args.path}/${file}`;
       const stat = (await Bun.file(fullPath).exists())
         ? { size: Bun.file(fullPath).size, isDir: false }
         : { size: 0, isDir: true };
@@ -52,7 +51,7 @@ const read = command("read")
   .option("--head <number>", "Show only first N lines", { type: "number" })
   .option("--tail <number>", "Show only last N lines", { type: "number" })
   .action(async ({ args, options }) => {
-    const file = Bun.file(args.file as string);
+    const file = Bun.file(args.file);
 
     if (!(await file.exists())) {
       console.error(color.red(`error: file not found: ${args.file}`));
@@ -62,9 +61,9 @@ const read = command("read")
     let lines = (await file.text()).split("\n");
 
     if (options.head) {
-      lines = lines.slice(0, options.head as number);
+      lines = lines.slice(0, options.head);
     } else if (options.tail) {
-      lines = lines.slice(-(options.tail as number));
+      lines = lines.slice(-options.tail);
     }
 
     for (let i = 0; i < lines.length; i++) {
@@ -84,24 +83,23 @@ const copy = command("copy")
   .argument("<dest>", "Destination")
   .option("-f, --force", "Overwrite existing files")
   .action(async ({ args, options }) => {
-    const source = args.source as string;
-    const dest = args.dest as string;
-
-    const sourceFile = Bun.file(source);
+    const sourceFile = Bun.file(args.source);
     if (!(await sourceFile.exists())) {
-      console.error(color.red(`error: source not found: ${source}`));
+      console.error(color.red(`error: source not found: ${args.source}`));
       process.exit(1);
     }
 
-    const destFile = Bun.file(dest);
+    const destFile = Bun.file(args.dest);
     if ((await destFile.exists()) && !options.force) {
-      console.error(color.red(`error: destination exists: ${dest} (use --force to overwrite)`));
+      console.error(
+        color.red(`error: destination exists: ${args.dest} (use --force to overwrite)`),
+      );
       process.exit(1);
     }
 
-    const spinner = createSpinner(`Copying ${source}`).start();
-    await Bun.write(dest, sourceFile);
-    spinner.succeed(`Copied ${source} -> ${dest}`);
+    const spinner = createSpinner(`Copying ${args.source}`).start();
+    await Bun.write(args.dest, sourceFile);
+    spinner.succeed(`Copied ${args.source} -> ${args.dest}`);
   });
 
 // Search in files
@@ -115,15 +113,13 @@ const search = command("search")
   .option("-n, --line-number", "Show line numbers")
   .option("--glob <pattern>", "File pattern to match", { default: "**/*" })
   .action(async ({ args, options }) => {
-    const pattern = args.pattern as string;
-    const searchPath = args.path as string;
-    const regex = new RegExp(pattern, options["ignore-case"] ? "gi" : "g");
-    const glob = new Bun.Glob(options.glob as string);
+    const regex = new RegExp(args.pattern, options["ignore-case"] ? "gi" : "g");
+    const glob = new Bun.Glob(options.glob);
 
     let matchCount = 0;
 
-    for await (const file of glob.scan({ cwd: searchPath })) {
-      const fullPath = `${searchPath}/${file}`;
+    for await (const file of glob.scan({ cwd: args.path })) {
+      const fullPath = `${args.path}/${file}`;
       const bunFile = Bun.file(fullPath);
 
       // Skip non-text files
@@ -155,17 +151,16 @@ const info = command("info")
   .description("Show file information")
   .argument("<file>", "File to inspect")
   .action(async ({ args }) => {
-    const path = args.file as string;
-    const file = Bun.file(path);
+    const file = Bun.file(args.file);
 
     if (!(await file.exists())) {
-      console.error(color.red(`error: file not found: ${path}`));
+      console.error(color.red(`error: file not found: ${args.file}`));
       process.exit(1);
     }
 
     console.log(color.bold("File Information"));
     console.log("");
-    console.log(`  ${color.cyan("Path:")}    ${path}`);
+    console.log(`  ${color.cyan("Path:")}    ${args.file}`);
     console.log(`  ${color.cyan("Size:")}    ${formatSize(file.size)}`);
     console.log(`  ${color.cyan("Type:")}    ${file.type || "unknown"}`);
   });

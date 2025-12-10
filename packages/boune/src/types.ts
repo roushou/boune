@@ -7,6 +7,94 @@ import type { AnyValidator } from "./validation/types.ts";
 /** Supported argument types */
 export type ArgumentType = "string" | "number" | "boolean";
 
+// ============================================================================
+// Type Extraction Utilities
+// ============================================================================
+
+/** Extract argument name from syntax: "<name>" | "[name]" | "<files...>" */
+export type ExtractArgName<T extends string> = T extends `<${infer Name}...>`
+  ? Name
+  : T extends `<${infer Name}>`
+    ? Name
+    : T extends `[${infer Name}...]`
+      ? Name
+      : T extends `[${infer Name}]`
+        ? Name
+        : never;
+
+/** Check if argument is required (starts with <) */
+export type IsArgRequired<T extends string> = T extends `<${string}>` ? true : false;
+
+/** Check if argument is variadic (ends with ...>) */
+export type IsArgVariadic<T extends string> = T extends `${string}...>` | `${string}...]`
+  ? true
+  : false;
+
+/** Extract option name from syntax: "-v, --verbose" | "--name <val>" | "-n <val>" */
+export type ExtractOptionName<T extends string> =
+  // Long form with value: "--name <val>" or "-n, --name <val>"
+  T extends `${string}--${infer Long} <${string}>`
+    ? Long
+    : T extends `${string}--${infer Long} [${string}]`
+      ? Long
+      : // Long form boolean: "--verbose" or "-v, --verbose"
+        T extends `${string}--${infer Long}`
+        ? Long
+        : // Short only with value: "-n <val>"
+          T extends `-${infer Short} <${string}>`
+          ? Short
+          : T extends `-${infer Short} [${string}]`
+            ? Short
+            : // Short only boolean: "-v"
+              T extends `-${infer Short}`
+              ? Short
+              : never;
+
+/** Check if option has a value placeholder */
+export type OptionHasValue<T extends string> = T extends `${string}<${string}>`
+  ? true
+  : T extends `${string}[${string}]`
+    ? true
+    : false;
+
+/** Map ArgumentType string to actual TypeScript type */
+export type MapArgType<
+  T extends ArgumentType,
+  IsVariadic extends boolean = false,
+> = IsVariadic extends true
+  ? T extends "number"
+    ? number[]
+    : T extends "boolean"
+      ? boolean[]
+      : string[]
+  : T extends "number"
+    ? number
+    : T extends "boolean"
+      ? boolean
+      : string;
+
+/** Infer option type: boolean flags vs string/number values */
+export type InferOptionType<
+  HasValue extends boolean,
+  TType extends ArgumentType,
+> = HasValue extends false ? boolean : MapArgType<TType>;
+
+/** Argument config with type parameter for inference */
+export interface ArgumentConfig<TType extends ArgumentType = "string"> {
+  type?: TType;
+  default?: MapArgType<TType>;
+  validate?: AnyValidator;
+}
+
+/** Option config with type parameter for inference */
+export interface OptionConfig<TType extends ArgumentType = "string"> {
+  type?: TType;
+  default?: unknown;
+  required?: boolean;
+  env?: string;
+  validate?: AnyValidator;
+}
+
 /** Argument definition */
 export interface ArgumentDef {
   name: string;
