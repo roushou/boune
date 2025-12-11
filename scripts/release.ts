@@ -199,8 +199,103 @@ async function executePlan(plan: ReleasePlan): Promise<void> {
 }
 
 // ============================================================================
-// CLI Command
+// Bump Plan
 // ============================================================================
+
+type BumpPlan = {
+  packages: Array<{ pkg: Package; newVersion: string }>;
+  tasks: ReleaseTask[];
+};
+
+function buildBumpPlan(packages: Package[], bumpType: BumpType, dryRun: boolean): BumpPlan {
+  const packagesWithVersions = packages.map((pkg) => ({
+    pkg,
+    newVersion: bumpVersion(pkg.version, bumpType),
+  }));
+
+  const tasks: ReleaseTask[] = packagesWithVersions.map(({ pkg, newVersion }) => ({
+    name: `Update ${pkg.name} to ${newVersion}`,
+    run: () => updateVersion(pkg, newVersion, dryRun),
+  }));
+
+  return { packages: packagesWithVersions, tasks };
+}
+
+function printBumpPlan(plan: BumpPlan, dryRun: boolean): void {
+  console.log(info("\nBump Plan:\n"));
+
+  for (const { pkg, newVersion } of plan.packages) {
+    console.log(`  ${pkg.name}: ${pkg.version} → ${newVersion}`);
+  }
+
+  if (dryRun) {
+    console.log(info("\nDry run mode - no changes will be made\n"));
+  }
+
+  console.log("");
+}
+
+// ============================================================================
+// CLI Commands
+// ============================================================================
+
+const bumpCommand = command("bump")
+  .description("Bump versions of packages without publishing")
+  .option({
+    name: "type",
+    kind: "string",
+    short: "t",
+    long: "type",
+    description: "Version bump type: patch, minor, major",
+    required: true,
+  })
+  .option({
+    name: "package",
+    kind: "string",
+    short: "p",
+    long: "package",
+    description: "Package to bump: boune, create-boune, or all",
+    required: true,
+  })
+  .option({
+    name: "execute",
+    kind: "boolean",
+    short: "e",
+    long: "execute",
+    description: "Actually bump (default is dry-run)",
+  })
+  .action(async ({ options }) => {
+    const bumpType = options.type as BumpType;
+    const { package: packageName, execute } = options;
+    const dryRun = !execute;
+
+    if (!["patch", "minor", "major"].includes(bumpType)) {
+      console.log(error("--type must be one of: patch, minor, major"));
+      process.exit(1);
+    }
+
+    const packages =
+      packageName === "all" ? PACKAGES : PACKAGES.filter((p) => p.name === packageName);
+
+    if (packages.length === 0) {
+      console.log(error(`Package "${packageName}" not found`));
+      process.exit(1);
+    }
+
+    const plan = buildBumpPlan(packages, bumpType, dryRun);
+
+    printBumpPlan(plan, dryRun);
+
+    const confirmed = await confirm({ message: "Proceed with bump?" });
+    if (!confirmed) {
+      console.log(info("\nBump cancelled.\n"));
+      process.exit(0);
+    }
+
+    await executePlan(plan);
+
+    console.log(success("\nBump complete!\n"));
+  });
 
 const releaseCommand = command("release")
   .description("Bump versions and publish packages to npm and jsr")
@@ -279,5 +374,6 @@ const releaseCommand = command("release")
 cli("release")
   .version("0.1.0")
   .description("Release tool for boune monorepo")
+  .command(bumpCommand)
   .command(releaseCommand)
   .run();
