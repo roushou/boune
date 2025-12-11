@@ -1,14 +1,14 @@
 import type {
   ActionHandler,
+  Argument,
   ArgumentDef,
-  ArgumentOptions,
   CommandConfig,
   HookHandler,
   HookType,
   InferArg,
   InferOpt,
+  Option,
   OptionDef,
-  OptionOptions,
   ParsedArgs,
   ParsedOptions,
 } from "./types.ts";
@@ -54,7 +54,7 @@ export class Command<
   /**
    * Add a positional argument
    */
-  argument<const T extends ArgumentOptions>(options: T): Command<TArgs & InferArg<T>, TOpts> {
+  argument<const T extends Argument>(options: T): Command<TArgs & InferArg<T>, TOpts> {
     const def: ArgumentDef = {
       name: options.name,
       description: options.description ?? "",
@@ -71,7 +71,7 @@ export class Command<
   /**
    * Add an option (use kind: "boolean" for flags without values)
    */
-  option<const T extends OptionOptions>(options: T): Command<TArgs, TOpts & InferOpt<T>> {
+  option<const T extends Option>(options: T): Command<TArgs, TOpts & InferOpt<T>> {
     const def: OptionDef = {
       name: options.name,
       short: options.short,

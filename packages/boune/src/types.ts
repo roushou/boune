@@ -12,31 +12,26 @@ import type { AnyValidator } from "./validation/types.ts";
 export type Kind = "string" | "number" | "boolean";
 
 /** Map Kind to TypeScript type */
-export type InferKind<T extends Kind, Variadic extends boolean = false> = Variadic extends true
-  ? T extends "number"
-    ? number[]
-    : T extends "boolean"
-      ? boolean[]
-      : string[]
-  : T extends "number"
-    ? number
-    : T extends "boolean"
-      ? boolean
-      : string;
+type KindMap = { string: string; number: number; boolean: boolean };
+
+/** Map Kind to TypeScript type (with optional variadic) */
+export type InferKind<K extends Kind, V extends boolean = false> = V extends true
+  ? KindMap[K][]
+  : KindMap[K];
 
 // ============================================================================
 // Argument Types
 // ============================================================================
 
-/** Argument configuration options */
-export interface ArgumentOptions {
+/** Argument configuration */
+export interface Argument {
   /** Argument name (used for access in args object) */
   name: string;
   /** Value type */
   kind: Kind;
   /** Whether argument is required */
   required: boolean;
-  /** Whether argument accepts multiple values (default: false) */
+  /** Whether argument accepts multiple values */
   variadic?: boolean;
   /** Description shown in help */
   description?: string;
@@ -46,27 +41,21 @@ export interface ArgumentOptions {
   validate?: AnyValidator;
 }
 
-/** Infer argument type from options object */
-export type InferArg<T extends ArgumentOptions> = {
-  [K in T["name"]]: T["variadic"] extends true
-    ? T["kind"] extends "number"
-      ? number[]
-      : T["kind"] extends "boolean"
-        ? boolean[]
-        : string[]
-    : T["default"] extends undefined
-      ? T["required"] extends true
-        ? InferKind<T["kind"]>
-        : InferKind<T["kind"]> | undefined
-      : InferKind<T["kind"]>;
+/** Infer argument type from config object */
+export type InferArg<T extends Argument> = {
+  [K in T["name"]]: T["default"] extends undefined
+    ? T["required"] extends true
+      ? InferKind<T["kind"], T["variadic"] extends true ? true : false>
+      : InferKind<T["kind"], T["variadic"] extends true ? true : false> | undefined
+    : InferKind<T["kind"], T["variadic"] extends true ? true : false>;
 };
 
 // ============================================================================
 // Option Types
 // ============================================================================
 
-/** Option configuration options */
-export interface OptionOptions {
+/** Option configuration */
+export interface Option {
   /** Option name (used for access in options object) */
   name: string;
   /** Value type */
@@ -75,7 +64,7 @@ export interface OptionOptions {
   short?: string;
   /** Long flag (defaults to name if not specified) */
   long?: string;
-  /** Whether option is required (default: false) */
+  /** Whether option is required */
   required?: boolean;
   /** Description shown in help */
   description?: string;
@@ -87,8 +76,8 @@ export interface OptionOptions {
   validate?: AnyValidator;
 }
 
-/** Infer option type from options object */
-export type InferOpt<T extends OptionOptions> = {
+/** Infer option type from config object */
+export type InferOpt<T extends Option> = {
   [K in T["name"]]: T["kind"] extends "boolean"
     ? boolean // Boolean options always have a value (default: false)
     : T["default"] extends undefined
@@ -216,14 +205,17 @@ export interface ParseResult {
   rest: string[];
 }
 
+/** Validation error types */
+export type ValidationErrorType =
+  | "missing_required"
+  | "invalid_type"
+  | "unknown_option"
+  | "unknown_command"
+  | "validation_failed";
+
 /** Validation error */
 export interface ValidationError {
-  type:
-    | "missing_required"
-    | "invalid_type"
-    | "unknown_option"
-    | "unknown_command"
-    | "validation_failed";
+  type: ValidationErrorType;
   message: string;
   field?: string;
 }

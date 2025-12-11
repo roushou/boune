@@ -3,8 +3,7 @@ import type {
   CommandConfig,
   HookHandler,
   HookType,
-  OptionDef,
-  OptionOptions,
+  Option,
   ParsedArgs,
   ParsedOptions,
   ValidationError,
@@ -83,9 +82,9 @@ export class Cli {
   }
 
   /**
-   * Add a global option with a value
+   * Add a global option
    */
-  option(options: OptionOptions): this {
+  option(options: Option): this {
     this.config.globalOptions.push({
       name: options.name,
       short: options.short,

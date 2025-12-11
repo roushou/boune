@@ -6,8 +6,8 @@ export { command, Command } from "./command.ts";
 export type {
   ActionContext,
   ActionHandler,
+  Argument,
   ArgumentDef,
-  ArgumentOptions,
   CliConfig,
   CommandConfig,
   HookHandler,
@@ -16,14 +16,15 @@ export type {
   InferKind,
   InferOpt,
   Kind,
+  Option,
   OptionDef,
-  OptionOptions,
   ParsedArgs,
   ParsedOptions,
   ParseResult,
   Token,
   TokenType,
   ValidationError,
+  ValidationErrorType,
 } from "./types.ts";
 
 // Parser utilities
