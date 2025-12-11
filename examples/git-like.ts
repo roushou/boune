@@ -111,7 +111,7 @@ const log = command("log")
 // git branch
 const branch = command("branch")
   .description("List, create, or delete branches")
-  .argument({ name: "name", kind: "string", description: "Branch name to create" })
+  .argument({ name: "name", kind: "string", required: false, description: "Branch name to create" })
   .option({ name: "delete", short: "d", kind: "boolean", description: "Delete a branch" })
   .option({ name: "all", short: "a", kind: "boolean", description: "List all branches" })
   .action(({ args, options }) => {

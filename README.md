@@ -74,6 +74,7 @@ command("greet").argument({
 command("greet").argument({
   name: "name",
   kind: "string",
+  required: false,
   default: "World",
   description: "Name to greet",
 });

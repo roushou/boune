@@ -9,7 +9,13 @@ import { cli, command, color, createSpinner, table } from "../packages/boune/src
 const list = command("list")
   .description("List files in a directory")
   .alias("ls")
-  .argument({ name: "path", kind: "string", default: ".", description: "Directory to list" })
+  .argument({
+    name: "path",
+    kind: "string",
+    required: false,
+    default: ".",
+    description: "Directory to list",
+  })
   .option({ name: "all", short: "a", kind: "boolean", description: "Include hidden files" })
   .option({ name: "long", short: "l", kind: "boolean", description: "Use long listing format" })
   .option({ name: "human", short: "h", kind: "boolean", description: "Human-readable sizes" })
@@ -112,7 +118,13 @@ const search = command("search")
     required: true,
     description: "Pattern to search for",
   })
-  .argument({ name: "path", kind: "string", default: ".", description: "Directory to search" })
+  .argument({
+    name: "path",
+    kind: "string",
+    required: false,
+    default: ".",
+    description: "Directory to search",
+  })
   .option({
     name: "ignoreCase",
     short: "i",

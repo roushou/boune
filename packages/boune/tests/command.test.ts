@@ -45,6 +45,7 @@ describe("command builder", () => {
     const cmd = command("greet").argument({
       name: "name",
       kind: "string",
+      required: false,
       description: "Name to greet",
       default: "World",
     });

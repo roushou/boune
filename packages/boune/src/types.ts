@@ -32,15 +32,15 @@ export type InferKind<T extends Kind, Variadic extends boolean = false> = Variad
 export interface ArgumentOptions<
   TName extends string = string,
   TKind extends Kind = Kind,
-  TRequired extends boolean = false,
+  TRequired extends boolean = boolean,
   TVariadic extends boolean = false,
 > {
   /** Argument name (used for access in args object) */
   name: TName;
   /** Value type */
   kind: TKind;
-  /** Whether argument is required (default: false) */
-  required?: TRequired;
+  /** Whether argument is required */
+  required: TRequired;
   /** Whether argument accepts multiple values (default: false) */
   variadic?: TVariadic;
   /** Description shown in help */

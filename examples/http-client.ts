@@ -149,7 +149,7 @@ const download = command("download")
   .description("Download a file")
   .alias("dl")
   .argument({ name: "url", kind: "string", required: true, description: "URL to download" })
-  .argument({ name: "output", kind: "string", description: "Output filename" })
+  .argument({ name: "output", kind: "string", required: false, description: "Output filename" })
   .option({ name: "quiet", short: "q", kind: "boolean", description: "Suppress progress output" })
   .action(async ({ args, options }) => {
     const output = args.output || args.url.split("/").pop() || "download";

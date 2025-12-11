@@ -59,7 +59,7 @@ export class Command<
   argument<
     TName extends string,
     TKind extends Kind,
-    TRequired extends boolean = false,
+    TRequired extends boolean,
     TVariadic extends boolean = false,
     TDefault extends InferKind<TKind, TVariadic> | undefined = undefined,
   >(
@@ -73,7 +73,7 @@ export class Command<
     const def: ArgumentDef = {
       name: options.name,
       description: options.description ?? "",
-      required: options.required ?? false,
+      required: options.required,
       type: options.kind,
       default: options.default,
       variadic: options.variadic ?? false,

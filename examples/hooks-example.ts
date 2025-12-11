@@ -76,7 +76,13 @@ const fail = command("fail")
 // Simple command to show hooks
 const hello = command("hello")
   .description("Simple hello command")
-  .argument({ name: "name", kind: "string", default: "World", description: "Name to greet" })
+  .argument({
+    name: "name",
+    kind: "string",
+    required: false,
+    default: "World",
+    description: "Name to greet",
+  })
   .action(({ args }) => {
     console.log(`Hello, ${args.name}!`);
   });

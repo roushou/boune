@@ -88,7 +88,7 @@ const list = command("list")
 // Add task
 const add = command("add")
   .description("Add a new task")
-  .argument({ name: "title", kind: "string", description: "Task title" })
+  .argument({ name: "title", kind: "string", required: false, description: "Task title" })
   .option({
     name: "priority",
     short: "p",
