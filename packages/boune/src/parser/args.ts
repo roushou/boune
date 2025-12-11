@@ -1,4 +1,4 @@
-import type { ArgumentDef, Kind, ParsedArgs, ValidationError } from "../types.ts";
+import type { ArgumentDef, Kind, ParsedArgs, ValidationError } from "../types/index.ts";
 
 /**
  * Result type for coercion operations

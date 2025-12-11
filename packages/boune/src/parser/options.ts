@@ -1,4 +1,4 @@
-import type { OptionDef, ParsedOptions, Token, ValidationError } from "../types.ts";
+import type { OptionDef, ParsedOptions, Token, ValidationError } from "../types/index.ts";
 import { coerceValue } from "./args.ts";
 
 /**

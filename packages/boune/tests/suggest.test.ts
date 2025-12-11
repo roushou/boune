@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { formatSuggestions, levenshtein, suggestCommands } from "../src/suggest.ts";
-import type { CommandConfig } from "../src/types.ts";
+import { formatSuggestions, levenshtein, suggestCommands } from "../src/output/suggest.ts";
+import type { CommandConfig } from "../src/types/index.ts";
 
 describe("levenshtein", () => {
   test("returns 0 for identical strings", () => {

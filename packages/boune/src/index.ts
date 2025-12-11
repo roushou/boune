@@ -1,12 +1,12 @@
 // Declarative API
-export { defineCommand, defineCli } from "./define.ts";
+export { defineCommand, defineCli } from "./define/index.ts";
 
 // Schema builders
 export { argument, ArgBuilder } from "./schema/argument.ts";
 export { option, OptBuilder } from "./schema/option.ts";
 
 // Runtime
-export { Cli } from "./cli.ts";
+export { Cli } from "./runtime/index.ts";
 
 // Types
 export type {
@@ -32,7 +32,7 @@ export type {
   TokenType,
   ValidationError,
   ValidationErrorType,
-} from "./types.ts";
+} from "./types/index.ts";
 
 // Parser utilities
 export { tokenize, parseArguments, parseOptions, coerceValue } from "./parser/index.ts";
@@ -50,7 +50,11 @@ export {
   info,
   createSpinner,
   createProgressBar,
+  suggestCommands,
+  formatSuggestions,
+  levenshtein,
 } from "./output/index.ts";
+export type { Suggestion } from "./output/index.ts";
 
 // Validation
 export { v } from "./validation/index.ts";
@@ -63,10 +67,6 @@ export type {
   NumberValidator,
   BooleanValidator,
 } from "./validation/index.ts";
-
-// Suggestions
-export { suggestCommands, formatSuggestions, levenshtein } from "./suggest.ts";
-export type { Suggestion } from "./suggest.ts";
 
 // Shell completions
 export {

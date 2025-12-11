@@ -2,7 +2,7 @@
  * Command suggestion utilities for autocomplete
  */
 
-import type { CommandConfig } from "./types.ts";
+import type { CommandConfig } from "../types/index.ts";
 
 /**
  * Calculate Levenshtein distance between two strings

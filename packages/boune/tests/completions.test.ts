@@ -1,4 +1,4 @@
-import type { CliConfig, CommandConfig } from "../src/types.ts";
+import type { CliConfig, CommandConfig } from "../src/types/index.ts";
 import { describe, expect, test } from "bun:test";
 import {
   generateBashCompletion,

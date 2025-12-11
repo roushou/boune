@@ -8,7 +8,7 @@ export { generateFishCompletion } from "./fish.ts";
 
 export type ShellType = "bash" | "zsh" | "fish";
 
-import type { CliConfig } from "../types.ts";
+import type { CliConfig } from "../types/index.ts";
 import { generateBashCompletion } from "./bash.ts";
 import { generateZshCompletion } from "./zsh.ts";
 import { generateFishCompletion } from "./fish.ts";

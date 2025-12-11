@@ -2,7 +2,7 @@
  * Bash completion script generator
  */
 
-import type { CliConfig, CommandConfig, OptionDef } from "../types.ts";
+import type { CliConfig, CommandConfig, OptionDef } from "../types/index.ts";
 
 /**
  * Generate bash completion script for a CLI

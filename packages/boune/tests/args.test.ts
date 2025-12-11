@@ -1,6 +1,6 @@
 import { coerceValue, parseArguments } from "../src/parser/args.ts";
 import { describe, expect, test } from "bun:test";
-import type { ArgumentDef } from "../src/types.ts";
+import type { ArgumentDef } from "../src/types/index.ts";
 
 describe("coerceValue", () => {
   test("coerces strings", () => {

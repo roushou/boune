@@ -1,4 +1,4 @@
-import type { CliConfig, CommandConfig, OptionDef } from "../types.ts";
+import type { CliConfig, CommandConfig, OptionDef } from "../types/index.ts";
 import { color } from "./color.ts";
 
 /**

@@ -2,7 +2,7 @@
  * Type-safe argument builder for declarative command definitions
  */
 
-import type { ArgumentDef, Kind } from "../types.ts";
+import type { ArgumentDef, Kind } from "../types/index.ts";
 import type { AnyValidator } from "../validation/types.ts";
 
 /**

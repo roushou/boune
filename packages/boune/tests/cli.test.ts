@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
-import { defineCli, defineCommand } from "../src/define.ts";
+import { defineCli, defineCommand } from "../src/define/index.ts";
 import { argument } from "../src/schema/argument.ts";
 import { option } from "../src/schema/option.ts";
 

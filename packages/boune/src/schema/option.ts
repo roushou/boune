@@ -2,7 +2,7 @@
  * Type-safe option builder for declarative command definitions
  */
 
-import type { Kind, OptionDef } from "../types.ts";
+import type { Kind, OptionDef } from "../types/index.ts";
 import type { AnyValidator } from "../validation/types.ts";
 
 /**

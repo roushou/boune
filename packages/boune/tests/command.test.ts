@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { argument } from "../src/schema/argument.ts";
-import { defineCommand } from "../src/define.ts";
+import { defineCommand } from "../src/define/index.ts";
 import { option } from "../src/schema/option.ts";
 
 describe("defineCommand", () => {

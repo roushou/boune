@@ -2,7 +2,7 @@
  * Fish completion script generator
  */
 
-import type { CliConfig, CommandConfig, OptionDef } from "../types.ts";
+import type { CliConfig, CommandConfig, OptionDef } from "../types/index.ts";
 
 /**
  * Generate fish completion script for a CLI

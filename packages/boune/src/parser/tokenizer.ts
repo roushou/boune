@@ -1,4 +1,4 @@
-import type { Token } from "../types.ts";
+import type { Token } from "../types/index.ts";
 
 /**
  * Token pattern matcher definition

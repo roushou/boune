@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { OptionDef } from "../src/types.ts";
+import type { OptionDef } from "../src/types/index.ts";
 import { parseOptions } from "../src/parser/options.ts";
 import { tokenize } from "../src/parser/tokenizer.ts";
 

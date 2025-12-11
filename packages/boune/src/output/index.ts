@@ -11,3 +11,4 @@ export {
   createSpinner,
   createProgressBar,
 } from "./format.ts";
+export { levenshtein, suggestCommands, formatSuggestions, type Suggestion } from "./suggest.ts";
