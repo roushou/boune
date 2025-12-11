@@ -1,53 +1,47 @@
 #!/usr/bin/env bun
 
 /**
- * Example demonstrating hooks and middleware patterns
+ * Example demonstrating middleware patterns (replaces old hooks)
  */
-import { cli, color, command } from "../packages/boune/src/index.ts";
+import { argument, color, defineCli, defineCommand, option } from "../packages/boune/src/index.ts";
+import type { MiddlewareHandler } from "../packages/boune/src/types.ts";
 
-// Timing middleware
-let startTime: number;
+// Timing middleware - wraps around command execution
+const timingMiddleware: MiddlewareHandler = async (ctx, next) => {
+  const startTime = performance.now();
+  console.log(color.dim(`[pre] Running command: ${ctx.command.name}`));
 
-const timedCli = cli("hooks-demo")
-  .version("1.0.0")
-  .description("Demonstrating CLI hooks")
-  .hook("preAction", ({ command }) => {
-    startTime = performance.now();
-    console.log(color.dim(`[pre] Running command: ${command.name}`));
-  })
-  .hook("postAction", ({ command }) => {
-    const duration = (performance.now() - startTime).toFixed(2);
-    console.log(color.dim(`[post] Command ${command.name} completed in ${duration}ms`));
-  })
-  .hook("preError", ({ error }) => {
-    console.log(color.dim(`[error] Caught error: ${error?.message}`));
-  });
+  await next();
 
-// Command with its own hooks
-const deploy = command("deploy")
-  .description("Deploy the application")
-  .argument({
-    name: "env",
-    kind: "string",
-    required: true,
-    description: "Environment (staging, production)",
-  })
-  .option({ name: "force", short: "f", kind: "boolean", description: "Skip confirmation" })
-  .option({
-    name: "dryRun",
-    long: "dry-run",
-    kind: "boolean",
-    description: "Show what would be deployed",
-  })
-  .hook("preAction", ({ args }) => {
-    if (args.env === "production") {
-      console.log(color.yellow("⚠️  Deploying to PRODUCTION"));
-    }
-  })
-  .hook("postAction", () => {
-    console.log(color.green("✓ Deployment hooks completed"));
-  })
-  .action(async ({ args, options }) => {
+  const duration = (performance.now() - startTime).toFixed(2);
+  console.log(color.dim(`[post] Command ${ctx.command.name} completed in ${duration}ms`));
+};
+
+// Command with its own middleware
+const deploy = defineCommand({
+  name: "deploy",
+  description: "Deploy the application",
+  arguments: {
+    env: argument.string().required().describe("Environment (staging, production)"),
+  },
+  options: {
+    force: option.boolean().short("f").describe("Skip confirmation"),
+    dryRun: option.boolean().long("dry-run").describe("Show what would be deployed"),
+  },
+  before: [
+    async (ctx, next) => {
+      if (ctx.args.env === "production") {
+        console.log(color.yellow("⚠️  Deploying to PRODUCTION"));
+      }
+      await next();
+    },
+  ],
+  after: [
+    async () => {
+      console.log(color.green("✓ Deployment hooks completed"));
+    },
+  ],
+  async action({ args, options }) {
     if (options.dryRun) {
       console.log(color.cyan(`[DRY RUN] Would deploy to ${args.env}`));
       return;
@@ -64,27 +58,41 @@ const deploy = command("deploy")
     }
 
     console.log(color.green(`\n✓ Deployed to ${args.env}`));
-  });
+  },
+});
 
 // Command that throws an error
-const fail = command("fail")
-  .description("Command that fails (for testing error hooks)")
-  .action(() => {
+const fail = defineCommand({
+  name: "fail",
+  description: "Command that fails (for testing error handling)",
+  action() {
     throw new Error("Intentional failure for demo");
-  });
+  },
+  onError(error) {
+    console.log(color.dim(`[error] Caught error: ${error.message}`));
+  },
+});
 
-// Simple command to show hooks
-const hello = command("hello")
-  .description("Simple hello command")
-  .argument({
-    name: "name",
-    kind: "string",
-    required: false,
-    default: "World",
-    description: "Name to greet",
-  })
-  .action(({ args }) => {
+// Simple command to show middleware
+const hello = defineCommand({
+  name: "hello",
+  description: "Simple hello command",
+  arguments: {
+    name: argument.string().default("World").describe("Name to greet"),
+  },
+  action({ args }) {
     console.log(`Hello, ${args.name}!`);
-  });
+  },
+});
 
-timedCli.command(deploy).command(fail).command(hello).run();
+defineCli({
+  name: "hooks-demo",
+  version: "1.0.0",
+  description: "Demonstrating CLI middleware",
+  middleware: [timingMiddleware],
+  commands: {
+    deploy,
+    fail,
+    hello,
+  },
+}).run();

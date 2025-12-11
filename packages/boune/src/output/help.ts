@@ -4,21 +4,21 @@ import { color } from "./color.ts";
 /**
  * Format argument syntax for display
  */
-function formatArgument(arg: { name: string; required: boolean; variadic?: boolean }): string {
-  const name = arg.variadic ? `${arg.name}...` : arg.name;
-  return arg.required ? `<${name}>` : `[${name}]`;
+function formatArgument(argument: { name: string; required: boolean; variadic?: boolean }): string {
+  const name = argument.variadic ? `${argument.name}...` : argument.name;
+  return argument.required ? `<${name}>` : `[${name}]`;
 }
 
 /**
  * Format option syntax for display
  */
-function formatOption(opt: OptionDef): string {
+function formatOption(option: OptionDef): string {
   const parts: string[] = [];
-  if (opt.short) parts.push(`-${opt.short}`);
-  const longFlag = opt.long ?? opt.name;
+  if (option.short) parts.push(`-${option.short}`);
+  const longFlag = option.long ?? option.name;
   parts.push(`--${longFlag}`);
-  if (opt.type !== "boolean") {
-    parts[parts.length - 1] += ` <${opt.type}>`;
+  if (option.type !== "boolean") {
+    parts[parts.length - 1] += ` <${option.type}>`;
   }
   return parts.join(", ");
 }
@@ -51,14 +51,14 @@ export function generateCommandHelp(
   // Usage
   lines.push(color.bold("Usage:"));
   let usage = `  ${commandPath}`;
-  if (command.subcommands.size > 0) {
+  if (Object.keys(command.subcommands).length > 0) {
     usage += " <command>";
   }
   if (command.options.length > 0 || globalOptions.length > 0) {
     usage += " [options]";
   }
-  for (const arg of command.arguments) {
-    usage += ` ${formatArgument(arg)}`;
+  for (const argument of command.arguments) {
+    usage += ` ${formatArgument(argument)}`;
   }
   lines.push(usage);
   lines.push("");
@@ -67,11 +67,11 @@ export function generateCommandHelp(
   if (command.arguments.length > 0) {
     lines.push(color.bold("Arguments:"));
     const maxArgLen = Math.max(...command.arguments.map((a) => formatArgument(a).length));
-    for (const arg of command.arguments) {
-      const syntax = formatArgument(arg);
-      let line = `  ${color.cyan(pad(syntax, maxArgLen + 2))}${arg.description}`;
-      if (arg.default !== undefined) {
-        line += color.dim(` (default: ${JSON.stringify(arg.default)})`);
+    for (const argument of command.arguments) {
+      const syntax = formatArgument(argument);
+      let line = `  ${color.cyan(pad(syntax, maxArgLen + 2))}${argument.description}`;
+      if (argument.default !== undefined) {
+        line += color.dim(` (default: ${JSON.stringify(argument.default)})`);
       }
       lines.push(line);
     }
@@ -83,14 +83,14 @@ export function generateCommandHelp(
   if (allOptions.length > 0) {
     lines.push(color.bold("Options:"));
     const maxOptLen = Math.max(...allOptions.map((o) => formatOption(o).length));
-    for (const opt of allOptions) {
-      const syntax = formatOption(opt);
-      let line = `  ${color.cyan(pad(syntax, maxOptLen + 2))}${opt.description}`;
-      if (opt.default !== undefined) {
-        line += color.dim(` (default: ${JSON.stringify(opt.default)})`);
+    for (const option of allOptions) {
+      const syntax = formatOption(option);
+      let line = `  ${color.cyan(pad(syntax, maxOptLen + 2))}${option.description}`;
+      if (option.default !== undefined) {
+        line += color.dim(` (default: ${JSON.stringify(option.default)})`);
       }
-      if (opt.env) {
-        line += color.dim(` (env: ${opt.env})`);
+      if (option.env) {
+        line += color.dim(` (env: ${option.env})`);
       }
       lines.push(line);
     }
@@ -98,7 +98,7 @@ export function generateCommandHelp(
   }
 
   // Subcommands
-  const visibleSubcommands = [...command.subcommands.values()].filter(
+  const visibleSubcommands = Object.values(command.subcommands).filter(
     (cmd, index, arr) => !cmd.hidden && arr.findIndex((c) => c.name === cmd.name) === index,
   );
   if (visibleSubcommands.length > 0) {
@@ -141,11 +141,11 @@ export function generateCliHelp(config: CliConfig): string {
   if (config.globalOptions.length > 0) {
     lines.push(color.bold("Options:"));
     const maxOptLen = Math.max(...config.globalOptions.map((o) => formatOption(o).length));
-    for (const opt of config.globalOptions) {
-      const syntax = formatOption(opt);
-      let line = `  ${color.cyan(pad(syntax, maxOptLen + 2))}${opt.description}`;
-      if (opt.default !== undefined) {
-        line += color.dim(` (default: ${JSON.stringify(opt.default)})`);
+    for (const option of config.globalOptions) {
+      const syntax = formatOption(option);
+      let line = `  ${color.cyan(pad(syntax, maxOptLen + 2))}${option.description}`;
+      if (option.default !== undefined) {
+        line += color.dim(` (default: ${JSON.stringify(option.default)})`);
       }
       lines.push(line);
     }
@@ -153,7 +153,7 @@ export function generateCliHelp(config: CliConfig): string {
   }
 
   // Commands
-  const visibleCommands = [...config.commands.values()].filter(
+  const visibleCommands = Object.values(config.commands).filter(
     (cmd, index, arr) => !cmd.hidden && arr.findIndex((c) => c.name === cmd.name) === index,
   );
   if (visibleCommands.length > 0) {

@@ -30,8 +30,7 @@ function createTestConfig(): CliConfig {
         default: false,
       },
     ],
-    subcommands: new Map(),
-    hooks: new Map(),
+    subcommands: {},
     hidden: false,
   };
 
@@ -50,8 +49,7 @@ function createTestConfig(): CliConfig {
         default: 3000,
       },
     ],
-    subcommands: new Map(),
-    hooks: new Map(),
+    subcommands: {},
     hidden: false,
   };
 
@@ -61,8 +59,7 @@ function createTestConfig(): CliConfig {
     aliases: [],
     arguments: [],
     options: [],
-    subcommands: new Map(),
-    hooks: new Map(),
+    subcommands: {},
     hidden: true,
   };
 
@@ -80,8 +77,7 @@ function createTestConfig(): CliConfig {
         required: true,
       },
     ],
-    subcommands: new Map(),
-    hooks: new Map(),
+    subcommands: {},
     hidden: false,
   };
 
@@ -91,8 +87,7 @@ function createTestConfig(): CliConfig {
     aliases: [],
     arguments: [],
     options: [],
-    subcommands: new Map(),
-    hooks: new Map(),
+    subcommands: {},
     hidden: false,
   };
 
@@ -102,27 +97,25 @@ function createTestConfig(): CliConfig {
     aliases: ["cfg"],
     arguments: [],
     options: [],
-    subcommands: new Map([
-      ["get", configSubGet],
-      ["set", configSubSet],
-    ]),
-    hooks: new Map(),
+    subcommands: {
+      get: configSubGet,
+      set: configSubSet,
+    },
     hidden: false,
   };
-
-  const commands = new Map<string, CommandConfig>();
-  commands.set("build", buildCommand);
-  commands.set("b", buildCommand);
-  commands.set("serve", serveCommand);
-  commands.set("internal", hiddenCommand);
-  commands.set("config", configCommand);
-  commands.set("cfg", configCommand);
 
   return {
     name: "test-cli",
     version: "1.0.0",
     description: "Test CLI application",
-    commands,
+    commands: {
+      build: buildCommand,
+      b: buildCommand,
+      serve: serveCommand,
+      internal: hiddenCommand,
+      config: configCommand,
+      cfg: configCommand,
+    },
     globalOptions: [
       {
         name: "help",
@@ -156,7 +149,6 @@ function createTestConfig(): CliConfig {
         required: false,
       },
     ],
-    hooks: new Map(),
   };
 }
 
@@ -360,7 +352,7 @@ describe("edge cases", () => {
       name: "empty-cli",
       version: "1.0.0",
       description: "Empty CLI",
-      commands: new Map(),
+      commands: {},
       globalOptions: [
         {
           name: "help",
@@ -371,7 +363,6 @@ describe("edge cases", () => {
           default: false,
         },
       ],
-      hooks: new Map(),
     };
 
     const bash = generateBashCompletion(config);
@@ -389,9 +380,8 @@ describe("edge cases", () => {
       name: "my-awesome-cli",
       version: "1.0.0",
       description: "CLI with hyphens",
-      commands: new Map(),
+      commands: {},
       globalOptions: [],
-      hooks: new Map(),
     };
 
     const bash = generateBashCompletion(config);
@@ -409,7 +399,7 @@ describe("edge cases", () => {
       name: "special-cli",
       version: "1.0.0",
       description: "Special CLI",
-      commands: new Map(),
+      commands: {},
       globalOptions: [
         {
           name: "query",
@@ -419,7 +409,6 @@ describe("edge cases", () => {
           required: false,
         },
       ],
-      hooks: new Map(),
     };
 
     // Should not throw
@@ -435,8 +424,7 @@ describe("edge cases", () => {
       aliases: [],
       arguments: [],
       options: [],
-      subcommands: new Map(),
-      hooks: new Map(),
+      subcommands: {},
       hidden: true,
     };
 
@@ -446,8 +434,9 @@ describe("edge cases", () => {
       aliases: [],
       arguments: [],
       options: [],
-      subcommands: new Map([["secret", hiddenSub]]),
-      hooks: new Map(),
+      subcommands: {
+        secret: hiddenSub,
+      },
       hidden: false,
     };
 
@@ -455,9 +444,10 @@ describe("edge cases", () => {
       name: "test",
       version: "1.0.0",
       description: "Test",
-      commands: new Map([["parent", parentCmd]]),
+      commands: {
+        parent: parentCmd,
+      },
       globalOptions: [],
-      hooks: new Map(),
     };
 
     const bash = generateBashCompletion(config);

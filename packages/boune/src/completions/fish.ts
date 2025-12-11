@@ -53,9 +53,9 @@ export function generateFishCompletion(config: CliConfig): string {
     lines.push(`complete -c ${name} -s V -l version -d 'Show version'`);
   }
 
-  for (const opt of config.globalOptions) {
-    if (["help", "version"].includes(opt.name)) continue;
-    lines.push(formatFishOption(name, opt));
+  for (const option of config.globalOptions) {
+    if (["help", "version"].includes(option.name)) continue;
+    lines.push(formatFishOption(name, option));
   }
   lines.push("");
 
@@ -79,35 +79,35 @@ export function generateFishCompletion(config: CliConfig): string {
   return lines.join("\n");
 }
 
-function formatFishOption(cliName: string, opt: OptionDef, condition?: string): string {
+function formatFishOption(cliName: string, option: OptionDef, condition?: string): string {
   const parts = [`complete -c ${cliName}`];
 
   if (condition) {
     parts.push(`-n "${condition}"`);
   }
 
-  if (opt.short) {
-    parts.push(`-s ${opt.short}`);
+  if (option.short) {
+    parts.push(`-s ${option.short}`);
   }
 
-  const longFlag = opt.long ?? opt.name;
+  const longFlag = option.long ?? option.name;
   parts.push(`-l ${longFlag}`);
 
-  if (opt.type !== "boolean") {
+  if (option.type !== "boolean") {
     parts.push("-r"); // requires argument
   }
 
-  const desc = (opt.description || "").replace(/'/g, "\\'");
+  const desc = (option.description || "").replace(/'/g, "\\'");
   parts.push(`-d '${desc}'`);
 
   return parts.join(" ");
 }
 
-function getVisibleCommands(commands: Map<string, CommandConfig>): CommandConfig[] {
+function getVisibleCommands(commands: Record<string, CommandConfig>): CommandConfig[] {
   const seen = new Set<CommandConfig>();
   const result: CommandConfig[] = [];
 
-  for (const [, config] of commands) {
+  for (const config of Object.values(commands)) {
     if (!seen.has(config) && !config.hidden) {
       seen.add(config);
       result.push(config);
@@ -128,8 +128,8 @@ function generateFishCommandCompletions(cliName: string, command: CommandConfig)
   lines.push(`complete -c ${cliName} -n "${condition}" -l help -d 'Show help'`);
 
   // Command-specific options
-  for (const opt of command.options) {
-    lines.push(formatFishOption(cliName, opt, condition));
+  for (const option of command.options) {
+    lines.push(formatFishOption(cliName, option, condition));
   }
 
   // Handle subcommands
@@ -150,8 +150,8 @@ function generateFishCommandCompletions(cliName: string, command: CommandConfig)
       lines.push(`# ${command.name} ${sub.name} options`);
       lines.push(`complete -c ${cliName} -n "${subCondition}" -l help -d 'Show help'`);
 
-      for (const opt of sub.options) {
-        lines.push(formatFishOption(cliName, opt, subCondition));
+      for (const option of sub.options) {
+        lines.push(formatFishOption(cliName, option, subCondition));
       }
     }
   }

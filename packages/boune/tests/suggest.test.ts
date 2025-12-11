@@ -41,12 +41,10 @@ describe("suggestCommands", () => {
     aliases,
     arguments: [],
     options: [],
-    subcommands: new Map(),
-    hooks: new Map(),
+    subcommands: {},
     hidden: false,
   });
 
-  const commands = new Map<string, CommandConfig>();
   const buildCmd = createCommand("build", "Build the project", ["b"]);
   const serveCmd = createCommand("serve", "Start development server");
   const testCmd = createCommand("test", "Run tests", ["t"]);
@@ -54,13 +52,15 @@ describe("suggestCommands", () => {
   const hiddenCmd = createCommand("internal", "Internal command");
   hiddenCmd.hidden = true;
 
-  commands.set("build", buildCmd);
-  commands.set("b", buildCmd); // alias
-  commands.set("serve", serveCmd);
-  commands.set("test", testCmd);
-  commands.set("t", testCmd); // alias
-  commands.set("deploy", deployCmd);
-  commands.set("internal", hiddenCmd);
+  const commands: Record<string, CommandConfig> = {
+    build: buildCmd,
+    b: buildCmd, // alias
+    serve: serveCmd,
+    test: testCmd,
+    t: testCmd, // alias
+    deploy: deployCmd,
+    internal: hiddenCmd,
+  };
 
   test("suggests exact prefix matches first", () => {
     const suggestions = suggestCommands("bui", commands);

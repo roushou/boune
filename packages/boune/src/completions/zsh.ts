@@ -32,8 +32,8 @@ export function generateZshCompletion(config: CliConfig): string {
     lines.push("        '(- *)'{-V,--version}'[Show version]' \\");
   }
 
-  for (const opt of globalOpts) {
-    lines.push(`        ${formatZshOption(opt)} \\`);
+  for (const option of globalOpts) {
+    lines.push(`        ${formatZshOption(option)} \\`);
   }
 
   // Get visible commands
@@ -80,20 +80,20 @@ export function generateZshCompletion(config: CliConfig): string {
   return lines.join("\n");
 }
 
-function formatZshOption(opt: OptionDef): string {
-  const desc = (opt.description || "")
+function formatZshOption(option: OptionDef): string {
+  const desc = (option.description || "")
     .replace(/'/g, "'\\''")
     .replace(/\[/g, "\\[")
     .replace(/\]/g, "\\]");
-  const takesArg = opt.type !== "boolean";
+  const takesArg = option.type !== "boolean";
 
-  const longFlag = opt.long ?? opt.name;
+  const longFlag = option.long ?? option.name;
 
-  if (opt.short) {
+  if (option.short) {
     if (takesArg) {
-      return `'(-${opt.short} --${longFlag})'{-${opt.short},--${longFlag}}'[${desc}]:value'`;
+      return `'(-${option.short} --${longFlag})'{-${option.short},--${longFlag}}'[${desc}]:value'`;
     }
-    return `'(-${opt.short} --${longFlag})'{-${opt.short},--${longFlag}}'[${desc}]'`;
+    return `'(-${option.short} --${longFlag})'{-${option.short},--${longFlag}}'[${desc}]'`;
   }
 
   if (takesArg) {
@@ -102,11 +102,11 @@ function formatZshOption(opt: OptionDef): string {
   return `'--${longFlag}[${desc}]'`;
 }
 
-function getVisibleCommands(commands: Map<string, CommandConfig>): CommandConfig[] {
+function getVisibleCommands(commands: Record<string, CommandConfig>): CommandConfig[] {
   const seen = new Set<CommandConfig>();
   const result: CommandConfig[] = [];
 
-  for (const [, config] of commands) {
+  for (const config of Object.values(commands)) {
     if (!seen.has(config) && !config.hidden) {
       seen.add(config);
       result.push(config);
@@ -126,8 +126,8 @@ function generateZshCommandCase(command: CommandConfig, indent: string): string[
     lines.push(`${indent}    _arguments -C \\`);
     lines.push(`${indent}        '(- *)--help[Show help]' \\`);
 
-    for (const opt of command.options) {
-      lines.push(`${indent}        ${formatZshOption(opt)} \\`);
+    for (const option of command.options) {
+      lines.push(`${indent}        ${formatZshOption(option)} \\`);
     }
 
     lines.push(`${indent}        '1: :->subcmd' \\`);
@@ -152,8 +152,8 @@ function generateZshCommandCase(command: CommandConfig, indent: string): string[
       lines.push(`${indent}                ${sub.name})`);
       lines.push(`${indent}                    _arguments \\`);
       lines.push(`${indent}                        '(- *)--help[Show help]' \\`);
-      for (const opt of sub.options) {
-        lines.push(`${indent}                        ${formatZshOption(opt)} \\`);
+      for (const option of sub.options) {
+        lines.push(`${indent}                        ${formatZshOption(option)} \\`);
       }
       // Remove trailing backslash from last line
       const lastIdx = lines.length - 1;
@@ -168,8 +168,8 @@ function generateZshCommandCase(command: CommandConfig, indent: string): string[
     lines.push(`${indent}    _arguments \\`);
     lines.push(`${indent}        '(- *)--help[Show help]' \\`);
 
-    for (const opt of command.options) {
-      lines.push(`${indent}        ${formatZshOption(opt)} \\`);
+    for (const option of command.options) {
+      lines.push(`${indent}        ${formatZshOption(option)} \\`);
     }
 
     // Remove trailing backslash from last line

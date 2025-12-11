@@ -3,22 +3,29 @@
 /**
  * HTTP client CLI demonstrating async operations and environment variables
  */
-import { cli, color, command, createSpinner } from "../packages/boune/src/index.ts";
+import {
+  argument,
+  color,
+  createSpinner,
+  defineCli,
+  defineCommand,
+  option,
+} from "../packages/boune/src/index.ts";
 
 // GET request
-const get = command("get")
-  .description("Make a GET request")
-  .argument({ name: "url", kind: "string", required: true, description: "URL to fetch" })
-  .option({
-    name: "header",
-    short: "H",
-    kind: "string",
-    description: "Add header (can be repeated)",
-  })
-  .option({ name: "output", short: "o", kind: "string", description: "Write response to file" })
-  .option({ name: "verbose", short: "v", kind: "boolean", description: "Show response headers" })
-  .option({ name: "json", kind: "boolean", description: "Parse response as JSON" })
-  .action(async ({ args, options }) => {
+const get = defineCommand({
+  name: "get",
+  description: "Make a GET request",
+  arguments: {
+    url: argument.string().required().describe("URL to fetch"),
+  },
+  options: {
+    header: option.string().short("H").describe("Add header (can be repeated)"),
+    output: option.string().short("o").describe("Write response to file"),
+    verbose: option.boolean().short("v").describe("Show response headers"),
+    json: option.boolean().describe("Parse response as JSON"),
+  },
+  async action({ args, options }) {
     const spinner = createSpinner(`GET ${args.url}`).start();
 
     try {
@@ -56,24 +63,28 @@ const get = command("get")
       spinner.fail(`Request failed: ${err}`);
       process.exit(1);
     }
-  });
+  },
+});
 
 // POST request
-const post = command("post")
-  .description("Make a POST request")
-  .argument({ name: "url", kind: "string", required: true, description: "URL to post to" })
-  .option({ name: "data", short: "d", kind: "string", description: "Request body data" })
-  .option({ name: "file", short: "f", kind: "string", description: "Read body from file" })
-  .option({ name: "header", short: "H", kind: "string", description: "Add header" })
-  .option({
-    name: "contentType",
-    short: "t",
-    kind: "string",
-    default: "application/json",
-    description: "Content-Type header",
-  })
-  .option({ name: "verbose", short: "v", kind: "boolean", description: "Show response headers" })
-  .action(async ({ args, options }) => {
+const post = defineCommand({
+  name: "post",
+  description: "Make a POST request",
+  arguments: {
+    url: argument.string().required().describe("URL to post to"),
+  },
+  options: {
+    data: option.string().short("d").describe("Request body data"),
+    file: option.string().short("f").describe("Read body from file"),
+    header: option.string().short("H").describe("Add header"),
+    contentType: option
+      .string()
+      .short("t")
+      .default("application/json")
+      .describe("Content-Type header"),
+    verbose: option.boolean().short("v").describe("Show response headers"),
+  },
+  async action({ args, options }) {
     const spinner = createSpinner(`POST ${args.url}`).start();
 
     try {
@@ -121,13 +132,17 @@ const post = command("post")
       spinner.fail(`Request failed: ${err}`);
       process.exit(1);
     }
-  });
+  },
+});
 
 // HEAD request
-const head = command("head")
-  .description("Make a HEAD request (headers only)")
-  .argument({ name: "url", kind: "string", required: true, description: "URL to check" })
-  .action(async ({ args }) => {
+const head = defineCommand({
+  name: "head",
+  description: "Make a HEAD request (headers only)",
+  arguments: {
+    url: argument.string().required().describe("URL to check"),
+  },
+  async action({ args }) {
     const spinner = createSpinner(`HEAD ${args.url}`).start();
 
     try {
@@ -142,16 +157,22 @@ const head = command("head")
       spinner.fail(`Request failed: ${err}`);
       process.exit(1);
     }
-  });
+  },
+});
 
 // Download file
-const download = command("download")
-  .description("Download a file")
-  .alias("dl")
-  .argument({ name: "url", kind: "string", required: true, description: "URL to download" })
-  .argument({ name: "output", kind: "string", required: false, description: "Output filename" })
-  .option({ name: "quiet", short: "q", kind: "boolean", description: "Suppress progress output" })
-  .action(async ({ args, options }) => {
+const download = defineCommand({
+  name: "download",
+  description: "Download a file",
+  aliases: ["dl"],
+  arguments: {
+    url: argument.string().required().describe("URL to download"),
+    output: argument.string().describe("Output filename"),
+  },
+  options: {
+    quiet: option.boolean().short("q").describe("Suppress progress output"),
+  },
+  async action({ args, options }) {
     const output = args.output || args.url.split("/").pop() || "download";
 
     const spinner = options.quiet ? null : createSpinner(`Downloading ${args.url}`).start();
@@ -181,7 +202,8 @@ const download = command("download")
       spinner?.fail(`Download failed: ${err}`);
       process.exit(1);
     }
-  });
+  },
+});
 
 function formatSize(bytes: number): string {
   const units = ["B", "KB", "MB", "GB"];
@@ -194,24 +216,19 @@ function formatSize(bytes: number): string {
   return `${size.toFixed(unit > 0 ? 1 : 0)} ${units[unit]}`;
 }
 
-cli("http")
-  .version("1.0.0")
-  .description("HTTP client CLI")
-  .option({
-    name: "baseUrl",
-    kind: "string",
-    description: "Base URL for requests",
-    env: "HTTP_BASE_URL",
-  })
-  .option({
-    name: "timeout",
-    kind: "number",
-    default: 30000,
-    description: "Request timeout",
-    env: "HTTP_TIMEOUT",
-  })
-  .command(get)
-  .command(post)
-  .command(head)
-  .command(download)
-  .run();
+defineCli({
+  name: "http",
+  version: "1.0.0",
+  description: "HTTP client CLI",
+  globalOptions: {
+    baseUrl: option.string().env("HTTP_BASE_URL").describe("Base URL for requests"),
+    timeout: option.number().default(30000).env("HTTP_TIMEOUT").describe("Request timeout"),
+  },
+  commands: {
+    get,
+    post,
+    head,
+    download,
+    dl: download,
+  },
+}).run();

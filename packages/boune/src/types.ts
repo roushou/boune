@@ -3,6 +3,8 @@
  */
 
 import type { AnyValidator } from "./validation/types.ts";
+import type { ArgBuilder } from "./schema/argument.ts";
+import type { OptBuilder } from "./schema/option.ts";
 
 // ============================================================================
 // Kind and Type Mapping
@@ -18,74 +20,6 @@ type KindMap = { string: string; number: number; boolean: boolean };
 export type InferKind<K extends Kind, V extends boolean = false> = V extends true
   ? KindMap[K][]
   : KindMap[K];
-
-// ============================================================================
-// Argument Types
-// ============================================================================
-
-/** Argument configuration */
-export interface Argument {
-  /** Argument name (used for access in args object) */
-  name: string;
-  /** Value type */
-  kind: Kind;
-  /** Whether argument is required */
-  required: boolean;
-  /** Whether argument accepts multiple values */
-  variadic?: boolean;
-  /** Description shown in help */
-  description?: string;
-  /** Default value if not provided */
-  default?: unknown;
-  /** Validation function */
-  validate?: AnyValidator;
-}
-
-/** Infer argument type from config object */
-export type InferArg<T extends Argument> = {
-  [K in T["name"]]: T["default"] extends undefined
-    ? T["required"] extends true
-      ? InferKind<T["kind"], T["variadic"] extends true ? true : false>
-      : InferKind<T["kind"], T["variadic"] extends true ? true : false> | undefined
-    : InferKind<T["kind"], T["variadic"] extends true ? true : false>;
-};
-
-// ============================================================================
-// Option Types
-// ============================================================================
-
-/** Option configuration */
-export interface Option {
-  /** Option name (used for access in options object) */
-  name: string;
-  /** Value type */
-  kind: Kind;
-  /** Short flag (single character, e.g., "c" for -c) */
-  short?: string;
-  /** Long flag (defaults to name if not specified) */
-  long?: string;
-  /** Whether option is required */
-  required?: boolean;
-  /** Description shown in help */
-  description?: string;
-  /** Default value if not provided */
-  default?: unknown;
-  /** Environment variable to read value from */
-  env?: string;
-  /** Validation function */
-  validate?: AnyValidator;
-}
-
-/** Infer option type from config object */
-export type InferOpt<T extends Option> = {
-  [K in T["name"]]: T["kind"] extends "boolean"
-    ? boolean // Boolean options always have a value (default: false)
-    : T["default"] extends undefined
-      ? T["required"] extends true
-        ? InferKind<T["kind"]>
-        : InferKind<T["kind"]> | undefined
-      : InferKind<T["kind"]>;
-};
 
 // ============================================================================
 // Internal Definitions (used by parser)
@@ -126,7 +60,7 @@ export type ParsedArgs = Record<string, unknown>;
 export type ParsedOptions = Record<string, unknown>;
 
 // ============================================================================
-// Action and Hooks
+// Action and Middleware
 // ============================================================================
 
 /** Context passed to command action */
@@ -145,16 +79,43 @@ export type ActionHandler<
   TOpts extends ParsedOptions = ParsedOptions,
 > = (context: ActionContext<TArgs, TOpts>) => void | Promise<void>;
 
-/** Hook types */
-export type HookType = "preAction" | "postAction" | "preError" | "postError";
-
-/** Hook handler */
-export type HookHandler = (context: {
+/** Context passed to middleware handlers */
+export interface MiddlewareContext<
+  TArgs extends ParsedArgs = ParsedArgs,
+  TOpts extends ParsedOptions = ParsedOptions,
+> extends ActionContext<TArgs, TOpts> {
+  /** The command being executed */
   command: CommandConfig;
-  args: ParsedArgs;
-  options: ParsedOptions;
-  error?: Error;
-}) => void | Promise<void>;
+}
+
+/**
+ * Middleware handler that wraps command execution
+ *
+ * @example
+ * ```typescript
+ * const loggingMiddleware: MiddlewareHandler = async (ctx, next) => {
+ *   console.log(`Running command: ${ctx.command.name}`);
+ *   await next();
+ *   console.log(`Command completed`);
+ * };
+ * ```
+ */
+export type MiddlewareHandler = (
+  ctx: MiddlewareContext,
+  next: () => Promise<void>,
+) => void | Promise<void>;
+
+/**
+ * Error handler for command execution errors
+ *
+ * @example
+ * ```typescript
+ * const errorHandler: ErrorHandler = (error, ctx) => {
+ *   console.error(`Error in ${ctx.command.name}: ${error.message}`);
+ * };
+ * ```
+ */
+export type ErrorHandler = (error: Error, ctx: MiddlewareContext) => void | Promise<void>;
 
 // ============================================================================
 // Configuration
@@ -167,9 +128,14 @@ export interface CommandConfig {
   aliases: string[];
   arguments: ArgumentDef[];
   options: OptionDef[];
-  subcommands: Map<string, CommandConfig>;
+  subcommands: Record<string, CommandConfig>;
   action?: ActionHandler;
-  hooks: Map<HookType, HookHandler[]>;
+  /** Middleware to run before the action */
+  before?: MiddlewareHandler[];
+  /** Middleware to run after the action */
+  after?: MiddlewareHandler[];
+  /** Error handler for this command */
+  onError?: ErrorHandler;
   hidden: boolean;
 }
 
@@ -178,9 +144,132 @@ export interface CliConfig {
   name: string;
   version: string;
   description: string;
-  commands: Map<string, CommandConfig>;
+  commands: Record<string, CommandConfig>;
   globalOptions: OptionDef[];
-  hooks: Map<HookType, HookHandler[]>;
+  /** Global middleware to run before any command */
+  middleware?: MiddlewareHandler[];
+  /** Global error handler */
+  onError?: ErrorHandler;
+}
+
+// ============================================================================
+// Schema Types (for defineCommand / defineCli)
+// ============================================================================
+
+/** Infer args type from argument builders record */
+export type InferArgs<T extends Record<string, ArgBuilder<unknown, Kind>>> = {
+  [K in keyof T]: T[K]["_type"];
+};
+
+/** Infer options type from option builders record */
+export type InferOpts<T extends Record<string, OptBuilder<unknown, Kind>>> = {
+  [K in keyof T]: T[K]["_type"];
+};
+
+/**
+ * Schema for defining a command declaratively
+ *
+ * @example
+ * ```typescript
+ * const schema: CommandSchema = {
+ *   name: "greet",
+ *   description: "Greet a user",
+ *   arguments: {
+ *     name: argument.string().required(),
+ *   },
+ *   options: {
+ *     loud: option.boolean().short("l"),
+ *   },
+ *   action({ args, options }) {
+ *     const greeting = `Hello, ${args.name}!`;
+ *     console.log(options.loud ? greeting.toUpperCase() : greeting);
+ *   },
+ * };
+ * ```
+ */
+export interface CommandSchema<
+  TArgBuilders extends Record<string, ArgBuilder<unknown, Kind>> = Record<
+    string,
+    ArgBuilder<unknown, Kind>
+  >,
+  TOptBuilders extends Record<string, OptBuilder<unknown, Kind>> = Record<
+    string,
+    OptBuilder<unknown, Kind>
+  >,
+> {
+  /** Command name */
+  name: string;
+  /** Command description (shown in help) */
+  description?: string;
+  /** Command aliases */
+  aliases?: string[];
+  /** Hide command from help output */
+  hidden?: boolean;
+  /** Positional arguments */
+  arguments?: TArgBuilders;
+  /** Options/flags */
+  options?: TOptBuilders;
+  /** Subcommands (can be CommandSchema or already-built CommandConfig) */
+  subcommands?: Record<
+    string,
+    | CommandSchema<
+        Record<string, ArgBuilder<unknown, Kind>>,
+        Record<string, OptBuilder<unknown, Kind>>
+      >
+    | CommandConfig
+  >;
+  /** Middleware to run before the action */
+  before?: MiddlewareHandler[];
+  /** Middleware to run after the action */
+  after?: MiddlewareHandler[];
+  /** Error handler for this command */
+  onError?: ErrorHandler;
+  /** Action handler */
+  action?: ActionHandler<InferArgs<TArgBuilders>, InferOpts<TOptBuilders>>;
+}
+
+/**
+ * Schema for defining a CLI declaratively
+ *
+ * @example
+ * ```typescript
+ * const cli = defineCli({
+ *   name: "myapp",
+ *   version: "1.0.0",
+ *   description: "My CLI application",
+ *   commands: {
+ *     build: buildCommand,
+ *     serve: serveCommand,
+ *   },
+ *   globalOptions: {
+ *     verbose: option.boolean().short("v"),
+ *   },
+ * });
+ * ```
+ */
+export interface CliSchema {
+  /** CLI name */
+  name: string;
+  /** CLI version */
+  version?: string;
+  /** CLI description */
+  description?: string;
+  /** Commands (as schema objects or pre-built CommandConfig) */
+  commands:
+    | Record<
+        string,
+        CommandSchema<
+          Record<string, ArgBuilder<unknown, Kind>>,
+          Record<string, OptBuilder<unknown, Kind>>
+        >
+      >
+    | Record<string, CommandConfig>;
+  /** Global options available to all commands */
+  globalOptions?: Record<string, OptBuilder<unknown, Kind>>;
+  /** Global middleware */
+  middleware?: MiddlewareHandler[];
+  /** Global error handler */
+  onError?: ErrorHandler;
 }
 
 // ============================================================================

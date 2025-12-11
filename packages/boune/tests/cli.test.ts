@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
-import { cli } from "../src/cli.ts";
-import { command } from "../src/command.ts";
+import { defineCli, defineCommand } from "../src/define.ts";
+import { argument } from "../src/schema/argument.ts";
+import { option } from "../src/schema/option.ts";
 
-describe("cli builder", () => {
+describe("defineCli", () => {
   let consoleSpy: ReturnType<typeof spyOn>;
   let consoleErrorSpy: ReturnType<typeof spyOn>;
   let exitSpy: ReturnType<typeof spyOn>;
@@ -21,27 +22,49 @@ describe("cli builder", () => {
     exitSpy.mockRestore();
   });
 
-  test("creates cli with name", () => {
-    const app = cli("myapp");
+  test("creates cli with declarative schema", () => {
+    const app = defineCli({
+      name: "myapp",
+      commands: {},
+    });
     expect(app).toBeDefined();
   });
 
   test("sets version", () => {
-    const app = cli("myapp").version("1.0.0");
-    expect(app).toBeDefined();
+    const app = defineCli({
+      name: "myapp",
+      version: "1.0.0",
+      commands: {},
+    });
+    expect(app.getConfig().version).toBe("1.0.0");
   });
 
-  test("adds command", () => {
-    const cmd = command("build").description("Build project");
-    const app = cli("myapp").command(cmd);
-    expect(app).toBeDefined();
+  test("adds commands from schema", () => {
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        build: {
+          name: "build",
+          description: "Build project",
+        },
+      },
+    });
+    expect(app.getConfig().commands["build"]).toBeDefined();
   });
 
   test("runs command action", async () => {
     const actionMock = mock(() => {});
-    const cmd = command("build").description("Build project").action(actionMock);
 
-    const app = cli("myapp").command(cmd);
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        build: {
+          name: "build",
+          description: "Build project",
+          action: actionMock,
+        },
+      },
+    });
     await app.run(["build"]);
 
     expect(actionMock).toHaveBeenCalled();
@@ -49,13 +72,21 @@ describe("cli builder", () => {
 
   test("passes parsed args to action", async () => {
     let receivedContext: any;
-    const cmd = command("greet")
-      .argument({ name: "name", kind: "string", required: true, description: "Name" })
-      .action((ctx) => {
-        receivedContext = ctx;
-      });
 
-    const app = cli("myapp").command(cmd);
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        greet: {
+          name: "greet",
+          arguments: {
+            name: argument.string().required().describe("Name"),
+          },
+          action: (ctx) => {
+            receivedContext = ctx;
+          },
+        },
+      },
+    });
     await app.run(["greet", "World"]);
 
     expect(receivedContext.args.name).toBe("World");
@@ -63,20 +94,33 @@ describe("cli builder", () => {
 
   test("passes parsed options to action", async () => {
     let receivedContext: any;
-    const cmd = command("serve")
-      .option({ name: "port", short: "p", kind: "number", default: 3000, description: "Port" })
-      .action((ctx) => {
-        receivedContext = ctx;
-      });
 
-    const app = cli("myapp").command(cmd);
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        serve: {
+          name: "serve",
+          options: {
+            port: option.number().short("p").default(3000).describe("Port"),
+          },
+          action: (ctx) => {
+            receivedContext = ctx;
+          },
+        },
+      },
+    });
     await app.run(["serve", "--port", "8080"]);
 
     expect(receivedContext.options.port).toBe(8080);
   });
 
   test("shows help with --help flag", async () => {
-    const app = cli("myapp").version("1.0.0").description("My app");
+    const app = defineCli({
+      name: "myapp",
+      version: "1.0.0",
+      description: "My app",
+      commands: {},
+    });
     await app.run(["--help"]);
 
     expect(consoleSpy).toHaveBeenCalled();
@@ -85,7 +129,11 @@ describe("cli builder", () => {
   });
 
   test("shows version with --version flag", async () => {
-    const app = cli("myapp").version("1.2.3");
+    const app = defineCli({
+      name: "myapp",
+      version: "1.2.3",
+      commands: {},
+    });
     await app.run(["--version"]);
 
     expect(consoleSpy).toHaveBeenCalledWith("1.2.3");
@@ -93,37 +141,210 @@ describe("cli builder", () => {
 
   test("runs subcommands", async () => {
     const actionMock = mock(() => {});
-    const sub = command("watch").description("Watch mode").action(actionMock);
-    const cmd = command("build").description("Build").subcommand(sub);
 
-    const app = cli("myapp").command(cmd);
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        build: {
+          name: "build",
+          description: "Build",
+          subcommands: {
+            watch: {
+              name: "watch",
+              description: "Watch mode",
+              action: actionMock,
+            },
+          },
+        },
+      },
+    });
     await app.run(["build", "watch"]);
 
     expect(actionMock).toHaveBeenCalled();
   });
 
-  test("runs preAction hook", async () => {
-    const hookMock = mock(() => {});
-    const actionMock = mock(() => {});
+  test("runs before middleware", async () => {
+    const order: string[] = [];
 
-    const cmd = command("build").hook("preAction", hookMock).action(actionMock);
-
-    const app = cli("myapp").command(cmd);
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        build: {
+          name: "build",
+          before: [
+            async (_ctx, next) => {
+              order.push("before");
+              await next();
+            },
+          ],
+          action: () => {
+            order.push("action");
+          },
+        },
+      },
+    });
     await app.run(["build"]);
 
-    expect(hookMock).toHaveBeenCalled();
+    expect(order).toEqual(["before", "action"]);
+  });
+
+  test("runs after middleware", async () => {
+    const order: string[] = [];
+
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        build: {
+          name: "build",
+          action: () => {
+            order.push("action");
+          },
+          after: [
+            async () => {
+              order.push("after");
+            },
+          ],
+        },
+      },
+    });
+    await app.run(["build"]);
+
+    expect(order).toEqual(["action", "after"]);
+  });
+
+  test("runs global middleware before command middleware", async () => {
+    const order: string[] = [];
+
+    const app = defineCli({
+      name: "myapp",
+      middleware: [
+        async (_ctx, next) => {
+          order.push("global");
+          await next();
+        },
+      ],
+      commands: {
+        build: {
+          name: "build",
+          before: [
+            async (_ctx, next) => {
+              order.push("command");
+              await next();
+            },
+          ],
+          action: () => {
+            order.push("action");
+          },
+        },
+      },
+    });
+    await app.run(["build"]);
+
+    expect(order).toEqual(["global", "command", "action"]);
+  });
+
+  test("handles errors with command error handler", async () => {
+    let caughtError: Error | null = null;
+
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        fail: {
+          name: "fail",
+          action: () => {
+            throw new Error("Command failed");
+          },
+          onError: (error) => {
+            caughtError = error;
+          },
+        },
+      },
+    });
+    await app.run(["fail"]);
+
+    expect(caughtError?.message).toBe("Command failed");
+  });
+
+  test("handles errors with global error handler", async () => {
+    let caughtError: Error | null = null;
+
+    const app = defineCli({
+      name: "myapp",
+      onError: (error) => {
+        caughtError = error;
+      },
+      commands: {
+        fail: {
+          name: "fail",
+          action: () => {
+            throw new Error("Command failed");
+          },
+        },
+      },
+    });
+    await app.run(["fail"]);
+
+    expect(caughtError?.message).toBe("Command failed");
+  });
+
+  test("accepts pre-built CommandConfig", async () => {
+    const actionMock = mock(() => {});
+
+    const buildCommand = defineCommand({
+      name: "build",
+      description: "Build project",
+      action: actionMock,
+    });
+
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        build: buildCommand,
+      },
+    });
+    await app.run(["build"]);
+
     expect(actionMock).toHaveBeenCalled();
   });
 
-  test("runs postAction hook", async () => {
-    const hookMock = mock(() => {});
+  test("registers command aliases", async () => {
     const actionMock = mock(() => {});
 
-    const cmd = command("build").hook("postAction", hookMock).action(actionMock);
+    const app = defineCli({
+      name: "myapp",
+      commands: {
+        build: {
+          name: "build",
+          aliases: ["b"],
+          action: actionMock,
+        },
+      },
+    });
 
-    const app = cli("myapp").command(cmd);
-    await app.run(["build"]);
+    // Running with alias should work
+    await app.run(["b"]);
+    expect(actionMock).toHaveBeenCalled();
+  });
 
-    expect(hookMock).toHaveBeenCalled();
+  test("adds global options", async () => {
+    let receivedContext: any;
+
+    const app = defineCli({
+      name: "myapp",
+      globalOptions: {
+        verbose: option.boolean().short("v").describe("Verbose output"),
+      },
+      commands: {
+        build: {
+          name: "build",
+          action: (ctx) => {
+            receivedContext = ctx;
+          },
+        },
+      },
+    });
+    await app.run(["build", "--verbose"]);
+
+    expect(receivedContext.options.verbose).toBe(true);
   });
 });

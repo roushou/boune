@@ -1,22 +1,29 @@
-// Core builders
-export { cli, Cli } from "./cli.ts";
-export { command, Command } from "./command.ts";
+// Declarative API
+export { defineCommand, defineCli } from "./define.ts";
+
+// Schema builders
+export { argument, ArgBuilder } from "./schema/argument.ts";
+export { option, OptBuilder } from "./schema/option.ts";
+
+// Runtime
+export { Cli } from "./cli.ts";
 
 // Types
 export type {
   ActionContext,
   ActionHandler,
-  Argument,
   ArgumentDef,
   CliConfig,
+  CliSchema,
   CommandConfig,
-  HookHandler,
-  HookType,
-  InferArg,
+  CommandSchema,
+  ErrorHandler,
+  InferArgs,
   InferKind,
-  InferOpt,
+  InferOpts,
   Kind,
-  Option,
+  MiddlewareContext,
+  MiddlewareHandler,
   OptionDef,
   ParsedArgs,
   ParsedOptions,

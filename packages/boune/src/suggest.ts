@@ -60,7 +60,7 @@ export interface Suggestion {
  */
 export function suggestCommands(
   input: string,
-  commands: Map<string, CommandConfig>,
+  commands: Record<string, CommandConfig>,
   options?: {
     /** Maximum number of suggestions to return (default: 3) */
     maxSuggestions?: number;
@@ -74,7 +74,7 @@ export function suggestCommands(
   const seen = new Set<CommandConfig>();
   const uniqueCommands: Array<{ name: string; config: CommandConfig }> = [];
 
-  for (const [name, config] of commands) {
+  for (const [name, config] of Object.entries(commands)) {
     if (!seen.has(config) && !config.hidden) {
       seen.add(config);
       uniqueCommands.push({ name, config });

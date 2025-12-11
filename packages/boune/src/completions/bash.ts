@@ -76,19 +76,19 @@ export function generateBashCompletion(config: CliConfig): string {
   return lines.join("\n");
 }
 
-function formatBashOption(opt: OptionDef): string {
+function formatBashOption(option: OptionDef): string {
   const parts: string[] = [];
-  if (opt.short) parts.push(`-${opt.short}`);
-  const longFlag = opt.long ?? opt.name;
+  if (option.short) parts.push(`-${option.short}`);
+  const longFlag = option.long ?? option.name;
   parts.push(`--${longFlag}`);
   return parts.join(" ");
 }
 
-function getVisibleCommands(commands: Map<string, CommandConfig>): CommandConfig[] {
+function getVisibleCommands(commands: Record<string, CommandConfig>): CommandConfig[] {
   const seen = new Set<CommandConfig>();
   const result: CommandConfig[] = [];
 
-  for (const [, config] of commands) {
+  for (const config of Object.values(commands)) {
     if (!seen.has(config) && !config.hidden) {
       seen.add(config);
       result.push(config);

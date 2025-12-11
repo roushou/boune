@@ -1,113 +1,39 @@
+/**
+ * CLI runtime and execution engine
+ */
+
 import type {
   CliConfig,
   CommandConfig,
-  HookHandler,
-  HookType,
-  Option,
-  ParsedArgs,
-  ParsedOptions,
+  MiddlewareContext,
+  MiddlewareHandler,
   ValidationError,
 } from "./types.ts";
 import { type ShellType, generateCompletion } from "./completions/index.ts";
 import { formatSuggestions, suggestCommands } from "./suggest.ts";
 import { generateCliHelp, generateCommandHelp } from "./output/help.ts";
 import { parseArguments, parseOptions, tokenize } from "./parser/index.ts";
-import { Command } from "./command.ts";
 import { closeStdin } from "./prompt/stdin.ts";
 import { error as formatError } from "./output/format.ts";
 
 /**
- * Main CLI builder class
+ * CLI runtime class
+ *
+ * Create instances using `defineCli()` from the define module.
  */
 export class Cli {
   private config: CliConfig;
 
-  constructor(name: string) {
-    this.config = {
-      name,
-      version: "",
-      description: "",
-      commands: new Map(),
-      globalOptions: [
-        {
-          name: "help",
-          short: "h",
-          long: "help",
-          description: "Show help",
-          type: "boolean",
-          required: false,
-          default: false,
-        },
-      ],
-      hooks: new Map(),
-    };
+  private constructor(config: CliConfig) {
+    this.config = config;
   }
 
   /**
-   * Set CLI version
+   * Create a Cli instance from a pre-built configuration
+   * @internal
    */
-  version(version: string): this {
-    this.config.version = version;
-    // Add --version flag
-    this.config.globalOptions.push({
-      name: "version",
-      short: "V",
-      long: "version",
-      description: "Show version",
-      type: "boolean",
-      required: false,
-      default: false,
-    });
-    return this;
-  }
-
-  /**
-   * Set CLI description
-   */
-  description(desc: string): this {
-    this.config.description = desc;
-    return this;
-  }
-
-  /**
-   * Add a command
-   */
-  command(cmd: Command): this {
-    const cmdConfig = cmd.getConfig();
-    this.config.commands.set(cmdConfig.name, cmdConfig);
-    for (const alias of cmdConfig.aliases) {
-      this.config.commands.set(alias, cmdConfig);
-    }
-    return this;
-  }
-
-  /**
-   * Add a global option
-   */
-  option(options: Option): this {
-    this.config.globalOptions.push({
-      name: options.name,
-      short: options.short,
-      long: options.long ?? options.name,
-      description: options.description ?? "",
-      type: options.kind,
-      required: options.required ?? false,
-      // Boolean options default to false (flags)
-      default: options.kind === "boolean" ? (options.default ?? false) : options.default,
-      env: options.env,
-      validate: options.validate,
-    });
-    return this;
-  }
-
-  /**
-   * Add a global hook
-   */
-  hook(type: HookType, handler: HookHandler): this {
-    const handlers = this.config.hooks.get(type) ?? [];
-    handlers.push(handler);
-    this.config.hooks.set(type, handlers);
-    return this;
+  static fromConfig(config: CliConfig): Cli {
+    return new Cli(config);
   }
 
   /**
@@ -125,26 +51,25 @@ export class Cli {
   }
 
   /**
-   * Run hooks of a specific type
+   * Run middleware chain with next() pattern
    */
-  private async runHooks(
-    type: HookType,
-    command: CommandConfig,
-    args: ParsedArgs,
-    options: ParsedOptions,
-    error?: Error,
+  private async runMiddleware(
+    handlers: MiddlewareHandler[],
+    ctx: MiddlewareContext,
+    final: () => Promise<void>,
   ): Promise<void> {
-    // Run global hooks
-    const globalHooks = this.config.hooks.get(type) ?? [];
-    for (const handler of globalHooks) {
-      await handler({ command, args, options, error });
-    }
+    let index = 0;
 
-    // Run command hooks
-    const commandHooks = command.hooks.get(type) ?? [];
-    for (const handler of commandHooks) {
-      await handler({ command, args, options, error });
-    }
+    const next = async (): Promise<void> => {
+      if (index < handlers.length) {
+        const handler = handlers[index++]!;
+        await handler(ctx, next);
+      } else {
+        await final();
+      }
+    };
+
+    await next();
   }
 
   /**
@@ -156,13 +81,13 @@ export class Cli {
     if (commandPath.length === 0) return null;
 
     const [first, ...rest] = commandPath;
-    let command = this.config.commands.get(first!);
+    let command: CommandConfig | undefined = this.config.commands[first!];
     if (!command) return null;
 
     const parentCommands: string[] = [];
     for (const name of rest) {
       parentCommands.push(command.name);
-      const sub = command.subcommands.get(name);
+      const sub: CommandConfig | undefined = command.subcommands[name];
       if (!sub) break;
       command = sub;
     }
@@ -201,11 +126,9 @@ export class Cli {
     for (const token of remaining) {
       if (token.type === "argument" && commandPath.length === 0) {
         // First check if it's a command
-        const potentialCmd = this.config.commands.get(token.value);
+        const potentialCmd = this.config.commands[token.value];
         if (potentialCmd) {
           commandPath.push(token.value);
-          // Check for subcommands
-          let _currentCmd = potentialCmd;
           continue;
         } else if (firstUnknownArg === null) {
           // Track first argument that could be an unknown command
@@ -217,7 +140,7 @@ export class Cli {
       if (commandPath.length > 0 && token.type === "argument") {
         const result = this.findCommand(commandPath);
         if (result) {
-          const sub = result.command.subcommands.get(token.value);
+          const sub = result.command.subcommands[token.value];
           if (sub) {
             commandPath.push(token.value);
             continue;
@@ -305,27 +228,48 @@ export class Cli {
       return;
     }
 
-    // Run the command
+    // Build middleware context
+    const middlewareCtx: MiddlewareContext = {
+      command,
+      args,
+      options: allOptions,
+      rawArgs: argv,
+    };
+
+    // Run the command with middleware
     try {
-      await this.runHooks("preAction", command, args, allOptions);
-      await command.action({ args, options: allOptions, rawArgs: argv });
-      await this.runHooks("postAction", command, args, allOptions);
+      // Combine global middleware with command's before middleware
+      const beforeMiddleware: MiddlewareHandler[] = [
+        ...(this.config.middleware ?? []),
+        ...(command.before ?? []),
+      ];
+
+      // Run before middleware chain, then action
+      await this.runMiddleware(beforeMiddleware, middlewareCtx, async () => {
+        await command.action!({ args, options: allOptions, rawArgs: argv });
+      });
+
+      // Run after middleware (not in chain, just sequential)
+      if (command.after) {
+        for (const handler of command.after) {
+          await handler(middlewareCtx, async () => {});
+        }
+      }
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
-      await this.runHooks("preError", command, args, allOptions, error);
-      console.error(formatError(error.message));
-      await this.runHooks("postError", command, args, allOptions, error);
-      process.exit(1);
+
+      // Try command-level error handler first, then global
+      const errorHandler = command.onError ?? this.config.onError;
+
+      if (errorHandler) {
+        await errorHandler(error, middlewareCtx);
+      } else {
+        console.error(formatError(error.message));
+        process.exit(1);
+      }
     } finally {
       // Close stdin to allow process to exit naturally
       closeStdin();
     }
   }
-}
-
-/**
- * Create a new CLI
- */
-export function cli(name: string): Cli {
-  return new Cli(name);
 }

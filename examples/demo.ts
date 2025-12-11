@@ -5,72 +5,76 @@
  */
 import {
   type ShellType,
-  cli,
+  argument,
   color,
-  command,
   createProgressBar,
   createSpinner,
+  defineCli,
+  defineCommand,
+  option,
   v,
 } from "../packages/boune/src/index.ts";
 import { confirm, select, text } from "../packages/boune/src/prompt/index.ts";
 
 // Greet command with argument and options
-const greet = command("greet")
-  .description("Greet someone")
-  .argument({ name: "name", kind: "string", required: true, description: "Name to greet" })
-  .option({ name: "loud", short: "l", kind: "boolean", description: "Shout the greeting" })
-  .option({
-    name: "times",
-    short: "t",
-    kind: "number",
-    default: 1,
-    description: "Number of times to greet",
-  })
-  .action(({ args, options }) => {
+const greet = defineCommand({
+  name: "greet",
+  description: "Greet someone",
+  arguments: {
+    name: argument.string().required().describe("Name to greet"),
+  },
+  options: {
+    loud: option.boolean().short("l").describe("Shout the greeting"),
+    times: option.number().short("t").default(1).describe("Number of times to greet"),
+  },
+  action({ args, options }) {
     for (let i = 0; i < options.times; i++) {
       const msg = `Hello, ${args.name}!`;
       console.log(options.loud ? msg.toUpperCase() : msg);
     }
-  });
+  },
+});
 
 // Build command with subcommands
-const buildWatch = command("watch")
-  .description("Watch for changes and rebuild")
-  .option({
-    name: "poll",
-    short: "p",
-    kind: "boolean",
-    description: "Use polling instead of native watchers",
-  })
-  .action(({ options }) => {
+const buildWatch = defineCommand({
+  name: "watch",
+  description: "Watch for changes and rebuild",
+  options: {
+    poll: option.boolean().short("p").describe("Use polling instead of native watchers"),
+  },
+  action({ options }) {
     console.log(color.cyan("Watching for changes..."));
     console.log(`Polling: ${options.poll ? "yes" : "no"}`);
-  });
+  },
+});
 
-const build = command("build")
-  .description("Build the project")
-  .alias("b")
-  .argument({ name: "entry", kind: "string", required: true, description: "Entry file" })
-  .option({
-    name: "output",
-    short: "o",
-    kind: "string",
-    default: "dist",
-    description: "Output directory",
-  })
-  .option({ name: "minify", short: "m", kind: "boolean", description: "Minify output" })
-  .subcommand(buildWatch)
-  .action(({ args, options }) => {
+const build = defineCommand({
+  name: "build",
+  description: "Build the project",
+  aliases: ["b"],
+  arguments: {
+    entry: argument.string().required().describe("Entry file"),
+  },
+  options: {
+    output: option.string().short("o").default("dist").describe("Output directory"),
+    minify: option.boolean().short("m").describe("Minify output"),
+  },
+  subcommands: {
+    watch: buildWatch,
+  },
+  action({ args, options }) {
     console.log(color.bold("Building project..."));
     console.log(`  Entry: ${args.entry}`);
     console.log(`  Output: ${options.output}`);
     console.log(`  Minify: ${options.minify ? "yes" : "no"}`);
-  });
+  },
+});
 
 // Init command with interactive prompts
-const init = command("init")
-  .description("Initialize a new project")
-  .action(async () => {
+const init = defineCommand({
+  name: "init",
+  description: "Initialize a new project",
+  async action() {
     console.log(color.bold("\nProject Setup\n"));
 
     const name = await text({
@@ -103,53 +107,50 @@ const init = command("init")
     console.log(`\n  ${color.green("→")} cd ${name}`);
     console.log(`  ${color.green("→")} bun install`);
     console.log(`  ${color.green("→")} bun run dev\n`);
-  });
+  },
+});
 
 // Serve command with validation
-const serve = command("serve")
-  .description("Start a development server")
-  .option({
-    name: "port",
-    short: "p",
-    kind: "number",
-    default: 3000,
-    description: "Port to listen on",
-    validate: v.number().integer().min(1).max(65535),
-  })
-  .option({
-    name: "host",
-    short: "H",
-    kind: "string",
-    default: "localhost",
-    description: "Host to bind to",
-    validate: v.string().oneOf(["localhost", "0.0.0.0", "127.0.0.1"]),
-  })
-  .option({
-    name: "env",
-    short: "e",
-    kind: "string",
-    default: "development",
-    description: "Environment",
-    validate: v.string().oneOf(["development", "staging", "production"]),
-  })
-  .action(({ options }) => {
+const serve = defineCommand({
+  name: "serve",
+  description: "Start a development server",
+  options: {
+    port: option
+      .number()
+      .short("p")
+      .default(3000)
+      .describe("Port to listen on")
+      .validate(v.number().integer().min(1).max(65535)),
+    host: option
+      .string()
+      .short("H")
+      .default("localhost")
+      .describe("Host to bind to")
+      .validate(v.string().oneOf(["localhost", "0.0.0.0", "127.0.0.1"])),
+    env: option
+      .string()
+      .short("e")
+      .default("development")
+      .describe("Environment")
+      .validate(v.string().oneOf(["development", "staging", "production"])),
+  },
+  action({ options }) {
     console.log(color.bold("\nStarting server...\n"));
     console.log(`  Host: ${options.host}`);
     console.log(`  Port: ${options.port}`);
     console.log(`  Env:  ${options.env}`);
     console.log(color.green(`\n  Server running at http://${options.host}:${options.port}\n`));
-  });
+  },
+});
 
 // Download command with progress bar
-const download = command("download")
-  .description("Simulate downloading files")
-  .argument({
-    name: "count",
-    kind: "number",
-    required: true,
-    description: "Number of files to download",
-  })
-  .action(async ({ args }) => {
+const download = defineCommand({
+  name: "download",
+  description: "Simulate downloading files",
+  arguments: {
+    count: argument.number().required().describe("Number of files to download"),
+  },
+  async action({ args }) {
     console.log(color.bold(`\nDownloading ${args.count} files...\n`));
 
     const progress = createProgressBar("Downloading files", { total: args.count });
@@ -160,18 +161,17 @@ const download = command("download")
     }
 
     progress.complete(`Downloaded ${args.count} files`);
-  });
+  },
+});
 
 // Completions command to generate shell completion scripts
-const completions = command("completions")
-  .description("Generate shell completion scripts")
-  .argument({
-    name: "shell",
-    kind: "string",
-    required: true,
-    description: "Shell type (bash, zsh, fish)",
-  })
-  .action(({ args }) => {
+const completions = defineCommand({
+  name: "completions",
+  description: "Generate shell completion scripts",
+  arguments: {
+    shell: argument.string().required().describe("Shell type (bash, zsh, fish)"),
+  },
+  action({ args }) {
     if (!["bash", "zsh", "fish"].includes(args.shell)) {
       console.error(color.red(`Error: Invalid shell "${args.shell}". Use bash, zsh, or fish.`));
       process.exit(1);
@@ -179,17 +179,23 @@ const completions = command("completions")
     // Generate and output completion script
     const script = app.completions(args.shell as ShellType);
     console.log(script);
-  });
+  },
+});
 
 // Create the CLI
-const app = cli("demo")
-  .version("1.0.0")
-  .description("A demo CLI built with boune")
-  .command(greet)
-  .command(build)
-  .command(init)
-  .command(serve)
-  .command(download)
-  .command(completions);
+const app = defineCli({
+  name: "demo",
+  version: "1.0.0",
+  description: "A demo CLI built with boune",
+  commands: {
+    greet,
+    build,
+    b: build,
+    init,
+    serve,
+    download,
+    completions,
+  },
+});
 
 app.run();

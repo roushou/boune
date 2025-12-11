@@ -3,7 +3,14 @@
 /**
  * Task manager CLI demonstrating SQLite persistence with bun:sqlite
  */
-import { cli, color, command, table } from "../packages/boune/src/index.ts";
+import {
+  argument,
+  color,
+  defineCli,
+  defineCommand,
+  option,
+  table,
+} from "../packages/boune/src/index.ts";
 import { confirm, select, text } from "../packages/boune/src/prompt/index.ts";
 
 import { Database } from "bun:sqlite";
@@ -40,13 +47,16 @@ interface Task {
 }
 
 // List tasks
-const list = command("list")
-  .description("List all tasks")
-  .alias("ls")
-  .option({ name: "status", short: "s", kind: "string", description: "Filter by status" })
-  .option({ name: "priority", short: "p", kind: "string", description: "Filter by priority" })
-  .option({ name: "all", kind: "boolean", description: "Show all tasks including done" })
-  .action(({ options }) => {
+const list = defineCommand({
+  name: "list",
+  description: "List all tasks",
+  aliases: ["ls"],
+  options: {
+    status: option.string().short("s").describe("Filter by status"),
+    priority: option.string().short("p").describe("Filter by priority"),
+    all: option.boolean().describe("Show all tasks including done"),
+  },
+  action({ options }) {
     let query = "SELECT * FROM tasks";
     const conditions: string[] = [];
     const params: string[] = [];
@@ -84,20 +94,24 @@ const list = command("list")
     ]);
 
     console.log(table([["ID", "Status", "Priority", "Title"], ...rows]));
-  });
+  },
+});
 
 // Add task
-const add = command("add")
-  .description("Add a new task")
-  .argument({ name: "title", kind: "string", required: false, description: "Task title" })
-  .option({
-    name: "priority",
-    short: "p",
-    kind: "string",
-    default: "medium",
-    description: "Priority level (low, medium, high)",
-  })
-  .action(async ({ args, options }) => {
+const add = defineCommand({
+  name: "add",
+  description: "Add a new task",
+  arguments: {
+    title: argument.string().describe("Task title"),
+  },
+  options: {
+    priority: option
+      .string()
+      .short("p")
+      .default("medium")
+      .describe("Priority level (low, medium, high)"),
+  },
+  async action({ args, options }) {
     let title = args.title;
 
     if (!title) {
@@ -121,13 +135,17 @@ const add = command("add")
 
     db.run("INSERT INTO tasks (title, priority) VALUES (?, ?)", [title, priority]);
     console.log(color.green(`Added task: ${title}`));
-  });
+  },
+});
 
 // Update task status
-const done = command("done")
-  .description("Mark task as done")
-  .argument({ name: "id", kind: "number", required: true, description: "Task ID" })
-  .action(({ args }) => {
+const done = defineCommand({
+  name: "done",
+  description: "Mark task as done",
+  arguments: {
+    id: argument.number().required().describe("Task ID"),
+  },
+  action({ args }) {
     const result = db.run("UPDATE tasks SET status = 'done' WHERE id = ?", [args.id]);
 
     if (result.changes > 0) {
@@ -135,13 +153,17 @@ const done = command("done")
     } else {
       console.error(color.red(`Task #${args.id} not found`));
     }
-  });
+  },
+});
 
 // Start working on task
-const start = command("start")
-  .description("Mark task as in-progress")
-  .argument({ name: "id", kind: "number", required: true, description: "Task ID" })
-  .action(({ args }) => {
+const start = defineCommand({
+  name: "start",
+  description: "Mark task as in-progress",
+  arguments: {
+    id: argument.number().required().describe("Task ID"),
+  },
+  action({ args }) {
     const result = db.run("UPDATE tasks SET status = 'in-progress' WHERE id = ?", [args.id]);
 
     if (result.changes > 0) {
@@ -149,15 +171,21 @@ const start = command("start")
     } else {
       console.error(color.red(`Task #${args.id} not found`));
     }
-  });
+  },
+});
 
 // Remove task
-const remove = command("remove")
-  .description("Remove a task")
-  .alias("rm")
-  .argument({ name: "id", kind: "number", required: true, description: "Task ID" })
-  .option({ name: "force", short: "f", kind: "boolean", description: "Skip confirmation" })
-  .action(async ({ args, options }) => {
+const remove = defineCommand({
+  name: "remove",
+  description: "Remove a task",
+  aliases: ["rm"],
+  arguments: {
+    id: argument.number().required().describe("Task ID"),
+  },
+  options: {
+    force: option.boolean().short("f").describe("Skip confirmation"),
+  },
+  async action({ args, options }) {
     const task = db.query("SELECT * FROM tasks WHERE id = ?").get(args.id) as Task | null;
     if (!task) {
       console.error(color.red(`Task #${args.id} not found`));
@@ -177,13 +205,17 @@ const remove = command("remove")
 
     db.run("DELETE FROM tasks WHERE id = ?", [args.id]);
     console.log(color.yellow(`Removed task #${args.id}`));
-  });
+  },
+});
 
 // Clear completed tasks
-const clear = command("clear")
-  .description("Remove all completed tasks")
-  .option({ name: "force", short: "f", kind: "boolean", description: "Skip confirmation" })
-  .action(async ({ options }) => {
+const clear = defineCommand({
+  name: "clear",
+  description: "Remove all completed tasks",
+  options: {
+    force: option.boolean().short("f").describe("Skip confirmation"),
+  },
+  async action({ options }) {
     const count = (
       db.query("SELECT COUNT(*) as count FROM tasks WHERE status = 'done'").get() as {
         count: number;
@@ -208,16 +240,17 @@ const clear = command("clear")
 
     db.run("DELETE FROM tasks WHERE status = 'done'");
     console.log(color.green(`Cleared ${count} completed task(s)`));
-  });
+  },
+});
 
 function formatStatus(status: string): string {
   switch (status) {
     case "done":
-      return color.green("✓ done");
+      return color.green("done");
     case "in-progress":
-      return color.cyan("⏳ working");
+      return color.cyan("working");
     default:
-      return color.dim("○ pending");
+      return color.dim("pending");
   }
 }
 
@@ -232,13 +265,18 @@ function formatPriority(priority: string): string {
   }
 }
 
-cli("tasks")
-  .version("1.0.0")
-  .description("Simple task manager")
-  .command(list)
-  .command(add)
-  .command(done)
-  .command(start)
-  .command(remove)
-  .command(clear)
-  .run();
+defineCli({
+  name: "tasks",
+  version: "1.0.0",
+  description: "Simple task manager",
+  commands: {
+    list,
+    ls: list,
+    add,
+    done,
+    start,
+    remove,
+    rm: remove,
+    clear,
+  },
+}).run();
