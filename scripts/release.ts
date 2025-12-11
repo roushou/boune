@@ -108,19 +108,44 @@ async function publishToJsr(pkgDir: string, dryRun: boolean): Promise<boolean> {
 
 const releaseCommand = command("release")
   .description("Bump versions and publish packages to npm and jsr")
-  .option("-b, --bump <type>", "Version bump type: patch, minor, major", { required: true })
-  .option("-p, --package <name>", "Package to release: boune, create-boune, or all", {
+  .option({
+    name: "bump",
+    kind: "string",
+    short: "b",
+    long: "bump",
+    description: "Version bump type: patch, minor, major",
     required: true,
   })
-  .option("-d, --dry-run", "Run without actually publishing")
-  .option("--skip-npm", "Skip npm publish")
-  .option("--skip-jsr", "Skip jsr publish")
+  .option({
+    name: "package",
+    kind: "string",
+    short: "p",
+    long: "package",
+    description: "Package to release: boune, create-boune, or all",
+    required: true,
+  })
+  .option({
+    name: "execute",
+    kind: "boolean",
+    short: "e",
+    long: "execute",
+    description: "Actually publish (default is dry-run)",
+  })
+  .option({
+    name: "skipNpm",
+    kind: "boolean",
+    long: "skip-npm",
+    description: "Skip npm publish",
+  })
+  .option({
+    name: "skipJsr",
+    kind: "boolean",
+    long: "skip-jsr",
+    description: "Skip jsr publish",
+  })
   .action(async ({ options }) => {
     const bumpType = options.bump as BumpType;
-    const packageName = options.package as string;
-    const dryRun = options["dry-run"] as boolean;
-    const skipNpm = options["skip-npm"] as boolean;
-    const skipJsr = options["skip-jsr"] as boolean;
+    const { package: packageName, execute, skipJsr, skipNpm } = options;
 
     if (!["patch", "minor", "major"].includes(bumpType)) {
       console.log(error("--bump must be one of: patch, minor, major"));
@@ -142,7 +167,7 @@ const releaseCommand = command("release")
       console.log(`  ${pkg.name}: ${pkg.version} → ${newVersion}`);
     }
 
-    if (dryRun) {
+    if (!execute) {
       console.log(info("\nDry run mode - no changes will be made\n"));
     }
 
@@ -153,13 +178,13 @@ const releaseCommand = command("release")
       const newVersion = bumpVersion(pkg.version, bumpType);
 
       console.log(info(`Updating ${pkg.name} to ${newVersion}...`));
-      if (!dryRun) {
+      if (execute) {
         await updateVersion(pkg.name, newVersion);
       }
 
       if (!skipNpm) {
         console.log(info(`\nPublishing ${pkg.npmName}@${newVersion} to npm...`));
-        const npmSuccess = await publishToNpm(pkg.dir, dryRun);
+        const npmSuccess = await publishToNpm(pkg.dir, !execute);
         if (!npmSuccess) {
           console.log(error(`Failed to publish ${pkg.npmName} to npm`));
           process.exit(1);
@@ -169,7 +194,7 @@ const releaseCommand = command("release")
 
       if (!skipJsr) {
         console.log(info(`\nPublishing ${pkg.jsrName}@${newVersion} to jsr...`));
-        const jsrSuccess = await publishToJsr(pkg.dir, dryRun);
+        const jsrSuccess = await publishToJsr(pkg.dir, !execute);
         if (!jsrSuccess) {
           console.log(error(`Failed to publish ${pkg.jsrName} to jsr`));
           process.exit(1);
