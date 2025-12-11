@@ -4,7 +4,7 @@
  * Example demonstrating middleware patterns (replaces old hooks)
  */
 import { argument, color, defineCli, defineCommand, option } from "../packages/boune/src/index.ts";
-import type { MiddlewareHandler } from "../packages/boune/src/types.ts";
+import type { MiddlewareHandler } from "../packages/boune/src/types";
 
 // Timing middleware - wraps around command execution
 const timingMiddleware: MiddlewareHandler = async (ctx, next) => {
