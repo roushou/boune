@@ -5,10 +5,8 @@ import type {
   CommandConfig,
   HookHandler,
   HookType,
-  InferArgValue,
-  InferKind,
-  InferOptionValue,
-  Kind,
+  InferArg,
+  InferOpt,
   OptionDef,
   OptionOptions,
   ParsedArgs,
@@ -56,20 +54,7 @@ export class Command<
   /**
    * Add a positional argument
    */
-  argument<
-    TName extends string,
-    TKind extends Kind,
-    TRequired extends boolean,
-    TVariadic extends boolean = false,
-    TDefault extends InferKind<TKind, TVariadic> | undefined = undefined,
-  >(
-    options: ArgumentOptions<TName, TKind, TRequired, TVariadic> & { default?: TDefault },
-  ): Command<
-    TArgs & {
-      [K in TName]: InferArgValue<TKind, TRequired, TVariadic, TDefault>;
-    },
-    TOpts
-  > {
+  argument<const T extends ArgumentOptions>(options: T): Command<TArgs & InferArg<T>, TOpts> {
     const def: ArgumentDef = {
       name: options.name,
       description: options.description ?? "",
@@ -80,25 +65,13 @@ export class Command<
       validate: options.validate,
     };
     this.config.arguments.push(def);
-    return this as unknown as Command<
-      TArgs & {
-        [K in TName]: InferArgValue<TKind, TRequired, TVariadic, TDefault>;
-      },
-      TOpts
-    >;
+    return this as Command<TArgs & InferArg<T>, TOpts>;
   }
 
   /**
-   * Add an option with a value
+   * Add an option (use kind: "boolean" for flags without values)
    */
-  option<
-    TName extends string,
-    TKind extends Kind,
-    TRequired extends boolean = false,
-    TDefault extends InferKind<TKind> | undefined = undefined,
-  >(
-    options: OptionOptions<TName, TKind, TRequired, TDefault> & { default?: TDefault },
-  ): Command<TArgs, TOpts & { [K in TName]: InferOptionValue<TKind, TRequired, TDefault> }> {
+  option<const T extends OptionOptions>(options: T): Command<TArgs, TOpts & InferOpt<T>> {
     const def: OptionDef = {
       name: options.name,
       short: options.short,
@@ -112,10 +85,7 @@ export class Command<
       validate: options.validate,
     };
     this.config.options.push(def);
-    return this as unknown as Command<
-      TArgs,
-      TOpts & { [K in TName]: InferOptionValue<TKind, TRequired, TDefault> }
-    >;
+    return this as Command<TArgs, TOpts & InferOpt<T>>;
   }
 
   /**

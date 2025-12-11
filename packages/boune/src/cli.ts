@@ -3,7 +3,6 @@ import type {
   CommandConfig,
   HookHandler,
   HookType,
-  Kind,
   OptionDef,
   OptionOptions,
   ParsedArgs,
@@ -86,7 +85,7 @@ export class Cli {
   /**
    * Add a global option with a value
    */
-  option<TKind extends Kind>(options: OptionOptions<string, TKind>): this {
+  option(options: OptionOptions): this {
     this.config.globalOptions.push({
       name: options.name,
       short: options.short,

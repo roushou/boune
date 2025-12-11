@@ -29,83 +29,74 @@ export type InferKind<T extends Kind, Variadic extends boolean = false> = Variad
 // ============================================================================
 
 /** Argument configuration options */
-export interface ArgumentOptions<
-  TName extends string = string,
-  TKind extends Kind = Kind,
-  TRequired extends boolean = boolean,
-  TVariadic extends boolean = false,
-> {
+export interface ArgumentOptions {
   /** Argument name (used for access in args object) */
-  name: TName;
+  name: string;
   /** Value type */
-  kind: TKind;
+  kind: Kind;
   /** Whether argument is required */
-  required: TRequired;
+  required: boolean;
   /** Whether argument accepts multiple values (default: false) */
-  variadic?: TVariadic;
+  variadic?: boolean;
   /** Description shown in help */
   description?: string;
   /** Default value if not provided */
-  default?: InferKind<TKind, TVariadic>;
+  default?: unknown;
   /** Validation function */
   validate?: AnyValidator;
 }
 
-/** Infer argument value type based on options */
-export type InferArgValue<
-  TKind extends Kind,
-  TRequired extends boolean,
-  TVariadic extends boolean,
-  TDefault,
-> = TDefault extends undefined
-  ? TRequired extends true
-    ? InferKind<TKind, TVariadic>
-    : InferKind<TKind, TVariadic> | undefined
-  : InferKind<TKind, TVariadic>;
+/** Infer argument type from options object */
+export type InferArg<T extends ArgumentOptions> = {
+  [K in T["name"]]: T["variadic"] extends true
+    ? T["kind"] extends "number"
+      ? number[]
+      : T["kind"] extends "boolean"
+        ? boolean[]
+        : string[]
+    : T["default"] extends undefined
+      ? T["required"] extends true
+        ? InferKind<T["kind"]>
+        : InferKind<T["kind"]> | undefined
+      : InferKind<T["kind"]>;
+};
 
 // ============================================================================
 // Option Types
 // ============================================================================
 
 /** Option configuration options */
-export interface OptionOptions<
-  TName extends string = string,
-  TKind extends Kind = Kind,
-  TRequired extends boolean = false,
-  TDefault extends InferKind<TKind> | undefined = undefined,
-> {
+export interface OptionOptions {
   /** Option name (used for access in options object) */
-  name: TName;
+  name: string;
   /** Value type */
-  kind: TKind;
+  kind: Kind;
   /** Short flag (single character, e.g., "c" for -c) */
   short?: string;
   /** Long flag (defaults to name if not specified) */
   long?: string;
   /** Whether option is required (default: false) */
-  required?: TRequired;
+  required?: boolean;
   /** Description shown in help */
   description?: string;
   /** Default value if not provided */
-  default?: TDefault;
+  default?: unknown;
   /** Environment variable to read value from */
   env?: string;
   /** Validation function */
   validate?: AnyValidator;
 }
 
-/** Infer option value type based on options (default implies always present, boolean always present) */
-export type InferOptionValue<
-  TKind extends Kind,
-  TRequired extends boolean,
-  TDefault,
-> = TKind extends "boolean"
-  ? boolean // Boolean options always have a value (default: false)
-  : TDefault extends undefined
-    ? TRequired extends true
-      ? InferKind<TKind>
-      : InferKind<TKind> | undefined
-    : InferKind<TKind>;
+/** Infer option type from options object */
+export type InferOpt<T extends OptionOptions> = {
+  [K in T["name"]]: T["kind"] extends "boolean"
+    ? boolean // Boolean options always have a value (default: false)
+    : T["default"] extends undefined
+      ? T["required"] extends true
+        ? InferKind<T["kind"]>
+        : InferKind<T["kind"]> | undefined
+      : InferKind<T["kind"]>;
+};
 
 // ============================================================================
 // Internal Definitions (used by parser)
