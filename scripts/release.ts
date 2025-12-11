@@ -1,12 +1,18 @@
 #!/usr/bin/env bun
 
-import { cli, command, error, info, success } from "../packages/boune/src/index.ts";
-import { confirm } from "../packages/boune/src/prompt/index.ts";
-
-import bounePkg from "../packages/boune/package.json";
+import {
+  defineCli,
+  defineCommand,
+  error,
+  info,
+  option,
+  success,
+} from "../packages/boune/src/index.ts";
 import bouneJsrPkg from "../packages/boune/jsr.json";
-import createBounePkg from "../packages/create-boune/package.json";
+import bounePkg from "../packages/boune/package.json";
+import { confirm } from "../packages/boune/src/prompt/index.ts";
 import createBouneJsrPkg from "../packages/create-boune/package.json";
+import createBounePkg from "../packages/create-boune/package.json";
 
 // ============================================================================
 // Types
@@ -239,32 +245,29 @@ function printBumpPlan(plan: BumpPlan, dryRun: boolean): void {
 // CLI Commands
 // ============================================================================
 
-const bumpCommand = command("bump")
-  .description("Bump versions of packages without publishing")
-  .option({
-    name: "type",
-    kind: "string",
-    short: "t",
-    long: "type",
-    description: "Version bump type: patch, minor, major",
-    required: true,
-  })
-  .option({
-    name: "package",
-    kind: "string",
-    short: "p",
-    long: "package",
-    description: "Package to bump: boune, create-boune, or all",
-    required: true,
-  })
-  .option({
-    name: "execute",
-    kind: "boolean",
-    short: "e",
-    long: "execute",
-    description: "Actually bump (default is dry-run)",
-  })
-  .action(async ({ options }) => {
+const bumpCommand = defineCommand({
+  name: "bump",
+  description: "Bump versions of packages without publishing",
+  options: {
+    type: option
+      .string()
+      .short("t")
+      .long("type")
+      .required()
+      .describe("Version bump type: patch, minor, major"),
+    package: option
+      .string()
+      .short("p")
+      .long("package")
+      .required()
+      .describe("Package to bump: boune, create-boune, or all"),
+    execute: option
+      .boolean()
+      .short("e")
+      .long("execute")
+      .describe("Actually bump (default is dry-run)"),
+  },
+  async action({ options }) {
     const bumpType = options.type as BumpType;
     const { package: packageName, execute } = options;
     const dryRun = !execute;
@@ -295,46 +298,34 @@ const bumpCommand = command("bump")
     await executePlan(plan);
 
     console.log(success("\nBump complete!\n"));
-  });
+  },
+});
 
-const releaseCommand = command("release")
-  .description("Bump versions and publish packages to npm and jsr")
-  .option({
-    name: "bump",
-    kind: "string",
-    short: "b",
-    long: "bump",
-    description: "Version bump type: patch, minor, major",
-    required: true,
-  })
-  .option({
-    name: "package",
-    kind: "string",
-    short: "p",
-    long: "package",
-    description: "Package to release: boune, create-boune, or all",
-    required: true,
-  })
-  .option({
-    name: "execute",
-    kind: "boolean",
-    short: "e",
-    long: "execute",
-    description: "Actually publish (default is dry-run)",
-  })
-  .option({
-    name: "skipNpm",
-    kind: "boolean",
-    long: "skip-npm",
-    description: "Skip npm publish",
-  })
-  .option({
-    name: "skipJsr",
-    kind: "boolean",
-    long: "skip-jsr",
-    description: "Skip jsr publish",
-  })
-  .action(async ({ options }) => {
+const releaseCommand = defineCommand({
+  name: "release",
+  description: "Bump versions and publish packages to npm and jsr",
+  options: {
+    bump: option
+      .string()
+      .short("b")
+      .long("bump")
+      .required()
+      .describe("Version bump type: patch, minor, major"),
+    package: option
+      .string()
+      .short("p")
+      .long("package")
+      .required()
+      .describe("Package to release: boune, create-boune, or all"),
+    execute: option
+      .boolean()
+      .short("e")
+      .long("execute")
+      .describe("Actually publish (default is dry-run)"),
+    skipNpm: option.boolean().long("skip-npm").describe("Skip npm publish"),
+    skipJsr: option.boolean().long("skip-jsr").describe("Skip jsr publish"),
+  },
+  async action({ options }) {
     const bumpType = options.bump as BumpType;
     const { package: packageName, execute, skipJsr, skipNpm } = options;
     const dryRun = !execute;
@@ -369,11 +360,15 @@ const releaseCommand = command("release")
     await executePlan(plan);
 
     console.log(success("\nRelease complete!\n"));
-  });
+  },
+});
 
-cli("release")
-  .version("0.1.0")
-  .description("Release tool for boune monorepo")
-  .command(bumpCommand)
-  .command(releaseCommand)
-  .run();
+defineCli({
+  name: "release",
+  version: "0.1.0",
+  description: "Release tool for boune monorepo",
+  commands: {
+    bump: bumpCommand,
+    release: releaseCommand,
+  },
+}).run();

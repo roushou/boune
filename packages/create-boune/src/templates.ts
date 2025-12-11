@@ -52,22 +52,29 @@ export function getMinimalTemplate(name: string): TemplateFile[] {
       path: "src/index.ts",
       content: `#!/usr/bin/env bun
 
-import { cli, command, color } from "boune";
+import { argument, color, defineCli, defineCommand, option } from "boune";
 
-const greet = command("greet")
-  .description("Greet someone")
-  .argument({ name: "name", kind: "string", required: true, description: "Name to greet" })
-  .option({ name: "loud", short: "l", kind: "boolean", description: "Shout the greeting" })
-  .action(({ args, options }) => {
+const greet = defineCommand({
+  name: "greet",
+  description: "Greet someone",
+  arguments: {
+    name: argument.string().required().describe("Name to greet"),
+  },
+  options: {
+    loud: option.boolean().short("l").describe("Shout the greeting"),
+  },
+  action({ args, options }) {
     const msg = \`Hello, \${args.name}!\`;
     console.log(options.loud ? color.bold(msg.toUpperCase()) : msg);
-  });
+  },
+});
 
-cli("${name}")
-  .version("0.1.0")
-  .description("My CLI built with boune")
-  .command(greet)
-  .run();
+defineCli({
+  name: "${name}",
+  version: "0.1.0",
+  description: "My CLI built with boune",
+  commands: { greet },
+}).run();
 `,
     },
     {
@@ -153,46 +160,56 @@ export function getFullTemplate(name: string): TemplateFile[] {
       path: "src/index.ts",
       content: `#!/usr/bin/env bun
 
-import { cli } from "boune";
+import { defineCli } from "boune";
 import { greet } from "./commands/greet.ts";
 import { init } from "./commands/init.ts";
 
-cli("${name}")
-  .version("0.1.0")
-  .description("My CLI built with boune")
-  .hook("preAction", ({ command }) => {
-    // Runs before every command
-  })
-  .command(greet)
-  .command(init)
-  .run();
+const loggingMiddleware = async (ctx, next) => {
+  // Runs before every command
+  await next();
+};
+
+defineCli({
+  name: "${name}",
+  version: "0.1.0",
+  description: "My CLI built with boune",
+  commands: { greet, init },
+  middleware: [loggingMiddleware],
+}).run();
 `,
     },
     {
       path: "src/commands/greet.ts",
-      content: `import { command, color } from "boune";
+      content: `import { argument, color, defineCommand, option } from "boune";
 
-export const greet = command("greet")
-  .description("Greet someone")
-  .argument({ name: "name", kind: "string", required: true, description: "Name to greet" })
-  .option({ name: "loud", short: "l", kind: "boolean", description: "Shout the greeting" })
-  .option({ name: "times", short: "t", kind: "number", default: 1, description: "Repeat the greeting" })
-  .action(({ args, options }) => {
+export const greet = defineCommand({
+  name: "greet",
+  description: "Greet someone",
+  arguments: {
+    name: argument.string().required().describe("Name to greet"),
+  },
+  options: {
+    loud: option.boolean().short("l").describe("Shout the greeting"),
+    times: option.number().short("t").default(1).describe("Repeat the greeting"),
+  },
+  action({ args, options }) {
     for (let i = 0; i < options.times; i++) {
       const msg = \`Hello, \${args.name}!\`;
       console.log(options.loud ? color.bold(msg.toUpperCase()) : msg);
     }
-  });
+  },
+});
 `,
     },
     {
       path: "src/commands/init.ts",
-      content: `import { command, color, createSpinner } from "boune";
+      content: `import { color, createSpinner, defineCommand } from "boune";
 import { text, confirm, select } from "boune/prompt";
 
-export const init = command("init")
-  .description("Initialize a new project")
-  .action(async () => {
+export const init = defineCommand({
+  name: "init",
+  description: "Initialize a new project",
+  async action() {
     console.log(color.bold("\\nProject Setup\\n"));
 
     const name = await text({
@@ -227,7 +244,8 @@ export const init = command("init")
 
     console.log(\`\\n  \${color.green("→")} cd \${name}\`);
     console.log(\`  \${color.green("→")} bun install\\n\`);
-  });
+  },
+});
 `,
     },
     {

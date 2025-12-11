@@ -27,7 +27,7 @@ Options:
 
 ### Minimal
 
-Basic CLI with a single command. Good starting point for simple tools.
+Basic CLI with a single command using the declarative API. Good starting point for simple tools.
 
 ```
 my-cli/
@@ -40,7 +40,7 @@ my-cli/
 
 ### Full
 
-Complete setup with multiple commands, interactive prompts, and tests.
+Complete setup with multiple commands, interactive prompts, middleware, and tests.
 
 ```
 my-cli/

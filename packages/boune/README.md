@@ -5,13 +5,13 @@ A modern CLI framework for [Bun](https://bun.sh).
 ## Features
 
 - **TypeScript-first** - Full type inference for commands, arguments, and options
-- **Fluent API** - Chainable builder pattern for defining CLIs
+- **Declarative API** - Schema-based pattern for defining CLIs
 - **Subcommands** - Nested command hierarchies with aliases
 - **Auto-generated help** - `--help` and `--version` out of the box
 - **Argument parsing** - Required, optional, and variadic positional arguments
 - **Option parsing** - Short/long flags, typed values, defaults, environment variables
 - **Interactive prompts** - Text input, confirmations, selections
-- **Hooks** - Middleware for pre/post action and error handling
+- **Middleware** - Before/after hooks and error handling
 - **Output utilities** - Colors, tables, spinners, formatted messages
 - **Zero dependencies** - Built specifically for Bun's APIs
 
@@ -24,21 +24,28 @@ bun add boune
 ## Quick Start
 
 ```ts
-import { cli, command } from "boune";
+import { argument, defineCli, defineCommand, option } from "boune";
 
-const greet = command("greet")
-  .description("Greet someone")
-  .argument({ name: "name", kind: "string", required: true, description: "Name to greet" })
-  .option({ name: "loud", short: "l", kind: "boolean", description: "Shout the greeting" })
-  .action(({ args, options }) => {
+const greet = defineCommand({
+  name: "greet",
+  description: "Greet someone",
+  arguments: {
+    name: argument.string().required().describe("Name to greet"),
+  },
+  options: {
+    loud: option.boolean().short("l").describe("Shout the greeting"),
+  },
+  action({ args, options }) {
     const msg = `Hello, ${args.name}!`;
     console.log(options.loud ? msg.toUpperCase() : msg);
-  });
+  },
+});
 
-cli("my-app")
-  .version("1.0.0")
-  .command(greet)
-  .run();
+defineCli({
+  name: "my-app",
+  version: "1.0.0",
+  commands: { greet },
+}).run();
 ```
 
 ```bash
@@ -59,81 +66,101 @@ Options:
 
 ## Arguments
 
-Arguments are positional values passed to commands.
+Arguments are positional values passed to commands. Use the `argument` builder to define them.
 
 ```ts
 // Required argument
-command("greet").argument({
-  name: "name",
-  kind: "string",
-  required: true,
-  description: "Name to greet",
+defineCommand({
+  name: "greet",
+  arguments: {
+    name: argument.string().required().describe("Name to greet"),
+  },
+  action({ args }) {
+    console.log(`Hello, ${args.name}!`);
+  },
 });
 
 // Optional argument with default
-command("greet").argument({
-  name: "name",
-  kind: "string",
-  required: false,
-  default: "World",
-  description: "Name to greet",
+defineCommand({
+  name: "greet",
+  arguments: {
+    name: argument.string().default("World").describe("Name to greet"),
+  },
+  action({ args }) {
+    console.log(`Hello, ${args.name}!`);
+  },
 });
 
 // Variadic argument (collects remaining args)
-command("cat").argument({
-  name: "files",
-  kind: "string",
-  required: true,
-  variadic: true,
-  description: "Files to concatenate",
+defineCommand({
+  name: "cat",
+  arguments: {
+    files: argument.string().required().variadic().describe("Files to concatenate"),
+  },
+  action({ args }) {
+    // args.files is string[]
+  },
 });
 
 // Typed argument
-command("repeat").argument({
-  name: "count",
-  kind: "number",
-  required: true,
-  description: "Times to repeat",
+defineCommand({
+  name: "repeat",
+  arguments: {
+    count: argument.number().required().describe("Times to repeat"),
+  },
+  action({ args }) {
+    // args.count is number
+  },
 });
 ```
 
 ## Options
 
-Use `.option()` to define options. Use `kind: "boolean"` for flags (no value).
+Use the `option` builder to define options. Boolean options act as flags (no value).
 
 ```ts
 // Boolean option (flag - no value)
-command("build").option({
-  name: "verbose",
-  short: "v",
-  kind: "boolean",
-  description: "Verbose output",
+defineCommand({
+  name: "build",
+  options: {
+    verbose: option.boolean().short("v").describe("Verbose output"),
+  },
+  action({ options }) {
+    // options.verbose is boolean (defaults to false)
+  },
 });
 
 // Option with string value
-command("build").option({
-  name: "output",
-  short: "o",
-  kind: "string",
-  description: "Output directory",
+defineCommand({
+  name: "build",
+  options: {
+    output: option.string().short("o").describe("Output directory"),
+  },
+  action({ options }) {
+    // options.output is string | undefined
+  },
 });
 
 // Option with default (type is inferred as always present)
-command("serve").option({
-  name: "port",
-  short: "p",
-  kind: "number",
-  default: 3000,
-  description: "Port to listen on",
+defineCommand({
+  name: "serve",
+  options: {
+    port: option.number().short("p").default(3000).describe("Port to listen on"),
+  },
+  action({ options }) {
+    // options.port is number
+  },
 });
 
 // Environment variable fallback
-command("deploy").option({
-  name: "token",
-  kind: "string",
-  required: true,
-  env: "API_TOKEN",
-  description: "API token",
+defineCommand({
+  name: "deploy",
+  options: {
+    token: option.string().required().env("API_TOKEN").describe("API token"),
+  },
+  action({ options }) {
+    // options.token is string
+  },
 });
 ```
 
@@ -148,16 +175,27 @@ command("deploy").option({
 ## Subcommands
 
 ```ts
-const watch = command("watch")
-  .description("Watch mode")
-  .action(() => console.log("Watching..."));
+const watch = defineCommand({
+  name: "watch",
+  description: "Watch mode",
+  action() {
+    console.log("Watching...");
+  },
+});
 
-const build = command("build")
-  .description("Build project")
-  .subcommand(watch)
-  .action(() => console.log("Building..."));
+const build = defineCommand({
+  name: "build",
+  description: "Build project",
+  subcommands: { watch },
+  action() {
+    console.log("Building...");
+  },
+});
 
-cli("my-app").command(build).run();
+defineCli({
+  name: "my-app",
+  commands: { build },
+}).run();
 ```
 
 ```bash
@@ -165,19 +203,38 @@ $ my-app build        # runs build action
 $ my-app build watch  # runs watch action
 ```
 
-## Hooks
+## Middleware
+
+Use `before` and `after` hooks for middleware, and `onError` for error handling:
 
 ```ts
-cli("my-app")
-  .hook("preAction", ({ command }) => {
-    console.log(`Running: ${command.name}`);
-  })
-  .hook("postAction", () => {
-    console.log("Done!");
-  })
-  .hook("preError", ({ error }) => {
-    // Custom error handling
-  });
+const loggingMiddleware = async (ctx, next) => {
+  console.log(`Running: ${ctx.command.name}`);
+  await next();
+  console.log("Done!");
+};
+
+defineCli({
+  name: "my-app",
+  commands: { build },
+  middleware: [loggingMiddleware],
+  onError(error, ctx) {
+    console.error(`Error in ${ctx.command.name}: ${error.message}`);
+  },
+});
+
+// Or per-command:
+defineCommand({
+  name: "build",
+  before: [loggingMiddleware],
+  after: [cleanupMiddleware],
+  onError(error, ctx) {
+    // Command-specific error handling
+  },
+  action() {
+    // ...
+  },
+});
 ```
 
 ## Interactive Prompts
