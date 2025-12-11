@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+:root {
+  --neon-pink: #ff00ff;
+  --neon-blue: #00ffff;
+  --neon-green: #00ff00;
+  --neon-yellow: #ffff00;
+  --bg-dark: #050510;
+  --grid-color: rgba(100, 0, 255, 0.3);
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: #fff;
+  font-family: "Space Mono", monospace;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+.pixel-font {
+  font-family: "Press Start 2P", cursive;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--neon-pink);
+  border: 2px solid #000;
+}
+
+/* CRT Scanline Effect */
+.crt::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background:
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 50;
+  background-size:
+    100% 2px,
+    3px 100%;
+  pointer-events: none;
+}
+
+/* Glitch Animation */
+.glitch {
+  position: relative;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.glitch::before {
+  left: 2px;
+  text-shadow: -1px 0 var(--neon-pink);
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim 3s infinite linear alternate-reverse;
+}
+.glitch::after {
+  left: -2px;
+  text-shadow: -1px 0 var(--neon-blue);
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim 2s infinite linear alternate-reverse;
+}
+@keyframes glitch-anim {
+  0% {
+    clip: rect(14px, 9999px, 127px, 0);
+  }
+  20% {
+    clip: rect(66px, 9999px, 11px, 0);
+  }
+  40% {
+    clip: rect(104px, 9999px, 83px, 0);
+  }
+  60% {
+    clip: rect(18px, 9999px, 126px, 0);
+  }
+  80% {
+    clip: rect(56px, 9999px, 4px, 0);
+  }
+  100% {
+    clip: rect(85px, 9999px, 136px, 0);
+  }
+}
+
+/* Floating Animation */
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Neon Border/Box */
+.neon-box {
+  border: 4px solid var(--neon-blue);
+  box-shadow:
+    0 0 10px var(--neon-blue),
+    inset 0 0 10px var(--neon-blue);
+  transition: all 0.3s ease;
+}
+.neon-box:hover {
+  border-color: var(--neon-pink);
+  box-shadow:
+    0 0 20px var(--neon-pink),
+    inset 0 0 20px var(--neon-pink);
+  transform: scale(1.02);
+}
+
+/* Syntax Highlighting Mockup */
+.code-keyword {
+  color: var(--neon-pink);
+}
+.code-string {
+  color: var(--neon-green);
+}
+.code-func {
+  color: var(--neon-blue);
+}
+.code-comment {
+  color: #666;
+  font-style: italic;
+}
+
+/* Background Grid Animation */
+#retro-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  perspective: 600px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #050510 0%, #1a0b2e 100%);
+}
+@keyframes grid-move {
+  0% {
+    transform: rotateX(60deg) translateY(0);
+  }
+  100% {
+    transform: rotateX(60deg) translateY(50px);
+  }
+}
+
+/* Custom Selection */
+::selection {
+  background: var(--neon-pink);
+  color: white;
+}
+
+/* Typing Cursor */
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  background-color: var(--neon-pink);
+  box-shadow: 0 0 10px var(--neon-pink);
+  animation: blink 1s step-end infinite;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Scan animation for terminal */
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}

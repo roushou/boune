@@ -1,0 +1,14 @@
+---
+import type { Props } from "@astrojs/starlight/props";
+import Default from "@astrojs/starlight/components/Head.astro";
+
+// Font files for preloading
+import spaceMonoWoff2 from "@fontsource/space-mono/files/space-mono-latin-400-normal.woff2?url";
+import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2?url";
+---
+
+<!-- Preload critical fonts -->
+<link rel="preload" as="font" type="font/woff2" href={spaceMonoWoff2} crossorigin="anonymous" />
+<link rel="preload" as="font" type="font/woff2" href={pressStart2pWoff2} crossorigin="anonymous" />
+
+<Default {...Astro.props} />

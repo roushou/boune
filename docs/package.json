@@ -1,0 +1,26 @@
+{
+  "name": "boune-docs",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.6.12",
+    "@astrojs/starlight": "^0.37.1",
+    "@fontsource/press-start-2p": "^5.2.7",
+    "@fontsource/space-mono": "^5.2.9",
+    "astro": "^5.6.1",
+    "lucide": "^0.560.0",
+    "sharp": "^0.34.2"
+  },
+  "devDependencies": {
+    "@astrojs/starlight-tailwind": "^4.0.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18"
+  }
+}
