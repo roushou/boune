@@ -1,6 +1,6 @@
 {
   "name": "@boune/create",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Scaffold a new CLI project with boune",
   "exports": "./src/index.ts",
   "publish": {
