@@ -17,7 +17,7 @@ export function getMinimalTemplate(name: string): TemplateFile[] {
             build: "bun build src/index.ts --compile --outfile dist/" + name,
           },
           dependencies: {
-            boune: "^0.1.0",
+            boune: "^0.5.0",
           },
           devDependencies: {
             "@types/bun": "latest",
