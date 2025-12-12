@@ -62,18 +62,18 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
     </div>
 
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-40 bg-black/5 backdrop-blur-xs border-b-4 border-[var(--neon-blue)]">
+    <nav class="fixed top-0 w-full z-40 bg-black/5 backdrop-blur-xs border-b-4 border-neon-blue">
       <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div class="text-2xl pixel-font text-[var(--neon-blue)] animate-pulse cursor-pointer hover:text-[var(--neon-pink)] transition-colors">
+        <div class="text-2xl pixel-font text-neon-blue animate-pulse cursor-pointer hover:text-neon-pink transition-colors">
           <i data-lucide="terminal" class="inline-block w-8 h-8 mb-1 mr-2"></i>BOUNE
         </div>
         <div class="hidden md:flex space-x-8 text-sm font-bold tracking-wider">
-          <a href="#features" class="hover:text-[var(--neon-pink)] hover:underline decoration-wavy underline-offset-4 transition-all">FEATURES</a>
-          <a href="#how-it-works" class="hover:text-[var(--neon-green)] hover:underline decoration-wavy underline-offset-4 transition-all">EXAMPLES</a>
-          <a href="#install" class="hover:text-[var(--neon-yellow)] hover:underline decoration-wavy underline-offset-4 transition-all">INSTALL</a>
-          <a href="#" class="text-gray-500 hover:text-[var(--neon-blue)] hover:underline decoration-wavy underline-offset-4 transition-all">DOCS (SOON)</a>
+          <a href="#features" class="hover:text-neon-pink hover:underline decoration-wavy underline-offset-4 transition-all">FEATURES</a>
+          <a href="#how-it-works" class="hover:text-neon-green hover:underline decoration-wavy underline-offset-4 transition-all">EXAMPLES</a>
+          <a href="#install" class="hover:text-neon-yellow hover:underline decoration-wavy underline-offset-4 transition-all">INSTALL</a>
+          <a href="#" class="text-gray-500 hover:text-neon-blue hover:underline decoration-wavy underline-offset-4 transition-all">DOCS (SOON)</a>
         </div>
-        <a href="https://github.com/roushou/boune" target="_blank" class="bg-[var(--neon-pink)] text-black pixel-font text-xs py-2 px-4 hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+        <a href="https://github.com/roushou/boune" target="_blank" class="bg-neon-pink text-black pixel-font text-xs py-2 px-4 hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
           GITHUB
         </a>
       </div>
@@ -84,46 +84,46 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
       <div class="container mx-auto px-4 z-10 flex flex-col md:flex-row items-center">
         <!-- Text Content -->
         <div class="w-full md:w-1/2 mb-12 md:mb-0 text-center md:text-left">
-          <div class="inline-block bg-[var(--neon-yellow)] text-black px-2 py-1 mb-4 pixel-font text-[10px] transform -rotate-2">
+          <div class="inline-block bg-neon-yellow text-black px-2 py-1 mb-4 pixel-font text-[10px] transform -rotate-2">
             BATTERIES INCLUDED
           </div>
           <h1 class="text-5xl md:text-7xl mb-6 leading-tight glitch" data-text="SHIP CLIs FASTER">
-            SHIP <span class="text-[var(--neon-pink)]">CLIs</span> FASTER
+            SHIP <span class="text-neon-pink">CLIs</span> FASTER
           </h1>
-          <p class="text-xl text-gray-300 mb-8 max-w-lg mx-auto md:mx-0 font-bold border-l-4 border-[var(--neon-green)] pl-4">
-            Build powerful CLIs powered by <span class="text-[var(--neon-yellow)]">Bun</span>. <span class="text-[var(--neon-blue)]">Type-safe</span> arguments, prompts, spinners, colors, and shell completions. Zero config, maximum DX.
+          <p class="text-xl text-gray-300 mb-8 max-w-lg mx-auto md:mx-0 font-bold border-l-4 border-neon-green pl-4">
+            Build powerful CLIs powered by <span class="text-neon-yellow">Bun</span>. <span class="text-neon-blue">Type-safe</span> arguments, prompts, spinners, colors, and shell completions. Zero config, maximum DX.
           </p>
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-            <button id="copy-btn" class="group relative px-8 py-4 bg-transparent border-4 border-[var(--neon-green)] text-[var(--neon-green)] pixel-font text-sm hover:bg-[var(--neon-green)] hover:text-black transition-all duration-200">
-              <span class="absolute -top-3 left-4 bg-[var(--bg-dark)] px-2 text-[10px] group-hover:text-[var(--neon-green)] group-hover:bg-black transition-colors">INSTALL</span>
+            <button id="copy-btn" class="group relative px-8 py-4 bg-transparent border-4 border-neon-green text-neon-green pixel-font text-sm hover:bg-neon-green hover:text-black transition-all duration-200">
+              <span class="absolute -top-3 left-4 bg-dark px-2 text-[10px] group-hover:text-neon-green group-hover:bg-black transition-colors">INSTALL</span>
               <span id="install-text">$ bun add boune</span>
               <i id="copy-icon" data-lucide="copy" class="inline w-4 h-4 ml-2"></i>
             </button>
-            <a href="#how-it-works" class="px-8 py-4 bg-[var(--neon-blue)] text-black pixel-font text-sm shadow-[6px_6px_0px_0px_rgba(255,0,255,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0px_0px_rgba(255,0,255,1)] transition-all">
+            <a href="#how-it-works" class="px-8 py-4 bg-neon-blue text-black pixel-font text-sm shadow-[6px_6px_0px_0px_rgba(255,0,255,1)] hover:translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0px_0px_rgba(255,0,255,1)] transition-all">
               SEE EXAMPLES
             </a>
           </div>
 
           <div class="mt-6 flex items-center gap-2 justify-center md:justify-start text-sm text-gray-400">
-            <span class="text-[var(--neon-pink)]">⚡</span>
-            <span>Compile to a <span class="text-[var(--neon-pink)]">single executable</span> with <code class="text-[var(--neon-yellow)]">bun build --compile</code></span>
+            <span class="text-neon-pink">⚡</span>
+            <span>Compile to a <span class="text-neon-pink">single executable</span> with <code class="text-neon-yellow">bun build --compile</code></span>
           </div>
         </div>
 
         <!-- Visual Graphic -->
         <div class="w-full md:w-1/2 relative float">
-          <div class="relative z-10 bg-black border-4 border-[var(--neon-pink)] shadow-[0_0_40px_rgba(255,0,255,0.4),inset_0_0_20px_rgba(255,0,255,0.1)] transform hover:shadow-[0_0_60px_rgba(255,0,255,0.6),inset_0_0_30px_rgba(255,0,255,0.2)] transition-all duration-500">
+          <div class="relative z-10 bg-black border-4 border-neon-pink shadow-[0_0_40px_rgba(255,0,255,0.4),inset_0_0_20px_rgba(255,0,255,0.1)] transform hover:shadow-[0_0_60px_rgba(255,0,255,0.6),inset_0_0_30px_rgba(255,0,255,0.2)] transition-all duration-500">
             <!-- Terminal Window Header -->
-            <div class="bg-black/80 px-4 py-3 flex items-center gap-2 border-b-2 border-[var(--neon-pink)]/50">
+            <div class="bg-black/80 px-4 py-3 flex items-center gap-2 border-b-2 border-neon-pink/50">
               <div class="flex gap-2">
-                <div class="w-3 h-3 rounded-full bg-[#ff5f56] shadow-[0_0_8px_#ff5f56]"></div>
-                <div class="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-[0_0_8px_#ffbd2e]"></div>
-                <div class="w-3 h-3 rounded-full bg-[#27ca40] shadow-[0_0_8px_#27ca40]"></div>
+                <div class="w-3 h-3 rounded-full bg-traffic-red shadow-[0_0_8px_var(--color-traffic-red)]"></div>
+                <div class="w-3 h-3 rounded-full bg-traffic-yellow shadow-[0_0_8px_var(--color-traffic-yellow)]"></div>
+                <div class="w-3 h-3 rounded-full bg-traffic-green shadow-[0_0_8px_var(--color-traffic-green)]"></div>
               </div>
               <!-- Tab bar -->
               <div class="flex-1 flex justify-center gap-1">
-                <div class="px-4 py-1 bg-[var(--neon-pink)]/20 border border-[var(--neon-pink)]/50 text-[var(--neon-pink)] text-xs font-mono">
+                <div class="px-4 py-1 bg-neon-pink/20 border border-neon-pink/50 text-neon-pink text-xs font-mono">
                   index.ts
                 </div>
               </div>
@@ -131,7 +131,7 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
             </div>
 
             <!-- Code Editor Body -->
-            <div class="bg-[#0a0a0f] font-mono text-sm overflow-hidden relative flex">
+            <div class="bg-terminal font-mono text-sm overflow-hidden relative flex">
               <!-- Line Numbers -->
               <div class="py-4 px-3 text-right text-gray-600 select-none border-r border-gray-800/50 bg-black/30">
                 <div>1</div>
@@ -149,92 +149,92 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
               <!-- Code Content -->
               <div class="py-4 px-4 flex-1">
                 <div class="text-gray-500 italic">// Define your CLI</div>
-                <div><span class="text-[var(--neon-pink)]">import</span> {'{ defineCli }'} <span class="text-[var(--neon-pink)]">from</span> <span class="text-[var(--neon-green)]">"boune"</span>;</div>
+                <div><span class="text-neon-pink">import</span> {'{ defineCli }'} <span class="text-neon-pink">from</span> <span class="text-neon-green">"boune"</span>;</div>
                 <div class="h-4"></div>
-                <div><span class="text-[var(--neon-pink)]">const</span> cli = <span class="text-[var(--neon-blue)]">defineCli</span>({'{'}</div>
-                <div class="pl-4">name: <span class="text-[var(--neon-green)]">"cli"</span>,</div>
-                <div class="pl-4">version: <span class="text-[var(--neon-green)]">"1.0.0"</span>,</div>
+                <div><span class="text-neon-pink">const</span> cli = <span class="text-neon-blue">defineCli</span>({'{'}</div>
+                <div class="pl-4">name: <span class="text-neon-green">"cli"</span>,</div>
+                <div class="pl-4">version: <span class="text-neon-green">"1.0.0"</span>,</div>
                 <div class="pl-4">commands: {'{ deploy, build }'},</div>
                 <div>{'}'});</div>
                 <div class="h-4"></div>
-                <div>cli.<span class="text-[var(--neon-blue)]">run</span>();<span class="cursor"></span></div>
+                <div>cli.<span class="text-neon-blue">run</span>();<span class="cursor"></span></div>
               </div>
             </div>
 
             <!-- Terminal Output Section -->
-            <div class="border-t-2 border-[var(--neon-pink)]/30 bg-[#0a0a0f]">
+            <div class="border-t-2 border-neon-pink/30 bg-terminal">
               <div class="px-4 py-2 border-b border-gray-800/50 flex items-center gap-2">
-                <span class="text-[var(--neon-green)] text-xs pixel-font">TERMINAL</span>
-                <div class="flex-1 h-px bg-gradient-to-r from-[var(--neon-green)]/50 to-transparent"></div>
+                <span class="text-neon-green text-xs pixel-font">TERMINAL</span>
+                <div class="flex-1 h-px bg-gradient-to-r from-neon-green/50 to-transparent"></div>
               </div>
               <div class="p-4 font-mono text-sm space-y-1">
                 <div>
-                  <span class="text-[var(--neon-green)]">❯</span>
+                  <span class="text-neon-green">❯</span>
                   <span class="text-white ml-2">cli deploy --env production</span>
                 </div>
                 <div class="text-gray-400">
-                  <span class="text-[var(--neon-blue)]">ℹ</span> Deploying to production...
+                  <span class="text-neon-blue">ℹ</span> Deploying to production...
                 </div>
-                <div class="text-[var(--neon-green)]">✓ Deployed successfully!</div>
+                <div class="text-neon-green">✓ Deployed successfully!</div>
               </div>
             </div>
           </div>
 
           <!-- Decorative Elements behind -->
           <!-- Squares -->
-          <div class="absolute -z-10 top-10 -right-10 w-20 h-20 border-4 border-[var(--neon-blue)] opacity-40 rotate-12 animate-pulse"></div>
-          <div class="absolute -z-10 bottom-20 -left-8 w-16 h-16 border-2 border-[var(--neon-yellow)] opacity-30 -rotate-12"></div>
+          <div class="absolute -z-10 top-10 -right-10 w-20 h-20 border-4 border-neon-blue opacity-40 rotate-12 animate-pulse"></div>
+          <div class="absolute -z-10 bottom-20 -left-8 w-16 h-16 border-2 border-neon-yellow opacity-30 -rotate-12"></div>
 
           <!-- Circles -->
-          <div class="absolute -z-10 -bottom-5 -left-5 w-24 h-24 bg-[var(--neon-pink)] opacity-30 rounded-full blur-2xl"></div>
-          <div class="absolute -z-10 top-1/2 -right-20 w-16 h-16 bg-[var(--neon-green)] opacity-20 rounded-full blur-xl"></div>
-          <div class="absolute -z-10 top-0 left-1/4 w-8 h-8 border-2 border-[var(--neon-pink)] opacity-40 rounded-full"></div>
+          <div class="absolute -z-10 -bottom-5 -left-5 w-24 h-24 bg-neon-pink opacity-30 rounded-full blur-2xl"></div>
+          <div class="absolute -z-10 top-1/2 -right-20 w-16 h-16 bg-neon-green opacity-20 rounded-full blur-xl"></div>
+          <div class="absolute -z-10 top-0 left-1/4 w-8 h-8 border-2 border-neon-pink opacity-40 rounded-full"></div>
 
           <!-- Diamonds -->
-          <div class="absolute -z-10 top-1/3 -left-12 w-12 h-12 border-2 border-[var(--neon-green)] opacity-30 rotate-45"></div>
-          <div class="absolute -z-10 bottom-10 right-1/4 w-8 h-8 bg-[var(--neon-blue)] opacity-20 rotate-45"></div>
+          <div class="absolute -z-10 top-1/3 -left-12 w-12 h-12 border-2 border-neon-green opacity-30 rotate-45"></div>
+          <div class="absolute -z-10 bottom-10 right-1/4 w-8 h-8 bg-neon-blue opacity-20 rotate-45"></div>
 
           <!-- Triangles (using borders) -->
-          <div class="absolute -z-10 top-20 -left-6 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-b-[26px] border-b-[var(--neon-yellow)] opacity-30"></div>
-          <div class="absolute -z-10 bottom-1/3 -right-8 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-[var(--neon-pink)] opacity-40 rotate-180"></div>
+          <div class="absolute -z-10 top-20 -left-6 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-b-[26px] border-b-neon-yellow opacity-30"></div>
+          <div class="absolute -z-10 bottom-1/3 -right-8 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-neon-pink opacity-40 rotate-180"></div>
 
           <!-- Plus signs -->
-          <div class="absolute -z-10 top-5 left-1/3 text-[var(--neon-green)] opacity-30 text-3xl font-bold">+</div>
-          <div class="absolute -z-10 bottom-1/4 -right-4 text-[var(--neon-blue)] opacity-40 text-2xl font-bold">+</div>
+          <div class="absolute -z-10 top-5 left-1/3 text-neon-green opacity-30 text-3xl font-bold">+</div>
+          <div class="absolute -z-10 bottom-1/4 -right-4 text-neon-blue opacity-40 text-2xl font-bold">+</div>
 
           <!-- Dots -->
-          <div class="absolute -z-10 top-1/4 -right-16 w-3 h-3 bg-[var(--neon-pink)] opacity-50 rounded-full"></div>
-          <div class="absolute -z-10 top-2/3 -left-4 w-2 h-2 bg-[var(--neon-yellow)] opacity-60 rounded-full"></div>
-          <div class="absolute -z-10 bottom-5 left-1/3 w-2 h-2 bg-[var(--neon-green)] opacity-50 rounded-full"></div>
+          <div class="absolute -z-10 top-1/4 -right-16 w-3 h-3 bg-neon-pink opacity-50 rounded-full"></div>
+          <div class="absolute -z-10 top-2/3 -left-4 w-2 h-2 bg-neon-yellow opacity-60 rounded-full"></div>
+          <div class="absolute -z-10 bottom-5 left-1/3 w-2 h-2 bg-neon-green opacity-50 rounded-full"></div>
         </div>
       </div>
     </section>
 
     <!-- Why Boune Section -->
-    <section id="why" class="py-20 bg-black/40 border-y border-[var(--neon-yellow)] relative overflow-hidden">
+    <section id="why" class="py-20 bg-black/40 border-y border-neon-yellow relative overflow-hidden">
       <!-- Decorative elements -->
-      <div class="absolute top-10 left-10 w-20 h-20 border-2 border-[var(--neon-yellow)] opacity-20 rotate-45"></div>
-      <div class="absolute bottom-10 right-10 w-32 h-32 border-2 border-[var(--neon-pink)] opacity-20 -rotate-12"></div>
-      <div class="absolute top-1/2 right-20 w-16 h-16 bg-[var(--neon-blue)] opacity-10 rounded-full blur-2xl"></div>
+      <div class="absolute top-10 left-10 w-20 h-20 border-2 border-neon-yellow opacity-20 rotate-45"></div>
+      <div class="absolute bottom-10 right-10 w-32 h-32 border-2 border-neon-pink opacity-20 -rotate-12"></div>
+      <div class="absolute top-1/2 right-20 w-16 h-16 bg-neon-blue opacity-10 rounded-full blur-2xl"></div>
       <!-- Extra shapes -->
-      <div class="absolute top-1/4 left-1/4 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[18px] border-b-[var(--neon-green)] opacity-20"></div>
-      <div class="absolute bottom-1/4 right-1/4 text-[var(--neon-pink)] opacity-20 text-2xl">+</div>
-      <div class="absolute top-20 right-1/3 w-3 h-3 bg-[var(--neon-yellow)] opacity-30 rounded-full"></div>
-      <div class="absolute bottom-20 left-1/3 w-2 h-2 bg-[var(--neon-blue)] opacity-40 rounded-full"></div>
+      <div class="absolute top-1/4 left-1/4 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[18px] border-b-neon-green opacity-20"></div>
+      <div class="absolute bottom-1/4 right-1/4 text-neon-pink opacity-20 text-2xl">+</div>
+      <div class="absolute top-20 right-1/3 w-3 h-3 bg-neon-yellow opacity-30 rounded-full"></div>
+      <div class="absolute bottom-20 left-1/3 w-2 h-2 bg-neon-blue opacity-40 rounded-full"></div>
 
       <div class="container mx-auto px-4 relative z-10">
         <div class="text-center mb-16">
-          <span class="pixel-font text-[var(--neon-yellow)] text-sm mb-2 block">THE DIFFERENCE</span>
+          <span class="pixel-font text-neon-yellow text-sm mb-2 block">THE DIFFERENCE</span>
           <h2 class="text-3xl md:text-5xl pixel-font text-white">WHY BOUNE?</h2>
         </div>
 
         <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Point 1 -->
-          <div class="bg-black border-2 border-[var(--neon-pink)]/50 p-6 hover:border-[var(--neon-pink)] hover:shadow-[0_0_20px_rgba(255,0,255,0.3)] transition-all duration-300 group">
+          <div class="bg-black border-2 border-neon-pink/50 p-6 hover:border-neon-pink hover:shadow-[0_0_20px_rgba(255,0,255,0.3)] transition-all duration-300 group">
             <div class="flex gap-4 items-start">
-              <div class="text-[var(--neon-pink)] pixel-font text-2xl group-hover:animate-pulse">01</div>
+              <div class="text-neon-pink pixel-font text-2xl group-hover:animate-pulse">01</div>
               <div>
-                <h3 class="text-xl font-bold text-[var(--neon-pink)] mb-2">Autocomplete Everything</h3>
+                <h3 class="text-xl font-bold text-neon-pink mb-2">Autocomplete Everything</h3>
                 <p class="text-gray-400 leading-relaxed">
                   Your IDE knows your CLI schema. Arguments, options, commands - all with full IntelliSense. No guessing, no docs lookup.
                 </p>
@@ -243,24 +243,24 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
           </div>
 
           <!-- Point 2 -->
-          <div class="bg-black border-2 border-[var(--neon-blue)]/50 p-6 hover:border-[var(--neon-blue)] hover:shadow-[0_0_20px_rgba(0,255,255,0.3)] transition-all duration-300 group">
+          <div class="bg-black border-2 border-neon-blue/50 p-6 hover:border-neon-blue hover:shadow-[0_0_20px_rgba(0,255,255,0.3)] transition-all duration-300 group">
             <div class="flex gap-4 items-start">
-              <div class="text-[var(--neon-blue)] pixel-font text-2xl group-hover:animate-pulse">02</div>
+              <div class="text-neon-blue pixel-font text-2xl group-hover:animate-pulse">02</div>
               <div>
-                <h3 class="text-xl font-bold text-[var(--neon-blue)] mb-2">Ship in Minutes, Not Hours</h3>
+                <h3 class="text-xl font-bold text-neon-blue mb-2">Ship in Minutes, Not Hours</h3>
                 <p class="text-gray-400 leading-relaxed">
-                  From <code class="text-[var(--neon-blue)]">bun add</code> to working CLI in under 5 minutes. No tutorials needed, the API is intuitive.
+                  From <code class="text-neon-blue">bun add</code> to working CLI in under 5 minutes. No tutorials needed, the API is intuitive.
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Point 3 -->
-          <div class="bg-black border-2 border-[var(--neon-green)]/50 p-6 hover:border-[var(--neon-green)] hover:shadow-[0_0_20px_rgba(0,255,0,0.3)] transition-all duration-300 group">
+          <div class="bg-black border-2 border-neon-green/50 p-6 hover:border-neon-green hover:shadow-[0_0_20px_rgba(0,255,0,0.3)] transition-all duration-300 group">
             <div class="flex gap-4 items-start">
-              <div class="text-[var(--neon-green)] pixel-font text-2xl group-hover:animate-pulse">03</div>
+              <div class="text-neon-green pixel-font text-2xl group-hover:animate-pulse">03</div>
               <div>
-                <h3 class="text-xl font-bold text-[var(--neon-green)] mb-2">Beautiful by Default</h3>
+                <h3 class="text-xl font-bold text-neon-green mb-2">Beautiful by Default</h3>
                 <p class="text-gray-400 leading-relaxed">
                   Spinners, colors, and prompts that look great out of the box. Professional terminal UI without the terminal UI expertise.
                 </p>
@@ -269,11 +269,11 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
           </div>
 
           <!-- Point 4 -->
-          <div class="bg-black border-2 border-[var(--neon-yellow)]/50 p-6 hover:border-[var(--neon-yellow)] hover:shadow-[0_0_20px_rgba(255,255,0,0.3)] transition-all duration-300 group">
+          <div class="bg-black border-2 border-neon-yellow/50 p-6 hover:border-neon-yellow hover:shadow-[0_0_20px_rgba(255,255,0,0.3)] transition-all duration-300 group">
             <div class="flex gap-4 items-start">
-              <div class="text-[var(--neon-yellow)] pixel-font text-2xl group-hover:animate-pulse">04</div>
+              <div class="text-neon-yellow pixel-font text-2xl group-hover:animate-pulse">04</div>
               <div>
-                <h3 class="text-xl font-bold text-[var(--neon-yellow)] mb-2">Zero External Dependencies</h3>
+                <h3 class="text-xl font-bold text-neon-yellow mb-2">Zero External Dependencies</h3>
                 <p class="text-gray-400 leading-relaxed">
                   No chalk, no ora, no inquirer. Everything is built-in. One package, one install, no dependency tree to audit.
                 </p>
@@ -287,151 +287,151 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
     <!-- Comparison Section -->
     <section id="compare" class="py-20 relative overflow-hidden">
       <!-- Decorative elements -->
-      <div class="absolute top-10 right-10 w-16 h-16 border-2 border-[var(--neon-blue)] opacity-20 rotate-12"></div>
-      <div class="absolute bottom-20 left-10 w-12 h-12 border-2 border-[var(--neon-green)] opacity-20 rotate-45"></div>
-      <div class="absolute top-1/3 left-5 w-20 h-20 bg-[var(--neon-pink)] opacity-10 rounded-full blur-2xl"></div>
-      <div class="absolute bottom-1/3 right-5 w-24 h-24 bg-[var(--neon-blue)] opacity-10 rounded-full blur-3xl"></div>
-      <div class="absolute top-1/2 right-1/4 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-[var(--neon-yellow)] opacity-25 rotate-180"></div>
-      <div class="absolute bottom-10 right-1/3 text-[var(--neon-green)] opacity-20 text-xl">+</div>
-      <div class="absolute top-20 left-1/4 w-2 h-2 bg-[var(--neon-pink)] opacity-40 rounded-full"></div>
+      <div class="absolute top-10 right-10 w-16 h-16 border-2 border-neon-blue opacity-20 rotate-12"></div>
+      <div class="absolute bottom-20 left-10 w-12 h-12 border-2 border-neon-green opacity-20 rotate-45"></div>
+      <div class="absolute top-1/3 left-5 w-20 h-20 bg-neon-pink opacity-10 rounded-full blur-2xl"></div>
+      <div class="absolute bottom-1/3 right-5 w-24 h-24 bg-neon-blue opacity-10 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/2 right-1/4 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-neon-yellow opacity-25 rotate-180"></div>
+      <div class="absolute bottom-10 right-1/3 text-neon-green opacity-20 text-xl">+</div>
+      <div class="absolute top-20 left-1/4 w-2 h-2 bg-neon-pink opacity-40 rounded-full"></div>
 
       <div class="container mx-auto px-4 relative z-10">
         <div class="text-center mb-12">
-          <span class="pixel-font text-[var(--neon-blue)] text-sm mb-2 block">VS THE REST</span>
+          <span class="pixel-font text-neon-blue text-sm mb-2 block">VS THE REST</span>
           <h2 class="text-3xl md:text-4xl pixel-font text-white">FEATURE COMPARISON</h2>
         </div>
 
         <div class="max-w-4xl mx-auto">
-          <div class="bg-black border-4 border-[var(--neon-blue)] shadow-[0_0_30px_rgba(0,255,255,0.2)] overflow-hidden">
+          <div class="bg-black border-4 border-neon-blue shadow-[0_0_30px_rgba(0,255,255,0.2)] overflow-hidden">
             <!-- Table Header styled like terminal -->
-            <div class="flex items-center border-b-2 border-[var(--neon-blue)]/50 bg-black/80 px-4 py-3">
+            <div class="flex items-center border-b-2 border-neon-blue/50 bg-black/80 px-4 py-3">
               <div class="flex gap-2">
-                <div class="w-3 h-3 rounded-full bg-[#ff5f56] shadow-[0_0_8px_#ff5f56]"></div>
-                <div class="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-[0_0_8px_#ffbd2e]"></div>
-                <div class="w-3 h-3 rounded-full bg-[#27ca40] shadow-[0_0_8px_#27ca40]"></div>
+                <div class="w-3 h-3 rounded-full bg-traffic-red shadow-[0_0_8px_var(--color-traffic-red)]"></div>
+                <div class="w-3 h-3 rounded-full bg-traffic-yellow shadow-[0_0_8px_var(--color-traffic-yellow)]"></div>
+                <div class="w-3 h-3 rounded-full bg-traffic-green shadow-[0_0_8px_var(--color-traffic-green)]"></div>
               </div>
-              <div class="flex-1 text-center pixel-font text-xs text-[var(--neon-blue)]">COMPARISON</div>
+              <div class="flex-1 text-center pixel-font text-xs text-neon-blue">COMPARISON</div>
             </div>
 
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <thead>
-                  <tr class="border-b border-[var(--neon-blue)]/30 bg-[var(--neon-blue)]/5">
+                  <tr class="border-b border-neon-blue/30 bg-neon-blue/5">
                     <th class="text-left py-4 px-4 text-gray-400 font-mono font-normal">Feature</th>
-                    <th class="py-4 px-4 text-[var(--neon-pink)] pixel-font">BOUNE</th>
+                    <th class="py-4 px-4 text-neon-pink pixel-font">BOUNE</th>
                     <th class="py-4 px-4 text-gray-500 font-mono">commander</th>
                     <th class="py-4 px-4 text-gray-500 font-mono">yargs</th>
                     <th class="py-4 px-4 text-gray-500 font-mono">oclif</th>
                   </tr>
                 </thead>
                 <tbody class="font-mono">
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">type_safe</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-yellow)]">◐</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-yellow)]">◐</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-yellow">◐</td>
+                    <td class="py-3 px-4 text-center text-neon-yellow">◐</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">prompts</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">spinners</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">colors</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">tables</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">validation</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-yellow)]">◐</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-yellow">◐</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">completions</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-yellow)]">◐</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-yellow">◐</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">middleware</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-yellow)]">◐</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-yellow">◐</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors bg-[var(--neon-green)]/5">
-                    <td class="py-3 px-4 text-[var(--neon-green)]">bun_native</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
-                    <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-gray-600">○</td>
-                  </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors bg-[var(--neon-green)]/5">
-                    <td class="py-3 px-4 text-[var(--neon-green)]">zero_deps</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors bg-neon-green/5">
+                    <td class="py-3 px-4 text-neon-green">bun_native</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors bg-neon-green/5">
+                    <td class="py-3 px-4 text-neon-green">zero_deps</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-gray-600">○</td>
+                    <td class="py-3 px-4 text-center text-gray-600">○</td>
+                    <td class="py-3 px-4 text-center text-gray-600">○</td>
+                  </tr>
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">zero_config</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">testing</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-yellow)]">◐</td>
+                    <td class="py-3 px-4 text-center text-neon-yellow">◐</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="border-b border-gray-800/50 hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="border-b border-gray-800/50 hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">plugins</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-pink)]">◇</td>
+                    <td class="py-3 px-4 text-center text-neon-pink">◇</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
-                  <tr class="hover:bg-[var(--neon-blue)]/5 transition-colors">
+                  <tr class="hover:bg-neon-blue/5 transition-colors">
                     <td class="py-3 px-4 text-gray-300">auto_docs</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-pink)]">◇</td>
+                    <td class="py-3 px-4 text-center text-neon-pink">◇</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
                     <td class="py-3 px-4 text-center text-gray-600">○</td>
-                    <td class="py-3 px-4 text-center text-[var(--neon-green)] text-lg">●</td>
+                    <td class="py-3 px-4 text-center text-neon-green text-lg">●</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <!-- Legend -->
-            <div class="border-t border-[var(--neon-blue)]/30 px-4 py-3 flex justify-center gap-6 text-xs font-mono">
-              <span><span class="text-[var(--neon-green)]">●</span> built-in</span>
-              <span><span class="text-[var(--neon-pink)]">◇</span> planned</span>
-              <span><span class="text-[var(--neon-yellow)]">◐</span> partial</span>
+            <div class="border-t border-neon-blue/30 px-4 py-3 flex justify-center gap-6 text-xs font-mono">
+              <span><span class="text-neon-green">●</span> built-in</span>
+              <span><span class="text-neon-pink">◇</span> planned</span>
+              <span><span class="text-neon-yellow">◐</span> partial</span>
               <span><span class="text-gray-600">○</span> external</span>
             </div>
           </div>
@@ -440,30 +440,30 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="py-20 bg-black/40 border-y border-[var(--neon-pink)] relative overflow-hidden">
+    <section id="features" class="py-20 bg-black/40 border-y border-neon-pink relative overflow-hidden">
       <!-- Decorative elements -->
-      <div class="absolute top-10 left-20 w-14 h-14 border-2 border-[var(--neon-pink)] opacity-20 -rotate-12"></div>
-      <div class="absolute bottom-10 right-20 w-10 h-10 border-2 border-[var(--neon-yellow)] opacity-20 rotate-45"></div>
-      <div class="absolute top-1/2 left-10 w-20 h-20 bg-[var(--neon-green)] opacity-10 rounded-full blur-2xl"></div>
-      <div class="absolute bottom-1/4 right-10 w-16 h-16 bg-[var(--neon-pink)] opacity-10 rounded-full blur-xl"></div>
-      <div class="absolute top-1/4 right-1/4 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-[var(--neon-blue)] opacity-15"></div>
-      <div class="absolute bottom-20 left-1/4 text-[var(--neon-yellow)] opacity-20 text-3xl">+</div>
-      <div class="absolute top-32 right-10 w-3 h-3 bg-[var(--neon-green)] opacity-30 rounded-full"></div>
-      <div class="absolute bottom-1/3 left-1/3 w-2 h-2 bg-[var(--neon-pink)] opacity-40 rounded-full"></div>
-      <div class="absolute top-10 right-1/3 w-8 h-8 border border-[var(--neon-blue)] opacity-15 rounded-full"></div>
+      <div class="absolute top-10 left-20 w-14 h-14 border-2 border-neon-pink opacity-20 -rotate-12"></div>
+      <div class="absolute bottom-10 right-20 w-10 h-10 border-2 border-neon-yellow opacity-20 rotate-45"></div>
+      <div class="absolute top-1/2 left-10 w-20 h-20 bg-neon-green opacity-10 rounded-full blur-2xl"></div>
+      <div class="absolute bottom-1/4 right-10 w-16 h-16 bg-neon-pink opacity-10 rounded-full blur-xl"></div>
+      <div class="absolute top-1/4 right-1/4 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-neon-blue opacity-15"></div>
+      <div class="absolute bottom-20 left-1/4 text-neon-yellow opacity-20 text-3xl">+</div>
+      <div class="absolute top-32 right-10 w-3 h-3 bg-neon-green opacity-30 rounded-full"></div>
+      <div class="absolute bottom-1/3 left-1/3 w-2 h-2 bg-neon-pink opacity-40 rounded-full"></div>
+      <div class="absolute top-10 right-1/3 w-8 h-8 border border-neon-blue opacity-15 rounded-full"></div>
 
       <div class="container mx-auto px-4 relative z-10">
-        <h2 class="text-3xl md:text-4xl text-center mb-16 pixel-font text-[var(--neon-pink)]">
+        <h2 class="text-3xl md:text-4xl text-center mb-16 pixel-font text-neon-pink">
           <i data-lucide="zap" class="inline w-8 h-8 mr-2 mb-2"></i>FEATURES
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Card 1 -->
           <div class="neon-box bg-black p-8 group">
-            <div class="h-16 w-16 bg-[var(--neon-blue)] text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
+            <div class="h-16 w-16 bg-neon-blue text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
               <i data-lucide="shield-check" class="w-8 h-8"></i>
             </div>
-            <h3 class="text-xl mb-4 text-[var(--neon-blue)]">Type-Safe Arguments</h3>
+            <h3 class="text-xl mb-4 text-neon-blue">Type-Safe Arguments</h3>
             <p class="text-gray-400 text-sm leading-relaxed">
               Full TypeScript inference for arguments and options. Catch errors at compile time, not runtime. Your IDE knows your CLI schema.
             </p>
@@ -471,10 +471,10 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
 
           <!-- Card 2 -->
           <div class="neon-box bg-black p-8 group">
-            <div class="h-16 w-16 bg-[var(--neon-green)] text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
+            <div class="h-16 w-16 bg-neon-green text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
               <i data-lucide="message-square" class="w-8 h-8"></i>
             </div>
-            <h3 class="text-xl mb-4 text-[var(--neon-green)]">Interactive Prompts</h3>
+            <h3 class="text-xl mb-4 text-neon-green">Interactive Prompts</h3>
             <p class="text-gray-400 text-sm leading-relaxed">
               Text, password, select, confirm, autocomplete, and more. Build interactive CLIs with beautiful prompts out of the box.
             </p>
@@ -482,10 +482,10 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
 
           <!-- Card 3 -->
           <div class="neon-box bg-black p-8 group">
-            <div class="h-16 w-16 bg-[var(--neon-pink)] text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
+            <div class="h-16 w-16 bg-neon-pink text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
               <i data-lucide="loader" class="w-8 h-8"></i>
             </div>
-            <h3 class="text-xl mb-4 text-[var(--neon-pink)]">Spinners and Progress</h3>
+            <h3 class="text-xl mb-4 text-neon-pink">Spinners and Progress</h3>
             <p class="text-gray-400 text-sm leading-relaxed">
               Beautiful spinners and progress bars for long-running tasks. Keep users informed with elegant loading states.
             </p>
@@ -493,10 +493,10 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
 
           <!-- Card 4 -->
           <div class="neon-box bg-black p-8 group">
-            <div class="h-16 w-16 bg-[var(--neon-yellow)] text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
+            <div class="h-16 w-16 bg-neon-yellow text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
               <i data-lucide="palette" class="w-8 h-8"></i>
             </div>
-            <h3 class="text-xl mb-4 text-[var(--neon-yellow)]">Colors and Formatting</h3>
+            <h3 class="text-xl mb-4 text-neon-yellow">Colors and Formatting</h3>
             <p class="text-gray-400 text-sm leading-relaxed">
               Rich terminal colors, tables, lists, and key-value formatting. Make your CLI output beautiful and readable.
             </p>
@@ -504,10 +504,10 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
 
           <!-- Card 5 -->
           <div class="neon-box bg-black p-8 group">
-            <div class="h-16 w-16 bg-[var(--neon-blue)] text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
+            <div class="h-16 w-16 bg-neon-blue text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
               <i data-lucide="check-circle" class="w-8 h-8"></i>
             </div>
-            <h3 class="text-xl mb-4 text-[var(--neon-blue)]">Built-in Validation</h3>
+            <h3 class="text-xl mb-4 text-neon-blue">Built-in Validation</h3>
             <p class="text-gray-400 text-sm leading-relaxed">
               Declarative validation rules for strings, numbers, and booleans. Validate user input with chainable validators.
             </p>
@@ -515,10 +515,10 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
 
           <!-- Card 6 -->
           <div class="neon-box bg-black p-8 group">
-            <div class="h-16 w-16 bg-[var(--neon-green)] text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
+            <div class="h-16 w-16 bg-neon-green text-black flex items-center justify-center mb-6 pixel-font text-2xl group-hover:animate-bounce">
               <i data-lucide="terminal" class="w-8 h-8"></i>
             </div>
-            <h3 class="text-xl mb-4 text-[var(--neon-green)]">Shell Completions</h3>
+            <h3 class="text-xl mb-4 text-neon-green">Shell Completions</h3>
             <p class="text-gray-400 text-sm leading-relaxed">
               Generate shell completions for Bash, Zsh, and Fish. Give users tab completion for your CLI commands.
             </p>
@@ -530,40 +530,40 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
     <!-- Interactive Demo / How it works -->
     <section id="how-it-works" class="py-24 relative overflow-hidden">
       <!-- Decorative elements -->
-      <div class="absolute top-20 left-10 w-16 h-16 border-2 border-[var(--neon-yellow)] opacity-20 rotate-12"></div>
-      <div class="absolute bottom-20 right-10 w-20 h-20 border-2 border-[var(--neon-blue)] opacity-15 -rotate-6"></div>
-      <div class="absolute top-1/3 right-5 w-24 h-24 bg-[var(--neon-yellow)] opacity-10 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-1/4 left-5 w-16 h-16 bg-[var(--neon-green)] opacity-10 rounded-full blur-2xl"></div>
-      <div class="absolute top-10 right-1/4 w-10 h-10 border border-[var(--neon-pink)] opacity-20 rotate-45"></div>
-      <div class="absolute bottom-10 left-1/4 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[18px] border-b-[var(--neon-green)] opacity-20 rotate-180"></div>
-      <div class="absolute top-1/2 left-20 text-[var(--neon-blue)] opacity-15 text-2xl">+</div>
-      <div class="absolute bottom-1/3 right-20 w-3 h-3 bg-[var(--neon-yellow)] opacity-30 rounded-full"></div>
-      <div class="absolute top-1/4 left-1/3 w-2 h-2 bg-[var(--neon-pink)] opacity-40 rounded-full"></div>
+      <div class="absolute top-20 left-10 w-16 h-16 border-2 border-neon-yellow opacity-20 rotate-12"></div>
+      <div class="absolute bottom-20 right-10 w-20 h-20 border-2 border-neon-blue opacity-15 -rotate-6"></div>
+      <div class="absolute top-1/3 right-5 w-24 h-24 bg-neon-yellow opacity-10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 left-5 w-16 h-16 bg-neon-green opacity-10 rounded-full blur-2xl"></div>
+      <div class="absolute top-10 right-1/4 w-10 h-10 border border-neon-pink opacity-20 rotate-45"></div>
+      <div class="absolute bottom-10 left-1/4 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[18px] border-b-neon-green opacity-20 rotate-180"></div>
+      <div class="absolute top-1/2 left-20 text-neon-blue opacity-15 text-2xl">+</div>
+      <div class="absolute bottom-1/3 right-20 w-3 h-3 bg-neon-yellow opacity-30 rounded-full"></div>
+      <div class="absolute top-1/4 left-1/3 w-2 h-2 bg-neon-pink opacity-40 rounded-full"></div>
 
       <div class="container mx-auto px-4 relative z-10">
         <div class="text-center mb-16">
-          <span class="pixel-font text-[var(--neon-yellow)] text-sm mb-2 block">EXAMPLES</span>
+          <span class="pixel-font text-neon-yellow text-sm mb-2 block">EXAMPLES</span>
           <h2 class="text-3xl md:text-5xl pixel-font text-white">SEE IT IN ACTION</h2>
         </div>
 
         <div class="flex flex-wrap justify-center gap-4 mb-12" id="example-selector">
-          <button data-example="basic" class="example-btn active px-6 py-3 border-2 border-[var(--neon-pink)] bg-[var(--neon-pink)] text-black font-bold hover:scale-105 transition-transform">BASIC CLI</button>
-          <button data-example="prompts" class="example-btn px-6 py-3 border-2 border-[var(--neon-blue)] text-[var(--neon-blue)] font-bold hover:bg-[var(--neon-blue)] hover:text-black hover:scale-105 transition-all">PROMPTS</button>
-          <button data-example="middleware" class="example-btn px-6 py-3 border-2 border-[var(--neon-green)] text-[var(--neon-green)] font-bold hover:bg-[var(--neon-green)] hover:text-black hover:scale-105 transition-all">MIDDLEWARE</button>
+          <button data-example="basic" class="example-btn active px-6 py-3 border-2 border-neon-pink bg-neon-pink text-black font-bold hover:scale-105 transition-transform">BASIC CLI</button>
+          <button data-example="prompts" class="example-btn px-6 py-3 border-2 border-neon-blue text-neon-blue font-bold hover:bg-neon-blue hover:text-black hover:scale-105 transition-all">PROMPTS</button>
+          <button data-example="middleware" class="example-btn px-6 py-3 border-2 border-neon-green text-neon-green font-bold hover:bg-neon-green hover:text-black hover:scale-105 transition-all">MIDDLEWARE</button>
         </div>
 
-        <div class="max-w-4xl mx-auto bg-black overflow-hidden border-4 border-[var(--neon-blue)] shadow-[0_0_30px_rgba(0,255,255,0.3),inset_0_0_30px_rgba(0,255,255,0.1)]">
+        <div class="max-w-4xl mx-auto bg-black overflow-hidden border-4 border-neon-blue shadow-[0_0_30px_rgba(0,255,255,0.3),inset_0_0_30px_rgba(0,255,255,0.1)]">
           <!-- Terminal Header -->
-          <div class="flex items-center border-b-2 border-[var(--neon-blue)]/50 bg-black/80 px-4 py-3">
+          <div class="flex items-center border-b-2 border-neon-blue/50 bg-black/80 px-4 py-3">
             <div class="flex gap-2">
-              <div class="w-3 h-3 rounded-full bg-[#ff5f56] shadow-[0_0_8px_#ff5f56]"></div>
-              <div class="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-[0_0_8px_#ffbd2e]"></div>
-              <div class="w-3 h-3 rounded-full bg-[#27ca40] shadow-[0_0_8px_#27ca40]"></div>
+              <div class="w-3 h-3 rounded-full bg-traffic-red shadow-[0_0_8px_var(--color-traffic-red)]"></div>
+              <div class="w-3 h-3 rounded-full bg-traffic-yellow shadow-[0_0_8px_var(--color-traffic-yellow)]"></div>
+              <div class="w-3 h-3 rounded-full bg-traffic-green shadow-[0_0_8px_var(--color-traffic-green)]"></div>
             </div>
-            <div class="flex-1 text-center pixel-font text-xs text-[var(--neon-blue)]">example.ts</div>
+            <div class="flex-1 text-center pixel-font text-xs text-neon-blue">example.ts</div>
           </div>
           <!-- Code Content -->
-          <div class="h-[400px] overflow-y-auto bg-[#0a0a0f]">
+          <div class="h-[400px] overflow-y-auto bg-terminal">
             <div class="p-6 font-mono text-sm leading-6">
               <div id="code-output" class="transition-opacity duration-300">
                 <!-- Content injected via JS -->
@@ -578,25 +578,25 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
     <section id="install" class="py-20 text-center relative overflow-hidden">
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiMzMzMiLz48L3N2Zz4=')] opacity-20"></div>
       <!-- Decorative elements -->
-      <div class="absolute top-10 left-10 w-12 h-12 border-2 border-[var(--neon-green)] opacity-25 rotate-45"></div>
-      <div class="absolute bottom-10 right-10 w-16 h-16 border-2 border-[var(--neon-pink)] opacity-20 -rotate-12"></div>
-      <div class="absolute top-1/3 left-5 w-20 h-20 bg-[var(--neon-blue)] opacity-10 rounded-full blur-2xl"></div>
-      <div class="absolute bottom-1/3 right-5 w-16 h-16 bg-[var(--neon-green)] opacity-15 rounded-full blur-xl"></div>
-      <div class="absolute top-20 right-1/4 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-[var(--neon-yellow)] opacity-25"></div>
-      <div class="absolute bottom-20 left-1/4 text-[var(--neon-pink)] opacity-20 text-2xl">+</div>
-      <div class="absolute top-1/2 right-20 w-8 h-8 border border-[var(--neon-blue)] opacity-15 rounded-full"></div>
-      <div class="absolute top-10 left-1/3 w-3 h-3 bg-[var(--neon-yellow)] opacity-30 rounded-full"></div>
-      <div class="absolute bottom-1/4 right-1/3 w-2 h-2 bg-[var(--neon-green)] opacity-40 rounded-full"></div>
+      <div class="absolute top-10 left-10 w-12 h-12 border-2 border-neon-green opacity-25 rotate-45"></div>
+      <div class="absolute bottom-10 right-10 w-16 h-16 border-2 border-neon-pink opacity-20 -rotate-12"></div>
+      <div class="absolute top-1/3 left-5 w-20 h-20 bg-neon-blue opacity-10 rounded-full blur-2xl"></div>
+      <div class="absolute bottom-1/3 right-5 w-16 h-16 bg-neon-green opacity-15 rounded-full blur-xl"></div>
+      <div class="absolute top-20 right-1/4 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-neon-yellow opacity-25"></div>
+      <div class="absolute bottom-20 left-1/4 text-neon-pink opacity-20 text-2xl">+</div>
+      <div class="absolute top-1/2 right-20 w-8 h-8 border border-neon-blue opacity-15 rounded-full"></div>
+      <div class="absolute top-10 left-1/3 w-3 h-3 bg-neon-yellow opacity-30 rounded-full"></div>
+      <div class="absolute bottom-1/4 right-1/3 w-2 h-2 bg-neon-green opacity-40 rounded-full"></div>
 
       <div class="container mx-auto px-4 relative z-10">
         <h2 class="text-4xl md:text-6xl pixel-font mb-8 text-white">GET STARTED</h2>
 
-        <div class="max-w-2xl mx-auto bg-black border-4 border-[var(--neon-green)] p-8 relative neon-box">
-          <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-[var(--neon-green)] text-black px-4 py-1 pixel-font text-xs font-bold">
+        <div class="max-w-2xl mx-auto bg-black border-4 border-neon-green p-8 relative neon-box">
+          <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-neon-green text-black px-4 py-1 pixel-font text-xs font-bold">
             INSTALLATION
           </div>
           <div class="flex items-center justify-between bg-[#111] p-4 font-mono text-lg rounded border border-gray-800">
-            <span class="text-[var(--neon-green)] flex items-center">
+            <span class="text-neon-green flex items-center">
               <span class="mr-2">$</span> bun add boune
             </span>
             <button id="copy-btn-footer" class="text-gray-400 hover:text-white transition-colors" title="Copy">
@@ -606,10 +606,10 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
         </div>
 
         <div class="mt-12 flex justify-center gap-6">
-          <i data-lucide="terminal" class="text-[var(--neon-pink)] w-8 h-8 animate-bounce delay-75"></i>
-          <i data-lucide="code" class="text-[var(--neon-blue)] w-8 h-8 animate-bounce delay-150"></i>
-          <i data-lucide="zap" class="text-[var(--neon-yellow)] w-8 h-8 animate-bounce delay-300"></i>
-          <i data-lucide="check-circle" class="text-[var(--neon-green)] w-8 h-8 animate-bounce"></i>
+          <i data-lucide="terminal" class="text-neon-pink w-8 h-8 animate-bounce delay-75"></i>
+          <i data-lucide="code" class="text-neon-blue w-8 h-8 animate-bounce delay-150"></i>
+          <i data-lucide="zap" class="text-neon-yellow w-8 h-8 animate-bounce delay-300"></i>
+          <i data-lucide="check-circle" class="text-neon-green w-8 h-8 animate-bounce"></i>
         </div>
       </div>
     </section>
@@ -617,12 +617,12 @@ import pressStart2pWoff2 from "@fontsource/press-start-2p/files/press-start-2p-l
     <!-- Footer -->
     <footer class="bg-black/40 border-t-4 border-[#222] py-12 text-center font-mono">
       <div class="container mx-auto px-4">
-        <div class="pixel-font text-2xl text-[var(--neon-blue)] mb-6">BOUNE</div>
+        <div class="pixel-font text-2xl text-neon-blue mb-6">BOUNE</div>
         <div class="flex justify-center space-x-6 mb-8">
-          <a href="https://github.com/roushou/boune" class="text-gray-500 hover:text-[var(--neon-pink)] transition-colors"><i data-lucide="github" class="w-6 h-6"></i></a>
+          <a href="https://github.com/roushou/boune" class="text-gray-500 hover:text-neon-pink transition-colors"><i data-lucide="github" class="w-6 h-6"></i></a>
         </div>
         <p class="text-gray-600 text-xs">
-          MIT License. Made with <i data-lucide="heart" class="inline w-3 h-3 text-red-500"></i> for Bun developers.
+          MIT License
         </p>
       </div>
     </footer>
@@ -825,12 +825,12 @@ cli.<span class="code-func">run</span>();`
       }, 300);
 
       exampleBtns.forEach(btn => {
-        btn.classList.remove('bg-[var(--neon-pink)]', 'text-black', 'border-[var(--neon-pink)]');
-        btn.classList.add('text-[var(--neon-blue)]', 'border-[var(--neon-blue)]');
+        btn.classList.remove('bg-neon-pink', 'text-black', 'border-neon-pink');
+        btn.classList.add('text-neon-blue', 'border-neon-blue');
 
         if (btn.dataset.example === example) {
-          btn.classList.remove('text-[var(--neon-blue)]', 'border-[var(--neon-blue)]');
-          btn.classList.add('bg-[var(--neon-pink)]', 'text-black', 'border-[var(--neon-pink)]');
+          btn.classList.remove('text-neon-blue', 'border-neon-blue');
+          btn.classList.add('bg-neon-pink', 'text-black', 'border-neon-pink');
         }
       });
     }

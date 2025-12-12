@@ -1,11 +1,23 @@
 @import "tailwindcss";
 
+@theme {
+  --color-neon-pink: #ff00ff;
+  --color-neon-blue: #00ffff;
+  --color-neon-green: #00ff00;
+  --color-neon-yellow: #ffff00;
+  --color-dark: #050510;
+  --color-terminal: #0a0a0f;
+  --color-traffic-red: #ff5f56;
+  --color-traffic-yellow: #ffbd2e;
+  --color-traffic-green: #27ca40;
+}
+
 :root {
-  --neon-pink: #ff00ff;
-  --neon-blue: #00ffff;
-  --neon-green: #00ff00;
-  --neon-yellow: #ffff00;
-  --bg-dark: #050510;
+  --neon-pink: var(--color-neon-pink);
+  --neon-blue: var(--color-neon-blue);
+  --neon-green: var(--color-neon-green);
+  --neon-yellow: var(--color-neon-yellow);
+  --bg-dark: var(--color-dark);
   --grid-color: rgba(100, 0, 255, 0.3);
 }
 
