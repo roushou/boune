@@ -62,7 +62,7 @@ function renderOptions<T>(state: SelectState<T>, isInitial: boolean): void {
 /**
  * Create a select prompt schema (key-based)
  */
-function createSelectSchema<T>(options: SelectOptions<T>) {
+export function createSelectSchema<T>(options: SelectOptions<T>) {
   const { message, options: choices, default: defaultValue } = options;
 
   // Find initial index
@@ -247,7 +247,9 @@ function renderMultiselectOptions<T>(state: MultiselectState<T>, isInitial: bool
 /**
  * Create a multiselect prompt schema
  */
-function createMultiselectSchema<T>(options: SelectOptions<T> & { min?: number; max?: number }) {
+export function createMultiselectSchema<T>(
+  options: SelectOptions<T> & { min?: number; max?: number },
+) {
   const { message, options: choices, min = 0, max = choices.length } = options;
 
   return keyPrompt<T[]>({

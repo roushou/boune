@@ -11,7 +11,6 @@ import {
   option,
   table,
 } from "../packages/boune/src/index.ts";
-import { confirm, select, text } from "../packages/boune/src/prompt/index.ts";
 
 import { Database } from "bun:sqlite";
 
@@ -111,27 +110,27 @@ const add = defineCommand({
       .default("medium")
       .describe("Priority level (low, medium, high)"),
   },
-  async action({ args, options }) {
-    let title = args.title;
+  // Declarative prompts - called conditionally in action
+  prompts: {
+    title: { kind: "text", message: "Task title:" },
+    priority: {
+      kind: "select",
+      message: "Priority:",
+      options: [
+        { label: "High", value: "high" },
+        { label: "Medium", value: "medium" },
+        { label: "Low", value: "low" },
+      ] as const,
+      default: "medium",
+    },
+  },
+  async action({ args, options, prompts }) {
+    // Prompt for title only if not provided as argument
+    const title = args.title || (await prompts.title.run());
 
-    if (!title) {
-      title = await text({
-        message: "Task title:",
-        validate: (v) => (v.length > 0 ? true : "Title is required"),
-      });
-    }
-
+    // Prompt for priority only if using default
     const priority =
-      options.priority ||
-      (await select({
-        message: "Priority:",
-        options: [
-          { label: "High", value: "high" },
-          { label: "Medium", value: "medium" },
-          { label: "Low", value: "low" },
-        ],
-        default: "medium",
-      }));
+      options.priority !== "medium" ? options.priority : await prompts.priority.run();
 
     db.run("INSERT INTO tasks (title, priority) VALUES (?, ?)", [title, priority]);
     console.log(color.green(`Added task: ${title}`));
@@ -185,7 +184,10 @@ const remove = defineCommand({
   options: {
     force: option.boolean().short("f").describe("Skip confirmation"),
   },
-  async action({ args, options }) {
+  prompts: {
+    confirm: { kind: "confirm", message: "Delete this task?", default: false },
+  },
+  async action({ args, options, prompts }) {
     const task = db.query("SELECT * FROM tasks WHERE id = ?").get(args.id) as Task | null;
     if (!task) {
       console.error(color.red(`Task #${args.id} not found`));
@@ -193,10 +195,8 @@ const remove = defineCommand({
     }
 
     if (!options.force) {
-      const confirmed = await confirm({
-        message: `Delete task "${task.title}"?`,
-        default: false,
-      });
+      console.log(color.dim(`  Task: "${task.title}"`));
+      const confirmed = await prompts.confirm.run();
       if (!confirmed) {
         console.log(color.dim("Cancelled"));
         return;
@@ -215,7 +215,10 @@ const clear = defineCommand({
   options: {
     force: option.boolean().short("f").describe("Skip confirmation"),
   },
-  async action({ options }) {
+  prompts: {
+    confirm: { kind: "confirm", message: "Remove completed tasks?", default: false },
+  },
+  async action({ options, prompts }) {
     const count = (
       db.query("SELECT COUNT(*) as count FROM tasks WHERE status = 'done'").get() as {
         count: number;
@@ -228,10 +231,8 @@ const clear = defineCommand({
     }
 
     if (!options.force) {
-      const confirmed = await confirm({
-        message: `Remove ${count} completed task(s)?`,
-        default: false,
-      });
+      console.log(color.dim(`  Found ${count} completed task(s)`));
+      const confirmed = await prompts.confirm.run();
       if (!confirmed) {
         console.log(color.dim("Cancelled"));
         return;

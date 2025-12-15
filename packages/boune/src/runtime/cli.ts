@@ -55,6 +55,7 @@ export class Cli {
       args: ctx.args,
       options: allOptions,
       rawArgs: ctx.argv,
+      prompts: command.prompts,
     };
 
     try {
@@ -64,7 +65,12 @@ export class Cli {
       ];
 
       await runMiddleware(beforeMiddleware, middlewareCtx, async () => {
-        await command.action!({ args: ctx.args, options: allOptions, rawArgs: ctx.argv });
+        await command.action!({
+          args: ctx.args,
+          options: allOptions,
+          rawArgs: ctx.argv,
+          prompts: command.prompts,
+        });
       });
 
       if (command.after) {

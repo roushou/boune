@@ -2,9 +2,17 @@
  * Command definition API
  */
 
-import type { ArgumentDef, CommandConfig, CommandSchema, Kind, OptionDef } from "../types/index.ts";
+import type {
+  ArgumentDef,
+  CommandConfig,
+  CommandSchema,
+  Kind,
+  OptionDef,
+  PromptDefinition,
+} from "../types/index.ts";
 import type { ArgBuilder } from "../schema/argument.ts";
 import type { OptBuilder } from "../schema/option.ts";
+import { buildPrompts } from "../prompt/build.ts";
 
 /**
  * Convert argument builders record to ArgumentDef array
@@ -29,7 +37,8 @@ export function isCommandConfig(
   value:
     | CommandSchema<
         Record<string, ArgBuilder<unknown, Kind>>,
-        Record<string, OptBuilder<unknown, Kind>>
+        Record<string, OptBuilder<unknown, Kind>>,
+        Record<string, PromptDefinition>
       >
     | CommandConfig,
 ): value is CommandConfig {
@@ -72,7 +81,8 @@ export function defineCommand<
     string,
     OptBuilder<unknown, Kind>
   >,
->(schema: CommandSchema<TArgBuilders, TOptBuilders>): CommandConfig {
+  TPromptDefs extends Record<string, PromptDefinition> = Record<string, PromptDefinition>,
+>(schema: CommandSchema<TArgBuilders, TOptBuilders, TPromptDefs>): CommandConfig {
   const subcommands: Record<string, CommandConfig> = {};
 
   if (schema.subcommands) {
@@ -101,6 +111,7 @@ export function defineCommand<
     aliases: schema.aliases ?? [],
     arguments: buildArguments(schema.arguments),
     options: buildOptions(schema.options),
+    prompts: buildPrompts(schema.prompts),
     subcommands,
     action: schema.action as CommandConfig["action"],
     before: schema.before,

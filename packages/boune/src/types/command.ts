@@ -2,8 +2,9 @@
  * Command configuration and schema types
  */
 
-import type { ActionHandler, ErrorHandler, MiddlewareHandler } from "./handlers.ts";
+import type { ActionHandler, ErrorHandler, MiddlewareHandler, PromptsRecord } from "./handlers.ts";
 import type { ArgumentDef, Kind, OptionDef } from "./core.ts";
+import type { InferPrompts, PromptDefinition } from "./prompt.ts";
 import type { ArgBuilder } from "../schema/argument.ts";
 import type { OptBuilder } from "../schema/option.ts";
 
@@ -24,6 +25,8 @@ export interface CommandConfig {
   aliases: string[];
   arguments: ArgumentDef[];
   options: OptionDef[];
+  /** Built runnable prompts */
+  prompts: PromptsRecord;
   subcommands: Record<string, CommandConfig>;
   action?: ActionHandler;
   /** Middleware to run before the action */
@@ -65,6 +68,7 @@ export interface CommandSchema<
     string,
     OptBuilder<unknown, Kind>
   >,
+  TPromptDefs extends Record<string, PromptDefinition> = Record<string, PromptDefinition>,
 > {
   /** Command name */
   name: string;
@@ -78,12 +82,15 @@ export interface CommandSchema<
   arguments?: TArgBuilders;
   /** Options/flags */
   options?: TOptBuilders;
+  /** Declarative prompts */
+  prompts?: TPromptDefs;
   /** Subcommands (can be CommandSchema or already-built CommandConfig) */
   subcommands?: Record<
     string,
     | CommandSchema<
         Record<string, ArgBuilder<unknown, Kind>>,
-        Record<string, OptBuilder<unknown, Kind>>
+        Record<string, OptBuilder<unknown, Kind>>,
+        Record<string, PromptDefinition>
       >
     | CommandConfig
   >;
@@ -94,5 +101,9 @@ export interface CommandSchema<
   /** Error handler for this command */
   onError?: ErrorHandler;
   /** Action handler */
-  action?: ActionHandler<InferArgs<TArgBuilders>, InferOpts<TOptBuilders>>;
+  action?: ActionHandler<
+    InferArgs<TArgBuilders>,
+    InferOpts<TOptBuilders>,
+    InferPrompts<TPromptDefs>
+  >;
 }

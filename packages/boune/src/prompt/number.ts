@@ -61,7 +61,7 @@ export function validateConstraints(value: number, options: NumberOptions): stri
 /**
  * Create a number prompt schema
  */
-function createNumberSchema(options: NumberOptions) {
+export function createNumberSchema(options: NumberOptions) {
   return linePrompt<number>({
     message: options.message,
     default: options.default,

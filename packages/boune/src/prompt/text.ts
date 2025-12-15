@@ -14,7 +14,7 @@ export interface TextOptions {
 /**
  * Create a text prompt schema
  */
-function createTextSchema(options: TextOptions) {
+export function createTextSchema(options: TextOptions) {
   return linePrompt<string>({
     message: options.message,
     default: options.default,

@@ -28,10 +28,24 @@ export type {
   ParsedArgs,
   ParsedOptions,
   ParseResult,
+  PromptsRecord,
   Token,
   TokenType,
   ValidationError,
   ValidationErrorType,
+  // Prompt types
+  PromptDefinition,
+  TextPromptDef,
+  PasswordPromptDef,
+  NumberPromptDef,
+  ConfirmPromptDef,
+  SelectPromptDef,
+  MultiselectPromptDef,
+  AutocompletePromptDef,
+  FilepathPromptDef,
+  RunnablePrompt,
+  InferPrompts,
+  InferPromptType,
 } from "./types/index.ts";
 
 // Parser utilities

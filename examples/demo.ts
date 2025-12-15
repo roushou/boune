@@ -14,7 +14,6 @@ import {
   option,
   v,
 } from "../packages/boune/src/index.ts";
-import { confirm, select, text } from "../packages/boune/src/prompt/index.ts";
 
 // Greet command with argument and options
 const greet = defineCommand({
@@ -70,32 +69,32 @@ const build = defineCommand({
   },
 });
 
-// Init command with interactive prompts
+// Init command with declarative prompts
 const init = defineCommand({
   name: "init",
   description: "Initialize a new project",
-  async action() {
-    console.log(color.bold("\nProject Setup\n"));
-
-    const name = await text({
-      message: "Project name:",
-      default: "my-project",
-    });
-
-    const _template = await select({
+  // Declarative prompt definitions - executed via .run() in action
+  prompts: {
+    name: { kind: "text", message: "Project name:", default: "my-project" },
+    template: {
+      kind: "select",
       message: "Select a template:",
       options: [
         { label: "Minimal", value: "minimal", hint: "Basic setup" },
         { label: "Full", value: "full", hint: "With tests and linting" },
         { label: "Library", value: "lib", hint: "For publishing to npm" },
-      ],
+      ] as const,
       default: "minimal",
-    });
+    },
+    useTypeScript: { kind: "confirm", message: "Use TypeScript?", default: true },
+  },
+  async action({ prompts }) {
+    console.log(color.bold("\nProject Setup\n"));
 
-    const _useTypeScript = await confirm({
-      message: "Use TypeScript?",
-      default: true,
-    });
+    // Prompts are executed explicitly via .run()
+    const name = await prompts.name.run();
+    const template = await prompts.template.run(); // typed as "minimal" | "full" | "lib"
+    const useTypeScript = await prompts.useTypeScript.run();
 
     console.log(color.bold("\nCreating project..."));
     const spinner = createSpinner("Setting up files").start();
@@ -104,6 +103,7 @@ const init = defineCommand({
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     spinner.succeed("Project created!");
+    console.log(`\n  Template: ${template}, TypeScript: ${useTypeScript}`);
     console.log(`\n  ${color.green("→")} cd ${name}`);
     console.log(`  ${color.green("→")} bun install`);
     console.log(`  ${color.green("→")} bun run dev\n`);

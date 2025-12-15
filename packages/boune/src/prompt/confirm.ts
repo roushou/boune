@@ -8,7 +8,7 @@ export interface ConfirmOptions {
 /**
  * Create a confirm prompt schema
  */
-function createConfirmSchema(options: ConfirmOptions) {
+export function createConfirmSchema(options: ConfirmOptions) {
   const defaultValue = options.default ?? false;
 
   return linePrompt<boolean>({

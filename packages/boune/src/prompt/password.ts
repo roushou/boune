@@ -13,7 +13,7 @@ export interface PasswordOptions {
 /**
  * Create a password prompt schema
  */
-function createPasswordSchema(options: PasswordOptions) {
+export function createPasswordSchema(options: PasswordOptions) {
   return linePrompt<string>({
     message: options.message,
     validator: options.validator,

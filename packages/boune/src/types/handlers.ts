@@ -4,28 +4,36 @@
 
 import type { ParsedArgs, ParsedOptions } from "./core.ts";
 import type { CommandConfig } from "./command.ts";
+import type { RunnablePrompt } from "./prompt.ts";
+
+/** Record of runnable prompts */
+export type PromptsRecord = Record<string, RunnablePrompt<unknown>>;
 
 /** Context passed to command action */
 export interface ActionContext<
   TArgs extends ParsedArgs = ParsedArgs,
   TOpts extends ParsedOptions = ParsedOptions,
+  TPrompts extends PromptsRecord = PromptsRecord,
 > {
   args: TArgs;
   options: TOpts;
   rawArgs: string[];
+  prompts: TPrompts;
 }
 
 /** Command action handler */
 export type ActionHandler<
   TArgs extends ParsedArgs = ParsedArgs,
   TOpts extends ParsedOptions = ParsedOptions,
-> = (context: ActionContext<TArgs, TOpts>) => void | Promise<void>;
+  TPrompts extends PromptsRecord = PromptsRecord,
+> = (context: ActionContext<TArgs, TOpts, TPrompts>) => void | Promise<void>;
 
 /** Context passed to middleware handlers */
 export interface MiddlewareContext<
   TArgs extends ParsedArgs = ParsedArgs,
   TOpts extends ParsedOptions = ParsedOptions,
-> extends ActionContext<TArgs, TOpts> {
+  TPrompts extends PromptsRecord = PromptsRecord,
+> extends ActionContext<TArgs, TOpts, TPrompts> {
   /** The command being executed */
   command: CommandConfig;
 }

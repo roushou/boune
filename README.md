@@ -239,28 +239,37 @@ defineCommand({
 
 ## Interactive Prompts
 
+Define prompts in your command schema for full type inference:
+
 ```ts
-import { text, confirm, select } from "boune/prompt";
+const init = defineCommand({
+  name: "init",
+  description: "Initialize a new project",
+  prompts: {
+    name: { kind: "text", message: "Project name:", default: "my-project" },
+    useTS: { kind: "confirm", message: "Use TypeScript?", default: true },
+    framework: {
+      kind: "select",
+      message: "Select framework:",
+      options: [
+        { label: "React", value: "react" },
+        { label: "Vue", value: "vue" },
+        { label: "Svelte", value: "svelte" },
+      ] as const, // Use 'as const' for literal type inference
+    },
+  },
+  async action({ prompts }) {
+    // Prompts are executed explicitly via .run()
+    const name = await prompts.name.run();           // string
+    const useTS = await prompts.useTS.run();         // boolean
+    const framework = await prompts.framework.run(); // "react" | "vue" | "svelte"
 
-const name = await text({
-  message: "Project name:",
-  default: "my-project",
-});
-
-const useTS = await confirm({
-  message: "Use TypeScript?",
-  default: true,
-});
-
-const framework = await select({
-  message: "Select framework:",
-  options: [
-    { label: "React", value: "react" },
-    { label: "Vue", value: "vue" },
-    { label: "Svelte", value: "svelte" },
-  ],
+    console.log(`Creating ${name} with ${framework}...`);
+  },
 });
 ```
+
+**Prompt types:** `text`, `password`, `number`, `confirm`, `select`, `multiselect`, `autocomplete`, `filepath`
 
 ## Output Utilities
 
