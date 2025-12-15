@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
-import { createProgressBar } from "../src/output/format.ts";
+import { createProgressBar } from "../src/output/progress.ts";
 
 describe("createProgressBar", () => {
   let stdoutSpy: ReturnType<typeof spyOn>;

@@ -3,7 +3,7 @@
  */
 
 import type { Phase } from "./types.ts";
-import { error as formatError } from "../../output/format.ts";
+import { error as formatError } from "../../output/messages.ts";
 import { generateCommandHelp } from "../../output/help.ts";
 
 /**

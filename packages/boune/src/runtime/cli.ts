@@ -6,7 +6,7 @@ import type { CliConfig, MiddlewareContext, MiddlewareHandler } from "../types/i
 import { type PipelineContext, createInitialContext, phases } from "./phases/index.ts";
 import { type ShellType, generateCompletion } from "../completions/index.ts";
 import { closeStdin } from "../prompt/stdin.ts";
-import { error as formatError } from "../output/format.ts";
+import { error as formatError } from "../output/messages.ts";
 import { runMiddleware } from "./middleware.ts";
 
 /**
