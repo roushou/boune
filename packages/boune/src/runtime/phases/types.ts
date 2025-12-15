@@ -1,7 +1,3 @@
-/**
- * Pipeline execution types
- */
-
 import type {
   CliConfig,
   CommandConfig,

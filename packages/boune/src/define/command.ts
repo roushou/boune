@@ -1,7 +1,3 @@
-/**
- * Command definition API
- */
-
 import type {
   CommandConfig,
   CommandSchema,

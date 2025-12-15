@@ -1,7 +1,3 @@
-/**
- * Help and version handling phases
- */
-
 import { generateCliHelp, generateCommandHelp } from "../../output/help.ts";
 import type { Phase } from "./types.ts";
 

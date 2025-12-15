@@ -1,7 +1,3 @@
-/**
- * Parser types
- */
-
 import type { ParsedArgs, ParsedOptions } from "./core.ts";
 
 /** Token types from argv parsing */

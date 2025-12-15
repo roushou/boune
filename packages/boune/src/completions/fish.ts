@@ -1,7 +1,3 @@
-/**
- * Fish completion script generator
- */
-
 import type { CliConfig, CommandConfig, InternalOptionDef } from "../types/index.ts";
 
 /**

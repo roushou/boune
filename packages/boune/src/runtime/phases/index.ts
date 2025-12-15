@@ -1,7 +1,3 @@
-/**
- * Pipeline phases exports
- */
-
 export type { Phase, PhaseResult, PipelineContext } from "./types.ts";
 export { createInitialContext } from "./types.ts";
 

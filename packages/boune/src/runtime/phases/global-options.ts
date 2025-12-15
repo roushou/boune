@@ -1,7 +1,3 @@
-/**
- * Global options parsing phase
- */
-
 import type { Phase } from "./types.ts";
 import { parseOptions } from "../../parser/index.ts";
 

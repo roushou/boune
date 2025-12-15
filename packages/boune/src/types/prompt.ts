@@ -1,7 +1,3 @@
-/**
- * Declarative prompt type definitions
- */
-
 import type { AutocompleteOption, SelectOption } from "../prompt/index.ts";
 import type { Validator } from "../validation/types.ts";
 

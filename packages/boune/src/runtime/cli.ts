@@ -1,7 +1,3 @@
-/**
- * CLI runtime class
- */
-
 import type { CliConfig, MiddlewareContext, MiddlewareHandler } from "../types/index.ts";
 import { type PipelineContext, createInitialContext, phases } from "./phases/index.ts";
 import { type ShellType, generateCompletion } from "../completions/index.ts";

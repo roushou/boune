@@ -1,7 +1,3 @@
-/**
- * Action and middleware handler types
- */
-
 import type { ParsedArgs, ParsedOptions } from "./core.ts";
 import type { CommandConfig } from "./command.ts";
 import type { RunnablePrompt } from "./prompt.ts";

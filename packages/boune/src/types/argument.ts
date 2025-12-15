@@ -1,7 +1,3 @@
-/**
- * Declarative argument type definitions
- */
-
 import type { InferKind, Kind } from "./core.ts";
 import type { AnyValidator } from "../validation/types.ts";
 

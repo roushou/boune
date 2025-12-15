@@ -1,4 +1,3 @@
-// Declarative API
 export { defineCommand, defineCli } from "./define/index.ts";
 
 // Runtime

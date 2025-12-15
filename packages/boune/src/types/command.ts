@@ -1,7 +1,3 @@
-/**
- * Command configuration and schema types
- */
-
 import type { ActionHandler, ErrorHandler, MiddlewareHandler, PromptsRecord } from "./handlers.ts";
 import type { ArgumentDefinition, InferArgs } from "./argument.ts";
 import type { InferOpts, OptionDefinition } from "./option.ts";

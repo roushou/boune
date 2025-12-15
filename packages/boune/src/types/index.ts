@@ -1,7 +1,3 @@
-/**
- * Type exports for the boune CLI framework
- */
-
 export type {
   Kind,
   InferKind,

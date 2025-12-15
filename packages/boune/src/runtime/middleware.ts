@@ -1,12 +1,5 @@
-/**
- * Middleware execution utilities
- */
-
 import type { MiddlewareContext, MiddlewareHandler } from "../types/index.ts";
 
-/**
- * Run middleware chain with next() pattern
- */
 export async function runMiddleware(
   handlers: MiddlewareHandler[],
   ctx: MiddlewareContext,

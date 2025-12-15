@@ -1,7 +1,3 @@
-/**
- * CLI configuration and schema types
- */
-
 import type { CommandConfig, CommandSchema } from "./command.ts";
 import type { ErrorHandler, MiddlewareHandler } from "./handlers.ts";
 import type { ArgumentDefinition } from "./argument.ts";

@@ -1,7 +1,3 @@
-/**
- * Command resolution phases
- */
-
 import type { CommandConfig, Token } from "../../types/index.ts";
 import { formatSuggestions, suggestCommands } from "../../output/suggest.ts";
 import type { Phase } from "./types.ts";

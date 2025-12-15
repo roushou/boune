@@ -1,7 +1,3 @@
-/**
- * Core types for the boune CLI framework
- */
-
 import type { AnyValidator } from "../validation/types.ts";
 
 /** Supported value types */

@@ -1,7 +1,3 @@
-/**
- * CLI definition API
- */
-
 import type { CliConfig, CliSchema, CommandConfig, InternalOptionDef } from "../types/index.ts";
 import { defineCommand, isCommandConfig } from "./command.ts";
 import { Cli } from "../runtime/cli.ts";

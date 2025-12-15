@@ -1,8 +1,4 @@
 /**
- * Validation framework types
- */
-
-/**
  * Result of a validation operation
  * - true means valid
  * - string means invalid with error message

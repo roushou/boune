@@ -1,7 +1,3 @@
-/**
- * Tokenization phase
- */
-
 import type { Phase } from "./types.ts";
 import { tokenize } from "../../parser/index.ts";
 

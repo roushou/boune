@@ -1,7 +1,3 @@
-/**
- * Command-specific parsing phases
- */
-
 import { parseArguments, parseOptions } from "../../parser/index.ts";
 import type { Phase } from "./types.ts";
 

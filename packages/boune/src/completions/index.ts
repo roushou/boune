@@ -1,7 +1,3 @@
-/**
- * Shell completion script generators
- */
-
 export { generateBashCompletion } from "./bash.ts";
 export { generateZshCompletion } from "./zsh.ts";
 export { generateFishCompletion } from "./fish.ts";
