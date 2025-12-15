@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { v } from "../src/validation/validator.ts";
+import { v } from "../src/validation/index.ts";
 
 describe("v.string()", () => {
   test("creates a string validator", () => {
