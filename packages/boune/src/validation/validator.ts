@@ -11,11 +11,279 @@ import type {
   Validator,
 } from "./types.ts";
 
+// ============================================================================
+// Rule Definitions
+// ============================================================================
+
 /**
- * Base validator class - immutable and chainable
+ * Specification for a validation rule
  */
-class BaseValidator<T> implements Validator<T> {
+type RuleSpec<T, Args extends unknown[] = []> = {
+  /** Predicate that returns true if value is valid */
+  check: (value: T, ...args: Args) => boolean;
+  /** Default error message generator */
+  message: (...args: Args) => string;
+};
+
+/**
+ * String validation rules
+ */
+const stringRules = {
+  email: {
+    check: (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+    message: () => "Must be a valid email address",
+  },
+  url: {
+    check: (value: string) => {
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    message: () => "Must be a valid URL",
+  },
+  regex: {
+    check: (value: string, pattern: RegExp) => pattern.test(value),
+    message: (pattern: RegExp) => `Must match pattern ${pattern}`,
+  },
+  minLength: {
+    check: (value: string, min: number) => value.length >= min,
+    message: (min: number) => `Must be at least ${min} characters`,
+  },
+  maxLength: {
+    check: (value: string, max: number) => value.length <= max,
+    message: (max: number) => `Must be at most ${max} characters`,
+  },
+  oneOf: {
+    check: <V extends string>(value: string, values: readonly V[]) => values.includes(value as V),
+    message: <V extends string>(values: readonly V[]) => `Must be one of: ${values.join(", ")}`,
+  },
+} as const satisfies Record<string, RuleSpec<string, never[]>>;
+
+/**
+ * Number validation rules
+ */
+const numberRules = {
+  min: {
+    check: (value: number, min: number) => value >= min,
+    message: (min: number) => `Must be at least ${min}`,
+  },
+  max: {
+    check: (value: number, max: number) => value <= max,
+    message: (max: number) => `Must be at most ${max}`,
+  },
+  integer: {
+    check: (value: number) => Number.isInteger(value),
+    message: () => "Must be an integer",
+  },
+  positive: {
+    check: (value: number) => value > 0,
+    message: () => "Must be positive",
+  },
+  negative: {
+    check: (value: number) => value < 0,
+    message: () => "Must be negative",
+  },
+  oneOf: {
+    check: <V extends number>(value: number, values: readonly V[]) => values.includes(value as V),
+    message: <V extends number>(values: readonly V[]) => `Must be one of: ${values.join(", ")}`,
+  },
+} as const satisfies Record<string, RuleSpec<number, never[]>>;
+
+// ============================================================================
+// Generic Validator Implementation
+// ============================================================================
+
+/**
+ * Generic validator builder - consolidates all validator implementations
+ * Uses rule specs to generate validation functions
+ */
+class ValidatorBuilder<T, Self extends Validator<T>> implements Validator<T> {
   protected readonly rules: ReadonlyArray<ValidationRule<T>>;
+  private readonly factory: (rules: ValidationRule<T>[]) => Self;
+
+  constructor(factory: (rules: ValidationRule<T>[]) => Self, rules: ValidationRule<T>[] = []) {
+    this.rules = Object.freeze([...rules]);
+    this.factory = factory;
+  }
+
+  validate(value: T): ValidationResult {
+    for (const rule of this.rules) {
+      const result = rule(value);
+      if (result !== true) {
+        return result;
+      }
+    }
+    return true;
+  }
+
+  getRules(): ReadonlyArray<ValidationRule<T>> {
+    return this.rules;
+  }
+
+  /**
+   * Apply a rule spec to create a new validator
+   */
+  protected applyRule<Args extends unknown[]>(
+    spec: RuleSpec<T, Args>,
+    args: Args,
+    customMessage?: string,
+  ): Self {
+    const rule: ValidationRule<T> = (value) => {
+      if (!spec.check(value, ...args)) {
+        return customMessage ?? spec.message(...args);
+      }
+      return true;
+    };
+    return this.factory([...this.rules, rule]);
+  }
+
+  /**
+   * Add a custom refinement rule
+   */
+  protected applyRefine(rule: ValidationRule<T>, customMessage?: string): Self {
+    const wrappedRule: ValidationRule<T> = (value) => {
+      const result = rule(value);
+      if (result !== true && customMessage) {
+        return customMessage;
+      }
+      return result;
+    };
+    return this.factory([...this.rules, wrappedRule]);
+  }
+}
+
+// ============================================================================
+// Concrete Validator Implementations
+// ============================================================================
+
+/** Factory function type for creating validator instances */
+type ValidatorFactory<T, V extends Validator<T>> = (rules: ValidationRule<T>[]) => V;
+
+/** Create a factory for a validator class */
+const createFactory =
+  <T, V extends Validator<T>>(
+    Ctor: new (factory: ValidatorFactory<T, V>, rules: ValidationRule<T>[]) => V,
+  ): ValidatorFactory<T, V> =>
+  (rules) =>
+    new Ctor(createFactory(Ctor), rules);
+
+/**
+ * String validator - methods delegate to rule specs
+ */
+class StringValidatorImpl
+  extends ValidatorBuilder<string, StringValidator>
+  implements StringValidator
+{
+  constructor(
+    factory: ValidatorFactory<string, StringValidator>,
+    rules: ValidationRule<string>[] = [],
+  ) {
+    super(factory, rules);
+  }
+
+  email(message?: string): StringValidator {
+    return this.applyRule(stringRules.email, [], message);
+  }
+
+  url(message?: string): StringValidator {
+    return this.applyRule(stringRules.url, [], message);
+  }
+
+  regex(pattern: RegExp, message?: string): StringValidator {
+    return this.applyRule(stringRules.regex, [pattern], message);
+  }
+
+  minLength(min: number, message?: string): StringValidator {
+    return this.applyRule(stringRules.minLength, [min], message);
+  }
+
+  maxLength(max: number, message?: string): StringValidator {
+    return this.applyRule(stringRules.maxLength, [max], message);
+  }
+
+  oneOf<V extends string>(values: readonly V[], message?: string): StringValidator {
+    return this.applyRule(stringRules.oneOf, [values], message);
+  }
+
+  refine(rule: ValidationRule<string>, message?: string): StringValidator {
+    return this.applyRefine(rule, message);
+  }
+}
+
+/**
+ * Number validator - methods delegate to rule specs
+ */
+class NumberValidatorImpl
+  extends ValidatorBuilder<number, NumberValidator>
+  implements NumberValidator
+{
+  constructor(
+    factory: ValidatorFactory<number, NumberValidator>,
+    rules: ValidationRule<number>[] = [],
+  ) {
+    super(factory, rules);
+  }
+
+  min(minValue: number, message?: string): NumberValidator {
+    return this.applyRule(numberRules.min, [minValue], message);
+  }
+
+  max(maxValue: number, message?: string): NumberValidator {
+    return this.applyRule(numberRules.max, [maxValue], message);
+  }
+
+  integer(message?: string): NumberValidator {
+    return this.applyRule(numberRules.integer, [], message);
+  }
+
+  positive(message?: string): NumberValidator {
+    return this.applyRule(numberRules.positive, [], message);
+  }
+
+  negative(message?: string): NumberValidator {
+    return this.applyRule(numberRules.negative, [], message);
+  }
+
+  oneOf<V extends number>(values: readonly V[], message?: string): NumberValidator {
+    return this.applyRule(numberRules.oneOf, [values], message);
+  }
+
+  refine(rule: ValidationRule<number>, message?: string): NumberValidator {
+    return this.applyRefine(rule, message);
+  }
+}
+
+/**
+ * Boolean validator - only has refine method
+ */
+class BooleanValidatorImpl
+  extends ValidatorBuilder<boolean, BooleanValidator>
+  implements BooleanValidator
+{
+  constructor(
+    factory: ValidatorFactory<boolean, BooleanValidator>,
+    rules: ValidationRule<boolean>[] = [],
+  ) {
+    super(factory, rules);
+  }
+
+  refine(rule: ValidationRule<boolean>, message?: string): BooleanValidator {
+    return this.applyRefine(rule, message);
+  }
+}
+
+// ============================================================================
+// Simple Validator for Custom Rules
+// ============================================================================
+
+/**
+ * Simple validator for custom rules (used by v.custom)
+ */
+class SimpleValidator<T> implements Validator<T> {
+  private readonly rules: ReadonlyArray<ValidationRule<T>>;
 
   constructor(rules: ValidationRule<T>[] = []) {
     this.rules = Object.freeze([...rules]);
@@ -34,202 +302,16 @@ class BaseValidator<T> implements Validator<T> {
   getRules(): ReadonlyArray<ValidationRule<T>> {
     return this.rules;
   }
-
-  protected addRule(rule: ValidationRule<T>): ValidationRule<T>[] {
-    return [...this.rules, rule];
-  }
 }
 
-/**
- * String validator implementation
- */
-class StringValidatorImpl extends BaseValidator<string> implements StringValidator {
-  email(message?: string): StringValidator {
-    return new StringValidatorImpl(
-      this.addRule((value) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-          return message ?? "Must be a valid email address";
-        }
-        return true;
-      }),
-    );
-  }
-
-  url(message?: string): StringValidator {
-    return new StringValidatorImpl(
-      this.addRule((value) => {
-        try {
-          new URL(value);
-          return true;
-        } catch {
-          return message ?? "Must be a valid URL";
-        }
-      }),
-    );
-  }
-
-  regex(pattern: RegExp, message?: string): StringValidator {
-    return new StringValidatorImpl(
-      this.addRule((value) => {
-        if (!pattern.test(value)) {
-          return message ?? `Must match pattern ${pattern}`;
-        }
-        return true;
-      }),
-    );
-  }
-
-  minLength(min: number, message?: string): StringValidator {
-    return new StringValidatorImpl(
-      this.addRule((value) => {
-        if (value.length < min) {
-          return message ?? `Must be at least ${min} characters`;
-        }
-        return true;
-      }),
-    );
-  }
-
-  maxLength(max: number, message?: string): StringValidator {
-    return new StringValidatorImpl(
-      this.addRule((value) => {
-        if (value.length > max) {
-          return message ?? `Must be at most ${max} characters`;
-        }
-        return true;
-      }),
-    );
-  }
-
-  oneOf<V extends string>(values: readonly V[], message?: string): StringValidator {
-    return new StringValidatorImpl(
-      this.addRule((value) => {
-        if (!values.includes(value as V)) {
-          return message ?? `Must be one of: ${values.join(", ")}`;
-        }
-        return true;
-      }),
-    );
-  }
-
-  refine(rule: ValidationRule<string>, message?: string): StringValidator {
-    return new StringValidatorImpl(
-      this.addRule((value) => {
-        const result = rule(value);
-        if (result !== true && message) {
-          return message;
-        }
-        return result;
-      }),
-    );
-  }
-}
+// ============================================================================
+// Public Factory
+// ============================================================================
 
 /**
- * Number validator implementation
+ * Validator factory interface (exported type)
  */
-class NumberValidatorImpl extends BaseValidator<number> implements NumberValidator {
-  min(minValue: number, message?: string): NumberValidator {
-    return new NumberValidatorImpl(
-      this.addRule((value) => {
-        if (value < minValue) {
-          return message ?? `Must be at least ${minValue}`;
-        }
-        return true;
-      }),
-    );
-  }
-
-  max(maxValue: number, message?: string): NumberValidator {
-    return new NumberValidatorImpl(
-      this.addRule((value) => {
-        if (value > maxValue) {
-          return message ?? `Must be at most ${maxValue}`;
-        }
-        return true;
-      }),
-    );
-  }
-
-  integer(message?: string): NumberValidator {
-    return new NumberValidatorImpl(
-      this.addRule((value) => {
-        if (!Number.isInteger(value)) {
-          return message ?? "Must be an integer";
-        }
-        return true;
-      }),
-    );
-  }
-
-  positive(message?: string): NumberValidator {
-    return new NumberValidatorImpl(
-      this.addRule((value) => {
-        if (value <= 0) {
-          return message ?? "Must be positive";
-        }
-        return true;
-      }),
-    );
-  }
-
-  negative(message?: string): NumberValidator {
-    return new NumberValidatorImpl(
-      this.addRule((value) => {
-        if (value >= 0) {
-          return message ?? "Must be negative";
-        }
-        return true;
-      }),
-    );
-  }
-
-  oneOf<V extends number>(values: readonly V[], message?: string): NumberValidator {
-    return new NumberValidatorImpl(
-      this.addRule((value) => {
-        if (!values.includes(value as V)) {
-          return message ?? `Must be one of: ${values.join(", ")}`;
-        }
-        return true;
-      }),
-    );
-  }
-
-  refine(rule: ValidationRule<number>, message?: string): NumberValidator {
-    return new NumberValidatorImpl(
-      this.addRule((value) => {
-        const result = rule(value);
-        if (result !== true && message) {
-          return message;
-        }
-        return result;
-      }),
-    );
-  }
-}
-
-/**
- * Boolean validator implementation
- */
-class BooleanValidatorImpl extends BaseValidator<boolean> implements BooleanValidator {
-  refine(rule: ValidationRule<boolean>, message?: string): BooleanValidator {
-    return new BooleanValidatorImpl(
-      this.addRule((value) => {
-        const result = rule(value);
-        if (result !== true && message) {
-          return message;
-        }
-        return result;
-      }),
-    );
-  }
-}
-
-/**
- * Validator factory interface
- */
-export type ValidatorFactory = {
+export type ValidatorFactoryType = {
   /** Create a string validator */
   string(): StringValidator;
   /** Create a number validator */
@@ -240,27 +322,44 @@ export type ValidatorFactory = {
   custom<T>(rule: ValidationRule<T>): Validator<T>;
 };
 
+// Pre-create factories for each validator type
+const stringFactory = createFactory(StringValidatorImpl);
+const numberFactory = createFactory(NumberValidatorImpl);
+const booleanFactory = createFactory(BooleanValidatorImpl);
+
 /**
  * Validator factory - main entry point
+ *
+ * @example
+ * ```typescript
+ * // String validation
+ * v.string().email().minLength(5)
+ *
+ * // Number validation
+ * v.number().min(0).max(100).integer()
+ *
+ * // Custom validation
+ * v.custom<string>((value) => value.startsWith("@") || "Must start with @")
+ * ```
  */
-export const v: ValidatorFactory = {
+export const v: ValidatorFactoryType = {
   /** Create a string validator */
   string(): StringValidator {
-    return new StringValidatorImpl();
+    return stringFactory([]);
   },
 
   /** Create a number validator */
   number(): NumberValidator {
-    return new NumberValidatorImpl();
+    return numberFactory([]);
   },
 
   /** Create a boolean validator */
   boolean(): BooleanValidator {
-    return new BooleanValidatorImpl();
+    return booleanFactory([]);
   },
 
   /** Create a custom validator from a function */
   custom<T>(rule: ValidationRule<T>): Validator<T> {
-    return new BaseValidator([rule]);
+    return new SimpleValidator([rule]);
   },
 };
