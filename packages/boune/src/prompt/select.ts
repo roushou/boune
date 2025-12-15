@@ -1,4 +1,11 @@
-import { ansi, clearLines, keyPrompt, linePrompt, runPrompt } from "./core/index.ts";
+import {
+  PromptCancelledError,
+  ansi,
+  clearLines,
+  keyPrompt,
+  linePrompt,
+  runPrompt,
+} from "./core/index.ts";
 import { color } from "../output/color.ts";
 
 export interface SelectOption<T = string> {
@@ -105,12 +112,16 @@ function createSelectSchema<T>(options: SelectOptions<T>) {
       }
 
       if (key.name === "return") {
+        // Show cursor and display selected value
+        process.stdout.write(ansi.showCursor);
+        clearLines(choices.length);
+        console.log(color.dim("  ✓ ") + color.cyan(choices[selectedIndex]!.label));
         return { done: true, value: choices[selectedIndex]!.value };
       }
 
       if (key.name === "escape" || (key.ctrl && key.name === "c")) {
         process.stdout.write(ansi.showCursor);
-        process.exit(0);
+        throw new PromptCancelledError();
       }
 
       // Ignore other keys
@@ -118,12 +129,7 @@ function createSelectSchema<T>(options: SelectOptions<T>) {
     },
 
     cleanup: () => {
-      const { choices, selectedIndex } = { choices, selectedIndex: initialIndex };
-      // Show cursor
       process.stdout.write(ansi.showCursor);
-      // Clear options and show selected value
-      clearLines(choices.length);
-      console.log(color.dim("  ✓ ") + color.cyan(choices[selectedIndex]?.label ?? ""));
     },
 
     fallback: async () => selectFallback(options),
@@ -317,6 +323,15 @@ function createMultiselectSchema<T>(options: SelectOptions<T> & { min?: number; 
           return { done: false, state };
         }
 
+        // Show cursor and display selected values
+        process.stdout.write(ansi.showCursor);
+        clearLines(choices.length);
+        const selectedLabels = Array.from(selectedIndices)
+          .sort((a, b) => a - b)
+          .map((i) => choices[i]!.label)
+          .join(", ");
+        console.log(color.dim("  ✓ ") + color.cyan(selectedLabels || "(none)"));
+
         const values = Array.from(selectedIndices)
           .sort((a, b) => a - b)
           .map((i) => choices[i]!.value);
@@ -325,7 +340,7 @@ function createMultiselectSchema<T>(options: SelectOptions<T> & { min?: number; 
 
       if (key.name === "escape" || (key.ctrl && key.name === "c")) {
         process.stdout.write(ansi.showCursor);
-        process.exit(0);
+        throw new PromptCancelledError();
       }
 
       return { done: false, state };

@@ -9,6 +9,7 @@ import * as tty from "node:tty";
 import type { KeyPromptSchema, LinePromptSchema, PromptSchema } from "./schema.ts";
 import { readKey, readLine } from "../stdin.ts";
 import { renderError, renderPromptLine } from "./render.ts";
+import { PromptMaxRetriesError } from "./errors.ts";
 
 /**
  * Default maximum retry attempts
@@ -82,7 +83,7 @@ async function runLinePrompt<T>(schema: LinePromptSchema<string, T>): Promise<T>
     return value;
   }
 
-  throw new Error(`Prompt exceeded maximum retries (${maxRetries})`);
+  throw new PromptMaxRetriesError(maxRetries);
 }
 
 /**

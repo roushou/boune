@@ -1,6 +1,7 @@
 import * as tty from "node:tty";
 
 import { readKey, readLine } from "./stdin.ts";
+import { PromptCancelledError } from "./core/errors.ts";
 import { color } from "../output/color.ts";
 
 export interface AutocompleteOption<T = string> {
@@ -266,7 +267,7 @@ export async function autocomplete<T = string>(
         process.stdout.write(CLEAR_LINE + "\n");
       }
       process.stdout.write(MOVE_UP(previousLineCount) + MOVE_TO_COL_0);
-      process.exit(0);
+      throw new PromptCancelledError();
     } else if (key.raw.length === 1 && key.raw >= " " && !key.ctrl) {
       // Regular character input
       input += key.raw;

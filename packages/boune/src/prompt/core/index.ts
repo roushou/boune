@@ -16,3 +16,4 @@ export {
   ansi,
   DEFAULT_PREFIX,
 } from "./render.ts";
+export { PromptCancelledError, PromptMaxRetriesError } from "./errors.ts";

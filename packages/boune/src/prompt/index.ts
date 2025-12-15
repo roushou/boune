@@ -6,3 +6,4 @@ export { number, type NumberOptions } from "./number.ts";
 export { autocomplete, type AutocompleteOptions, type AutocompleteOption } from "./autocomplete.ts";
 export { filepath, type FilepathOptions } from "./filepath.ts";
 export { closeStdin } from "./stdin.ts";
+export { PromptCancelledError, PromptMaxRetriesError } from "./core/errors.ts";
