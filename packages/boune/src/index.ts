@@ -70,15 +70,15 @@ export {
 export type { Suggestion } from "./output/index.ts";
 
 // Validation
-export { v } from "./validation/index.ts";
+export { compileValidation } from "./validation/index.ts";
 export type {
+  CompiledValidator,
   ValidationResult,
-  ValidationRule,
-  Validator,
-  AnyValidator,
-  StringValidator,
-  NumberValidator,
-  BooleanValidator,
+  RuleValue,
+  StringValidationRules,
+  NumberValidationRules,
+  BooleanValidationRules,
+  ValidationRulesForKind,
 } from "./validation/index.ts";
 
 // Shell completions

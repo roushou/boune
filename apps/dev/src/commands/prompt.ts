@@ -1,4 +1,3 @@
-import { color, defineCommand } from "boune";
 import {
   autocomplete,
   confirm,
@@ -9,6 +8,7 @@ import {
   select,
   text,
 } from "boune/prompt";
+import { color, defineCommand } from "boune";
 
 const PROMPT_TYPES = [
   "text",

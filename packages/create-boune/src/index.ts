@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { color, createSpinner, defineCli, defineCommand, v } from "boune";
+import { color, createSpinner, defineCli, defineCommand } from "boune";
 import { generateProject } from "./generator.ts";
 
 const newCommand = defineCommand({
@@ -19,7 +19,7 @@ const newCommand = defineCommand({
       kind: "text",
       message: "Project name:",
       default: "my-cli",
-      validator: v.string().minLength(1),
+      validator: { minLength: 1 },
     },
     template: {
       kind: "select",

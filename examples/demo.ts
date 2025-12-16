@@ -10,7 +10,6 @@ import {
   createSpinner,
   defineCli,
   defineCommand,
-  v,
 } from "../packages/boune/src/index.ts";
 
 // Greet command with argument and options
@@ -115,21 +114,21 @@ const serve = defineCommand({
       short: "p",
       default: 3000,
       description: "Port to listen on",
-      validate: v.number().integer().min(1).max(65535),
+      validate: { integer: true, min: 1, max: 65535 },
     },
     host: {
       type: "string",
       short: "H",
       default: "localhost",
       description: "Host to bind to",
-      validate: v.string().oneOf(["localhost", "0.0.0.0", "127.0.0.1"]),
+      validate: { oneOf: ["localhost", "0.0.0.0", "127.0.0.1"] },
     },
     env: {
       type: "string",
       short: "e",
       default: "development",
       description: "Environment",
-      validate: v.string().oneOf(["development", "staging", "production"]),
+      validate: { oneOf: ["development", "staging", "production"] },
     },
   },
   action({ options }) {

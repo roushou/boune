@@ -327,7 +327,7 @@ const runValidators = (
 
   for (const def of definitions) {
     if (options[def.name] !== undefined && def.validate) {
-      const result = def.validate.validate(options[def.name]);
+      const result = def.validate(options[def.name]);
       if (result !== true) {
         errors.push({
           type: "validation_failed",

@@ -1,4 +1,4 @@
-import type { RuleSpec } from "../builder.ts";
+import type { RuleSpec } from "../types.ts";
 
 /**
  * String validation rules

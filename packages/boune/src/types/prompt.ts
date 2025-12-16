@@ -1,5 +1,5 @@
 import type { AutocompleteOption, SelectOption } from "../prompt/index.ts";
-import type { Validator } from "../validation/types.ts";
+import type { NumberValidationRules, StringValidationRules } from "../validation/types.ts";
 
 /**
  * Base fields shared by all prompt definitions
@@ -15,7 +15,7 @@ export type TextPromptDef = BasePromptDef & {
   kind: "text";
   default?: string;
   placeholder?: string;
-  validator?: Validator<string>;
+  validator?: StringValidationRules;
 };
 
 /**
@@ -24,7 +24,7 @@ export type TextPromptDef = BasePromptDef & {
 export type PasswordPromptDef = BasePromptDef & {
   kind: "password";
   mask?: string;
-  validator?: Validator<string>;
+  validator?: StringValidationRules;
 };
 
 /**
@@ -37,7 +37,7 @@ export type NumberPromptDef = BasePromptDef & {
   max?: number;
   integer?: boolean;
   step?: number;
-  validator?: Validator<number>;
+  validator?: NumberValidationRules;
 };
 
 /**

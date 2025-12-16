@@ -8,6 +8,7 @@ import type {
 import type { ArgumentDefinition } from "../types/argument.ts";
 import type { OptionDefinition } from "../types/option.ts";
 import { buildPrompts } from "../prompt/build.ts";
+import { compileValidation } from "../validation/compile.ts";
 
 /**
  * Normalize argument definitions to internal format
@@ -21,7 +22,7 @@ function normalizeArguments(args?: Record<string, ArgumentDefinition>): Internal
     type: def.type,
     default: def.default,
     variadic: def.variadic ?? false,
-    validate: def.validate,
+    validate: def.validate ? compileValidation(def.validate, def.type) : undefined,
   }));
 }
 
@@ -40,7 +41,7 @@ function normalizeOptions(opts?: Record<string, OptionDefinition>): InternalOpti
     // Boolean options default to false
     default: def.default ?? (def.type === "boolean" ? false : undefined),
     env: def.env,
-    validate: def.validate,
+    validate: def.validate ? compileValidation(def.validate, def.type) : undefined,
   }));
 }
 

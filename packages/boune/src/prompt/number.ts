@@ -1,5 +1,5 @@
 import { linePrompt, runPrompt } from "./core/index.ts";
-import type { Validator } from "../validation/types.ts";
+import type { CompiledValidator } from "../validation/compile.ts";
 
 export interface NumberOptions {
   message: string;
@@ -14,8 +14,8 @@ export interface NumberOptions {
   step?: number;
   /** Custom validation function (legacy) */
   validate?: (value: number) => string | true;
-  /** Validator instance */
-  validator?: Validator<number>;
+  /** Compiled validator function */
+  validator?: CompiledValidator;
 }
 
 /**

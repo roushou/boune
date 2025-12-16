@@ -24,16 +24,16 @@ bun add boune
 ## Quick Start
 
 ```ts
-import { argument, defineCli, defineCommand, option } from "boune";
+import { defineCli, defineCommand } from "boune";
 
 const greet = defineCommand({
   name: "greet",
   description: "Greet someone",
   arguments: {
-    name: argument.string().required().describe("Name to greet"),
+    name: { type: "string", required: true, description: "Name to greet" },
   },
   options: {
-    loud: option.boolean().short("l").describe("Shout the greeting"),
+    loud: { type: "boolean", short: "l", description: "Shout the greeting" },
   },
   action({ args, options }) {
     const msg = `Hello, ${args.name}!`;
@@ -66,14 +66,14 @@ Options:
 
 ## Arguments
 
-Arguments are positional values passed to commands. Use the `argument` builder to define them.
+Arguments are positional values passed to commands. Define them as plain objects with a `type` property.
 
 ```ts
 // Required argument
 defineCommand({
   name: "greet",
   arguments: {
-    name: argument.string().required().describe("Name to greet"),
+    name: { type: "string", required: true, description: "Name to greet" },
   },
   action({ args }) {
     console.log(`Hello, ${args.name}!`);
@@ -84,7 +84,7 @@ defineCommand({
 defineCommand({
   name: "greet",
   arguments: {
-    name: argument.string().default("World").describe("Name to greet"),
+    name: { type: "string", default: "World", description: "Name to greet" },
   },
   action({ args }) {
     console.log(`Hello, ${args.name}!`);
@@ -95,7 +95,7 @@ defineCommand({
 defineCommand({
   name: "cat",
   arguments: {
-    files: argument.string().required().variadic().describe("Files to concatenate"),
+    files: { type: "string", required: true, variadic: true, description: "Files to concatenate" },
   },
   action({ args }) {
     // args.files is string[]
@@ -106,7 +106,7 @@ defineCommand({
 defineCommand({
   name: "repeat",
   arguments: {
-    count: argument.number().required().describe("Times to repeat"),
+    count: { type: "number", required: true, description: "Times to repeat" },
   },
   action({ args }) {
     // args.count is number
@@ -116,14 +116,14 @@ defineCommand({
 
 ## Options
 
-Use the `option` builder to define options. Boolean options act as flags (no value).
+Options are named flags that modify command behavior. Define them as plain objects.
 
 ```ts
 // Boolean option (flag - no value)
 defineCommand({
   name: "build",
   options: {
-    verbose: option.boolean().short("v").describe("Verbose output"),
+    verbose: { type: "boolean", short: "v", description: "Verbose output" },
   },
   action({ options }) {
     // options.verbose is boolean (defaults to false)
@@ -134,7 +134,7 @@ defineCommand({
 defineCommand({
   name: "build",
   options: {
-    output: option.string().short("o").describe("Output directory"),
+    output: { type: "string", short: "o", description: "Output directory" },
   },
   action({ options }) {
     // options.output is string | undefined
@@ -145,7 +145,7 @@ defineCommand({
 defineCommand({
   name: "serve",
   options: {
-    port: option.number().short("p").default(3000).describe("Port to listen on"),
+    port: { type: "number", short: "p", default: 3000, description: "Port to listen on" },
   },
   action({ options }) {
     // options.port is number
@@ -156,7 +156,7 @@ defineCommand({
 defineCommand({
   name: "deploy",
   options: {
-    token: option.string().required().env("API_TOKEN").describe("API token"),
+    token: { type: "string", required: true, env: "API_TOKEN", description: "API token" },
   },
   action({ options }) {
     // options.token is string

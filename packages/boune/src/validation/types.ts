@@ -1,3 +1,5 @@
+import type { Kind } from "../types/core.ts";
+
 /**
  * Result of a validation operation
  * - true means valid
@@ -6,60 +8,101 @@
 export type ValidationResult = true | string;
 
 /**
- * A single validation rule function
+ * Specification for a validation rule (used internally by rule definitions)
  */
-export type ValidationRule<T> = (value: T) => ValidationResult;
+export type RuleSpec<T, Args extends unknown[] = []> = {
+  /** Predicate that returns true if value is valid */
+  check: (value: T, ...args: Args) => boolean;
+  /** Default error message generator */
+  message: (...args: Args) => string;
+};
 
 /**
- * The core Validator interface - chainable and immutable
+ * Rule value - either the value directly or with custom message
+ *
+ * @example
+ * ```typescript
+ * // Simple form
+ * minLength: 5
+ *
+ * // With custom message
+ * minLength: { value: 5, message: "Must be at least 5 characters" }
+ * ```
  */
-export interface Validator<T> {
-  /** Run all validation rules on a value */
-  validate(value: T): ValidationResult;
-
-  /** Get all rules for inspection */
-  getRules(): ReadonlyArray<ValidationRule<T>>;
-}
-
-/**
- * Any validator - used for type-agnostic storage in definitions
- */
-export interface AnyValidator {
-  validate(value: unknown): ValidationResult;
-}
+export type RuleValue<T> = T | { value: T; message: string };
 
 /**
- * String validator with string-specific methods
+ * String validation rules
+ *
+ * @example
+ * ```typescript
+ * validate: { email: true, minLength: 5 }
+ * validate: { regex: /^[a-z]+$/, maxLength: { value: 10, message: "Too long" } }
+ * ```
  */
-export interface StringValidator extends Validator<string> {
-  email(message?: string): StringValidator;
-  url(message?: string): StringValidator;
-  regex(pattern: RegExp, message?: string): StringValidator;
-  minLength(min: number, message?: string): StringValidator;
-  maxLength(max: number, message?: string): StringValidator;
-  oneOf<V extends string>(values: readonly V[], message?: string): StringValidator;
-  /** Add a custom validation rule */
-  refine(rule: ValidationRule<string>, message?: string): StringValidator;
-}
+export type StringValidationRules = {
+  /** Must be a valid email address */
+  email?: RuleValue<true>;
+  /** Must be a valid URL */
+  url?: RuleValue<true>;
+  /** Must match the given pattern */
+  regex?: RuleValue<RegExp>;
+  /** Minimum string length */
+  minLength?: RuleValue<number>;
+  /** Maximum string length */
+  maxLength?: RuleValue<number>;
+  /** Must be one of the specified values */
+  oneOf?: RuleValue<readonly string[]>;
+  /** Custom validation function */
+  refine?: (value: string) => ValidationResult;
+};
 
 /**
- * Number validator with number-specific methods
+ * Number validation rules
+ *
+ * @example
+ * ```typescript
+ * validate: { integer: true, min: 1, max: 65535 }
+ * validate: { positive: true }
+ * ```
  */
-export interface NumberValidator extends Validator<number> {
-  min(min: number, message?: string): NumberValidator;
-  max(max: number, message?: string): NumberValidator;
-  integer(message?: string): NumberValidator;
-  positive(message?: string): NumberValidator;
-  negative(message?: string): NumberValidator;
-  oneOf<V extends number>(values: readonly V[], message?: string): NumberValidator;
-  /** Add a custom validation rule */
-  refine(rule: ValidationRule<number>, message?: string): NumberValidator;
-}
+export type NumberValidationRules = {
+  /** Minimum value (inclusive) */
+  min?: RuleValue<number>;
+  /** Maximum value (inclusive) */
+  max?: RuleValue<number>;
+  /** Must be an integer */
+  integer?: RuleValue<true>;
+  /** Must be positive (> 0) */
+  positive?: RuleValue<true>;
+  /** Must be negative (< 0) */
+  negative?: RuleValue<true>;
+  /** Must be one of the specified values */
+  oneOf?: RuleValue<readonly number[]>;
+  /** Custom validation function */
+  refine?: (value: number) => ValidationResult;
+};
 
 /**
- * Boolean validator
+ * Boolean validation rules
+ *
+ * @example
+ * ```typescript
+ * validate: { refine: (v) => v === true || "Must accept terms" }
+ * ```
  */
-export interface BooleanValidator extends Validator<boolean> {
-  /** Add a custom validation rule */
-  refine(rule: ValidationRule<boolean>, message?: string): BooleanValidator;
-}
+export type BooleanValidationRules = {
+  /** Custom validation function */
+  refine?: (value: boolean) => ValidationResult;
+};
+
+/**
+ * Map Kind to validation rules type
+ */
+export type ValidationRulesForKind<K extends Kind> = K extends "string"
+  ? StringValidationRules
+  : K extends "number"
+    ? NumberValidationRules
+    : K extends "boolean"
+      ? BooleanValidationRules
+      : never;

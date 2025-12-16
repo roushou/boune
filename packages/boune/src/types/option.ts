@@ -1,5 +1,5 @@
 import type { InferKind, Kind } from "./core.ts";
-import type { AnyValidator } from "../validation/types.ts";
+import type { ValidationRulesForKind } from "../validation/types.ts";
 
 /**
  * User-facing option definition
@@ -30,8 +30,8 @@ export type OptionDefinition<K extends Kind = Kind> = {
   env?: string;
   /** Description shown in help */
   description?: string;
-  /** Custom validator */
-  validate?: AnyValidator;
+  /** Validation rules */
+  validate?: ValidationRulesForKind<K>;
 };
 
 /**

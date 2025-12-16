@@ -10,6 +10,7 @@ import type {
 } from "../types/prompt.ts";
 import { createMultiselectSchema, createSelectSchema } from "./select.ts";
 import { autocomplete } from "./autocomplete.ts";
+import { compileValidation } from "../validation/compile.ts";
 import { createConfirmSchema } from "./confirm.ts";
 import { createNumberSchema } from "./number.ts";
 import { createPasswordSchema } from "./password.ts";
@@ -31,7 +32,9 @@ function createRunnablePrompt<T extends PromptDefinition>(
             message: definition.message,
             default: definition.default,
             placeholder: definition.placeholder,
-            validator: definition.validator,
+            validator: definition.validator
+              ? compileValidation(definition.validator, "string")
+              : undefined,
           });
           return runPrompt(schema) as Promise<InferPromptType<T>>;
         }
@@ -40,7 +43,9 @@ function createRunnablePrompt<T extends PromptDefinition>(
           const schema = createPasswordSchema({
             message: definition.message,
             mask: definition.mask,
-            validator: definition.validator,
+            validator: definition.validator
+              ? compileValidation(definition.validator, "string")
+              : undefined,
           });
           return runPrompt(schema) as Promise<InferPromptType<T>>;
         }
@@ -53,7 +58,9 @@ function createRunnablePrompt<T extends PromptDefinition>(
             max: definition.max,
             integer: definition.integer,
             step: definition.step,
-            validator: definition.validator,
+            validator: definition.validator
+              ? compileValidation(definition.validator, "number")
+              : undefined,
           });
           return runPrompt(schema) as Promise<InferPromptType<T>>;
         }

@@ -1,4 +1,4 @@
-import type { AnyValidator } from "../validation/types.ts";
+import type { CompiledValidator } from "../validation/compile.ts";
 
 /** Supported value types */
 export type Kind = "string" | "number" | "boolean";
@@ -19,7 +19,7 @@ export interface InternalArgumentDef {
   type: Kind;
   default?: unknown;
   variadic?: boolean;
-  validate?: AnyValidator;
+  validate?: CompiledValidator;
 }
 
 /** Internal option/flag definition */
@@ -32,7 +32,7 @@ export interface InternalOptionDef {
   required: boolean;
   default?: unknown;
   env?: string;
-  validate?: AnyValidator;
+  validate?: CompiledValidator;
 }
 
 /**

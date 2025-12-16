@@ -223,27 +223,27 @@ myapp serve --config=prod.json
 
 ## Argument Properties
 
-| Property      | Type        | Description              |
-| ------------- | ----------- | ------------------------ |
-| `type`        | `string`    | `"string"` or `"number"` |
-| `required`    | `boolean`   | Mark as required         |
-| `default`     | `T`         | Default value            |
-| `variadic`    | `boolean`   | Accept multiple values   |
-| `description` | `string`    | Help text                |
-| `validate`    | `Validator` | Add validation           |
+| Property      | Type      | Description              |
+| ------------- | --------- | ------------------------ |
+| `type`        | `string`  | `"string"` or `"number"` |
+| `required`    | `boolean` | Mark as required         |
+| `default`     | `T`       | Default value            |
+| `variadic`    | `boolean` | Accept multiple values   |
+| `description` | `string`  | Help text                |
+| `validate`    | `object`  | Validation rules         |
 
 ## Option Properties
 
-| Property      | Type        | Description                            |
-| ------------- | ----------- | -------------------------------------- |
-| `type`        | `string`    | `"string"`, `"number"`, or `"boolean"` |
-| `short`       | `string`    | Short flag (-x)                        |
-| `long`        | `string`    | Long flag (--name)                     |
-| `default`     | `T`         | Default value                          |
-| `required`    | `boolean`   | Mark as required                       |
-| `env`         | `string`    | Env var fallback                       |
-| `description` | `string`    | Help text                              |
-| `validate`    | `Validator` | Add validation                         |
+| Property      | Type      | Description                            |
+| ------------- | --------- | -------------------------------------- |
+| `type`        | `string`  | `"string"`, `"number"`, or `"boolean"` |
+| `short`       | `string`  | Short flag (-x)                        |
+| `long`        | `string`  | Long flag (--name)                     |
+| `default`     | `T`       | Default value                          |
+| `required`    | `boolean` | Mark as required                       |
+| `env`         | `string`  | Env var fallback                       |
+| `description` | `string`  | Help text                              |
+| `validate`    | `object`  | Validation rules                       |
 
 ## Next Steps
 

@@ -1,16 +1,16 @@
 ---
 title: Validation
-description: Validate user input with chainable validators.
+description: Validate user input with declarative validation rules.
 ---
 
-Boune provides a powerful validation system with chainable validators for arguments and options.
+Boune provides a declarative validation system for arguments and options using plain objects.
 
 ## Basic Validation
 
-Use the `v` factory to create validators:
+Define validation rules as plain objects on your arguments and options:
 
 ```typescript
-import { defineCommand, v } from "boune";
+import { defineCommand } from "boune";
 
 const deploy = defineCommand({
   name: "deploy",
@@ -18,13 +18,13 @@ const deploy = defineCommand({
     env: {
       type: "string",
       required: true,
-      validate: v.string().oneOf(["dev", "staging", "prod"]),
+      validate: { oneOf: ["dev", "staging", "prod"] },
     },
   },
   options: {
     port: {
       type: "number",
-      validate: v.number().min(1).max(65535),
+      validate: { min: 1, max: 65535 },
     },
   },
   action({ args, options }) {
@@ -33,26 +33,25 @@ const deploy = defineCommand({
 });
 ```
 
-## String Validators
+## String Validation Rules
 
 ```typescript
-import { v } from "boune";
-
 // Email validation
-v.string().email()
+validate: { email: true }
 
 // URL validation
-v.string().url()
+validate: { url: true }
 
 // Regex pattern
-v.string().regex(/^[a-z]+$/, "Must be lowercase letters")
+validate: { regex: /^[a-z]+$/ }
 
 // Length constraints
-v.string().minLength(3)
-v.string().maxLength(50)
+validate: { minLength: 3 }
+validate: { maxLength: 50 }
+validate: { minLength: 3, maxLength: 50 }
 
 // Allowed values
-v.string().oneOf(["small", "medium", "large"])
+validate: { oneOf: ["small", "medium", "large"] }
 ```
 
 ### Email
@@ -64,7 +63,7 @@ const register = defineCommand({
     email: {
       type: "string",
       required: true,
-      validate: v.string().email(),
+      validate: { email: true },
     },
   },
   action({ args }) {
@@ -87,7 +86,7 @@ const fetch = defineCommand({
     url: {
       type: "string",
       required: true,
-      validate: v.string().url(),
+      validate: { url: true },
     },
   },
   action({ args }) {
@@ -105,7 +104,9 @@ const tag = defineCommand({
     version: {
       type: "string",
       required: true,
-      validate: v.string().regex(/^v\d+\.\d+\.\d+$/, "Must be semantic version (v1.0.0)"),
+      validate: {
+        regex: { value: /^v\d+\.\d+\.\d+$/, message: "Must be semantic version (v1.0.0)" },
+      },
     },
   },
   action({ args }) {
@@ -114,25 +115,23 @@ const tag = defineCommand({
 });
 ```
 
-## Number Validators
+## Number Validation Rules
 
 ```typescript
-import { v } from "boune";
-
 // Range constraints
-v.number().min(0)
-v.number().max(100)
-v.number().min(1).max(65535)
+validate: { min: 0 }
+validate: { max: 100 }
+validate: { min: 1, max: 65535 }
 
 // Integer only
-v.number().integer()
+validate: { integer: true }
 
 // Sign constraints
-v.number().positive()
-v.number().negative()
+validate: { positive: true }
+validate: { negative: true }
 
 // Allowed values
-v.number().oneOf([80, 443, 8080])
+validate: { oneOf: [80, 443, 8080] }
 ```
 
 ### Port Number
@@ -144,7 +143,7 @@ const serve = defineCommand({
     port: {
       type: "number",
       default: 3000,
-      validate: v.number().integer().min(1).max(65535),
+      validate: { integer: true, min: 1, max: 65535 },
     },
   },
   action({ options }) {
@@ -168,12 +167,12 @@ const resize = defineCommand({
     width: {
       type: "number",
       required: true,
-      validate: v.number().positive().integer(),
+      validate: { positive: true, integer: true },
     },
     height: {
       type: "number",
       required: true,
-      validate: v.number().positive().integer(),
+      validate: { positive: true, integer: true },
     },
   },
   action({ options }) {
@@ -182,9 +181,9 @@ const resize = defineCommand({
 });
 ```
 
-## Chaining Validators
+## Combining Rules
 
-Chain multiple validations:
+Combine multiple validation rules in one object:
 
 ```typescript
 const create = defineCommand({
@@ -193,11 +192,11 @@ const create = defineCommand({
     name: {
       type: "string",
       required: true,
-      validate: v
-        .string()
-        .minLength(3)
-        .maxLength(20)
-        .regex(/^[a-z][a-z0-9-]*$/, "Must start with letter, only lowercase, numbers, and hyphens"),
+      validate: {
+        minLength: 3,
+        maxLength: 20,
+        regex: { value: /^[a-z][a-z0-9-]*$/, message: "Must start with letter, only lowercase, numbers, and hyphens" },
+      },
     },
   },
   action({ args }) {
@@ -208,7 +207,7 @@ const create = defineCommand({
 
 ## Custom Validation
 
-Use `refine` for custom logic:
+Use `refine` for custom validation logic:
 
 ```typescript
 const upload = defineCommand({
@@ -217,12 +216,14 @@ const upload = defineCommand({
     file: {
       type: "string",
       required: true,
-      validate: v.string().refine((path) => {
-        if (!path.endsWith(".json") && !path.endsWith(".yaml")) {
-          return "Must be a JSON or YAML file";
-        }
-        return true;
-      }),
+      validate: {
+        refine: (path) => {
+          if (!path.endsWith(".json") && !path.endsWith(".yaml")) {
+            return "Must be a JSON or YAML file";
+          }
+          return true;
+        },
+      },
     },
   },
   action({ args }) {
@@ -240,16 +241,18 @@ const setDate = defineCommand({
     date: {
       type: "string",
       required: true,
-      validate: v.string().refine((value) => {
-        const date = new Date(value);
-        if (isNaN(date.getTime())) {
-          return "Invalid date format";
-        }
-        if (date < new Date()) {
-          return "Date must be in the future";
-        }
-        return true;
-      }),
+      validate: {
+        refine: (value) => {
+          const date = new Date(value);
+          if (isNaN(date.getTime())) {
+            return "Invalid date format";
+          }
+          if (date < new Date()) {
+            return "Date must be in the future";
+          }
+          return true;
+        },
+      },
     },
   },
   action({ args }) {
@@ -260,64 +263,67 @@ const setDate = defineCommand({
 
 ## Custom Error Messages
 
-Override default error messages:
+Override default error messages using the object form:
 
 ```typescript
-v.string().email("Please provide a valid email address")
-v.number().min(1, "Value must be at least 1")
-v.string().minLength(8, "Password must be at least 8 characters")
+validate: { email: { value: true, message: "Please provide a valid email address" } }
+validate: { min: { value: 1, message: "Value must be at least 1" } }
+validate: { minLength: { value: 8, message: "Password must be at least 8 characters" } }
 ```
 
-## Validation with Function
-
-For simple cases, use inline validation:
+### Example
 
 ```typescript
-const greet = defineCommand({
-  name: "greet",
-  arguments: {
-    name: {
-      type: "string",
-      required: true,
-      validate: (value) => {
-        if (value.toLowerCase() === "admin") {
-          return "Name cannot be 'admin'";
-        }
-        return true;
+const serve = defineCommand({
+  name: "serve",
+  options: {
+    port: {
+      type: "number",
+      default: 3000,
+      validate: {
+        integer: { value: true, message: "Port must be a whole number" },
+        min: { value: 1, message: "Port must be at least 1" },
+        max: { value: 65535, message: "Port must be at most 65535" },
       },
     },
   },
-  action({ args }) {
-    console.log(`Hello, ${args.name}!`);
+  action({ options }) {
+    console.log(`Listening on port ${options.port}`);
   },
 });
 ```
 
-## Validator Methods
+## Validation Rules Reference
 
-### String Validators
+### String Rules
 
-| Method                  | Description           |
-| ----------------------- | --------------------- |
-| `.email(msg?)`          | Valid email format    |
-| `.url(msg?)`            | Valid URL format      |
-| `.regex(pattern, msg?)` | Match regex pattern   |
-| `.minLength(n, msg?)`   | Minimum length        |
-| `.maxLength(n, msg?)`   | Maximum length        |
-| `.oneOf(values, msg?)`  | One of allowed values |
-| `.refine(fn, msg?)`     | Custom validation     |
+| Rule        | Type                                | Description           |
+| ----------- | ----------------------------------- | --------------------- |
+| `email`     | `true` or `{value, message}`        | Valid email format    |
+| `url`       | `true` or `{value, message}`        | Valid URL format      |
+| `regex`     | `RegExp` or `{value, message}`      | Match regex pattern   |
+| `minLength` | `number` or `{value, message}`      | Minimum length        |
+| `maxLength` | `number` or `{value, message}`      | Maximum length        |
+| `oneOf`     | `string[]` or `{value, message}`    | One of allowed values |
+| `refine`    | `(value: string) => true \| string` | Custom validation     |
 
-### Number Validators
+### Number Rules
 
-| Method                 | Description           |
-| ---------------------- | --------------------- |
-| `.min(n, msg?)`        | Minimum value         |
-| `.max(n, msg?)`        | Maximum value         |
-| `.integer(msg?)`       | Must be integer       |
-| `.positive(msg?)`      | Must be > 0           |
-| `.negative(msg?)`      | Must be < 0           |
-| `.oneOf(values, msg?)` | One of allowed values |
-| `.refine(fn, msg?)`    | Custom validation     |
+| Rule       | Type                                | Description           |
+| ---------- | ----------------------------------- | --------------------- |
+| `min`      | `number` or `{value, message}`      | Minimum value         |
+| `max`      | `number` or `{value, message}`      | Maximum value         |
+| `integer`  | `true` or `{value, message}`        | Must be integer       |
+| `positive` | `true` or `{value, message}`        | Must be > 0           |
+| `negative` | `true` or `{value, message}`        | Must be < 0           |
+| `oneOf`    | `number[]` or `{value, message}`    | One of allowed values |
+| `refine`   | `(value: number) => true \| string` | Custom validation     |
+
+### Boolean Rules
+
+| Rule     | Type                                 | Description       |
+| -------- | ------------------------------------ | ----------------- |
+| `refine` | `(value: boolean) => true \| string` | Custom validation |
 
 ## Next Steps
 

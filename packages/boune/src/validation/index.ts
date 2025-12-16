@@ -1,11 +1,9 @@
-export { v } from "./factory.ts";
-export type { ValidatorFactoryType } from "./factory.ts";
+export { compileValidation, type CompiledValidator } from "./compile.ts";
 export type {
   ValidationResult,
-  ValidationRule,
-  Validator,
-  AnyValidator,
-  StringValidator,
-  NumberValidator,
-  BooleanValidator,
+  RuleValue,
+  StringValidationRules,
+  NumberValidationRules,
+  BooleanValidationRules,
+  ValidationRulesForKind,
 } from "./types.ts";

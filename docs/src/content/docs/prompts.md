@@ -6,6 +6,7 @@ description: Create interactive CLI experiences with built-in prompts.
 Boune includes a complete set of interactive prompts for gathering user input. Prompts can be defined declaratively in your commands or used standalone.
 
 > **Tip:** If you've cloned the repo, test prompts interactively:
+>
 > ```bash
 > bun run dev prompt          # Interactive menu
 > bun run dev prompt select   # Test a specific prompt
@@ -65,13 +66,11 @@ prompts: {
 #### With Validation
 
 ```typescript
-import { v } from "boune";
-
 prompts: {
   email: {
     kind: "text",
     message: "Enter your email:",
-    validator: v.string().email(),
+    validator: { email: true },
   },
 }
 ```
@@ -95,15 +94,15 @@ prompts: {
 
 #### Properties
 
-| Property    | Type        | Description           |
-| ----------- | ----------- | --------------------- |
-| `message`   | `string`    | Prompt message        |
-| `default`   | `number`    | Default value         |
-| `min`       | `number`    | Minimum allowed value |
-| `max`       | `number`    | Maximum allowed value |
-| `integer`   | `boolean`   | Only allow integers   |
-| `step`      | `number`    | Increment step        |
-| `validator` | `Validator` | Custom validator      |
+| Property    | Type      | Description           |
+| ----------- | --------- | --------------------- |
+| `message`   | `string`  | Prompt message        |
+| `default`   | `number`  | Default value         |
+| `min`       | `number`  | Minimum allowed value |
+| `max`       | `number`  | Maximum allowed value |
+| `integer`   | `boolean` | Only allow integers   |
+| `step`      | `number`  | Increment step        |
+| `validator` | `object`  | Validation rules      |
 
 ### Confirm
 
@@ -173,13 +172,11 @@ Use Space to toggle selection, `a` to toggle all, Enter to confirm.
 Secure password input:
 
 ```typescript
-import { v } from "boune";
-
 prompts: {
   apiKey: {
     kind: "password",
     message: "Enter your API key:",
-    validator: v.string().minLength(10),
+    validator: { minLength: 10 },
   },
 }
 ```

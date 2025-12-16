@@ -2,6 +2,7 @@ import type { CliConfig, CliSchema, CommandConfig, InternalOptionDef } from "../
 import { defineCommand, isCommandConfig } from "./command.ts";
 import { Cli } from "../runtime/cli.ts";
 import type { OptionDefinition } from "../types/option.ts";
+import { compileValidation } from "../validation/compile.ts";
 
 /**
  * Normalize option definitions to internal format
@@ -18,7 +19,7 @@ function normalizeGlobalOptions(opts?: Record<string, OptionDefinition>): Intern
     // Boolean options default to false
     default: def.default ?? (def.type === "boolean" ? false : undefined),
     env: def.env,
-    validate: def.validate,
+    validate: def.validate ? compileValidation(def.validate, def.type) : undefined,
   }));
 }
 

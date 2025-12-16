@@ -4,7 +4,7 @@
  * A single runner interprets these schemas to execute prompts.
  */
 
-import type { Validator } from "../../validation/types.ts";
+import type { CompiledValidator } from "../../validation/compile.ts";
 
 /**
  * Result of parsing raw input
@@ -31,8 +31,8 @@ export type BasePromptSchema<T> = {
   /** Default value if input is empty */
   default?: T;
 
-  /** Validator instance for the value */
-  validator?: Validator<T>;
+  /** Compiled validator function */
+  validator?: CompiledValidator;
 
   /** Legacy validation function */
   validate?: (value: T) => string | true;

@@ -1,5 +1,5 @@
 import { linePrompt, runPrompt } from "./core/index.ts";
-import type { Validator } from "../validation/types.ts";
+import type { CompiledValidator } from "../validation/compile.ts";
 
 export interface TextOptions {
   message: string;
@@ -7,8 +7,8 @@ export interface TextOptions {
   placeholder?: string;
   /** Custom validation function (legacy) */
   validate?: (value: string) => string | true;
-  /** Validator instance */
-  validator?: Validator<string>;
+  /** Compiled validator function */
+  validator?: CompiledValidator;
 }
 
 /**

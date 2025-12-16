@@ -150,7 +150,7 @@ const runValidators = (args: ParsedArgs, definitions: InternalArgumentDef[]): Va
 
   for (const def of definitions) {
     if (args[def.name] !== undefined && def.validate) {
-      const result = def.validate.validate(args[def.name]);
+      const result = def.validate(args[def.name]);
       if (result !== true) {
         errors.push({
           type: "validation_failed",
