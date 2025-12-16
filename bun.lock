@@ -12,6 +12,16 @@
         "typescript": "^5",
       },
     },
+    "apps/cli": {
+      "name": "@boune/cli",
+      "version": "0.1.0",
+      "bin": {
+        "boune": "./src/app.ts",
+      },
+      "dependencies": {
+        "boune": "workspace:*",
+      },
+    },
     "apps/dev": {
       "name": "@boune/dev",
       "version": "0.1.0",
@@ -38,6 +48,8 @@
     },
   },
   "packages": {
+    "@boune/cli": ["@boune/cli@workspace:apps/cli"],
+
     "@boune/dev": ["@boune/dev@workspace:apps/dev"],
 
     "@oxfmt/darwin-arm64": ["@oxfmt/darwin-arm64@0.17.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-OMv0tOb+xiwSZKjYbM6TwMSP5QwFJlBGQmEsk98QJ30sHhdyC//0UvGKuR0KZuzZW4E0+k0rHDmos1Z5DmBEkA=="],

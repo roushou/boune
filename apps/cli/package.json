@@ -1,0 +1,19 @@
+{
+  "name": "@boune/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Boune CLI with init wizard and environment profiles",
+  "bin": {
+    "boune": "./src/app.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/app.ts"
+  },
+  "dependencies": {
+    "boune": "workspace:*"
+  },
+  "engines": {
+    "bun": ">=1.3.0"
+  }
+}
