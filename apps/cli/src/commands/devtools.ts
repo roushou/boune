@@ -1,7 +1,7 @@
 import { color, defineCommand } from "boune";
-import { serveDevTools } from "boune/devtools";
-import type { Cli } from "boune";
 import { join, resolve } from "node:path";
+import type { Cli } from "boune";
+import { serveDevTools } from "boune/devtools";
 
 /**
  * Extract CLI instance from a loaded module

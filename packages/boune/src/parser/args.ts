@@ -143,20 +143,59 @@ const parseSingleArg = (def: InternalArgumentDef, value: string | undefined): Ar
 };
 
 /**
- * Run custom validation on parsed arguments
+ * Validate choices for an argument value
+ */
+const validateChoices = (value: unknown, def: InternalArgumentDef): ValidationError | undefined => {
+  if (!def.choices || def.choices.length === 0) return undefined;
+
+  if (def.variadic && Array.isArray(value)) {
+    for (const v of value) {
+      if (!def.choices.includes(v)) {
+        const choicesStr = def.choices.map((c) => `"${c}"`).join(", ");
+        return {
+          type: "validation_failed",
+          message: `Invalid value "${v}" for <${def.name}>. Must be one of: ${choicesStr}`,
+          field: def.name,
+        };
+      }
+    }
+  } else if (!def.choices.includes(value)) {
+    const choicesStr = def.choices.map((c) => `"${c}"`).join(", ");
+    return {
+      type: "validation_failed",
+      message: `Invalid value "${value}" for <${def.name}>. Must be one of: ${choicesStr}`,
+      field: def.name,
+    };
+  }
+
+  return undefined;
+};
+
+/**
+ * Run choices and custom validation on parsed arguments
  */
 const runValidators = (args: ParsedArgs, definitions: InternalArgumentDef[]): ValidationError[] => {
   const errors: ValidationError[] = [];
 
   for (const def of definitions) {
-    if (args[def.name] !== undefined && def.validate) {
-      const result = def.validate(args[def.name]);
-      if (result !== true) {
-        errors.push({
-          type: "validation_failed",
-          message: `Invalid value for <${def.name}>: ${result}`,
-          field: def.name,
-        });
+    if (args[def.name] !== undefined) {
+      // Validate choices first
+      const choiceError = validateChoices(args[def.name], def);
+      if (choiceError) {
+        errors.push(choiceError);
+        continue;
+      }
+
+      // Then run custom validators
+      if (def.validate) {
+        const result = def.validate(args[def.name]);
+        if (result !== true) {
+          errors.push({
+            type: "validation_failed",
+            message: `Invalid value for <${def.name}>: ${result}`,
+            field: def.name,
+          });
+        }
       }
     }
   }

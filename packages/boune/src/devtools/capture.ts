@@ -1,6 +1,6 @@
-import type { MiddlewareHandler } from "../types/handlers.ts";
 import type { DevToolsEvent, EventType } from "./types.ts";
 import { DevToolsStorage, type StorageOptions } from "./storage.ts";
+import type { MiddlewareHandler } from "../types/handlers.ts";
 
 let sharedStorage: DevToolsStorage | null = null;
 let storagePromise: Promise<DevToolsStorage> | null = null;

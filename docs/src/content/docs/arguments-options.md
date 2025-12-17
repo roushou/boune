@@ -181,6 +181,66 @@ const deploy = defineCommand({
 });
 ```
 
+### Choices
+
+Restrict values to a specific set with full TypeScript type narrowing:
+
+```typescript
+const build = defineCommand({
+  name: "build",
+  options: {
+    format: {
+      type: "string",
+      choices: ["cjs", "esm", "iife"] as const,
+      default: "esm",
+      description: "Output format",
+    },
+    logLevel: {
+      type: "number",
+      choices: [0, 1, 2] as const,
+      default: 1,
+      description: "Log verbosity",
+    },
+  },
+  action({ options }) {
+    options.format;   // Type: "cjs" | "esm" | "iife"
+    options.logLevel; // Type: 0 | 1 | 2
+  },
+});
+```
+
+```bash
+myapp build --format=esm
+myapp build --format=xml  # Error: Must be one of: "cjs", "esm", "iife"
+```
+
+Help output shows available choices:
+
+```
+Options:
+  --format <string>    Output format [choices: cjs, esm, iife] (default: "esm")
+  --logLevel <number>  Log verbosity [choices: 0, 1, 2] (default: 1)
+```
+
+Arguments also support choices:
+
+```typescript
+const init = defineCommand({
+  name: "init",
+  arguments: {
+    template: {
+      type: "string",
+      choices: ["react", "vue", "svelte"] as const,
+      required: true,
+      description: "Project template",
+    },
+  },
+  action({ args }) {
+    args.template; // Type: "react" | "vue" | "svelte"
+  },
+});
+```
+
 ### Long Option Names
 
 By default, the option name becomes the long flag. Customize it:
@@ -223,27 +283,29 @@ myapp serve --config=prod.json
 
 ## Argument Properties
 
-| Property      | Type      | Description              |
-| ------------- | --------- | ------------------------ |
-| `type`        | `string`  | `"string"` or `"number"` |
-| `required`    | `boolean` | Mark as required         |
-| `default`     | `T`       | Default value            |
-| `variadic`    | `boolean` | Accept multiple values   |
-| `description` | `string`  | Help text                |
-| `validate`    | `object`  | Validation rules         |
+| Property      | Type           | Description                                |
+| ------------- | -------------- | ------------------------------------------ |
+| `type`        | `string`       | `"string"` or `"number"`                   |
+| `required`    | `boolean`      | Mark as required                           |
+| `default`     | `T`            | Default value                              |
+| `variadic`    | `boolean`      | Accept multiple values                     |
+| `choices`     | `T[] as const` | Restrict to specific values (narrows type) |
+| `description` | `string`       | Help text                                  |
+| `validate`    | `object`       | Validation rules                           |
 
 ## Option Properties
 
-| Property      | Type      | Description                            |
-| ------------- | --------- | -------------------------------------- |
-| `type`        | `string`  | `"string"`, `"number"`, or `"boolean"` |
-| `short`       | `string`  | Short flag (-x)                        |
-| `long`        | `string`  | Long flag (--name)                     |
-| `default`     | `T`       | Default value                          |
-| `required`    | `boolean` | Mark as required                       |
-| `env`         | `string`  | Env var fallback                       |
-| `description` | `string`  | Help text                              |
-| `validate`    | `object`  | Validation rules                       |
+| Property      | Type           | Description                                |
+| ------------- | -------------- | ------------------------------------------ |
+| `type`        | `string`       | `"string"`, `"number"`, or `"boolean"`     |
+| `short`       | `string`       | Short flag (-x)                            |
+| `long`        | `string`       | Long flag (--name)                         |
+| `default`     | `T`            | Default value                              |
+| `required`    | `boolean`      | Mark as required                           |
+| `choices`     | `T[] as const` | Restrict to specific values (narrows type) |
+| `env`         | `string`       | Env var fallback                           |
+| `description` | `string`       | Help text                                  |
+| `validate`    | `object`       | Validation rules                           |
 
 ## Next Steps
 

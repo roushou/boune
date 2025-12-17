@@ -11,11 +11,15 @@ import type { ValidationRulesForKind } from "../validation/types.ts";
  *     name: { type: "string", required: true, description: "Name to greet" },
  *     count: { type: "number", default: 1, description: "Times to repeat" },
  *     files: { type: "string", required: true, variadic: true, description: "Files" },
+ *     format: { type: "string", choices: ["json", "yaml"] as const, description: "Format" },
  *   },
  * });
  * ```
  */
-export type ArgumentDefinition<K extends Kind = Kind> = {
+export type ArgumentDefinition<
+  K extends Kind = Kind,
+  C extends readonly InferKind<K>[] | undefined = readonly InferKind<K>[] | undefined,
+> = {
   /** Value type */
   type: K;
   /** Whether the argument is required */
@@ -23,7 +27,9 @@ export type ArgumentDefinition<K extends Kind = Kind> = {
   /** Whether the argument accepts multiple values */
   variadic?: boolean;
   /** Default value (makes type non-nullable) */
-  default?: InferKind<K>;
+  default?: C extends readonly (infer U)[] ? U : InferKind<K>;
+  /** Restrict to specific values (narrows TypeScript type) */
+  choices?: C;
   /** Description shown in help */
   description?: string;
   /** Validation rules */
@@ -31,19 +37,28 @@ export type ArgumentDefinition<K extends Kind = Kind> = {
 };
 
 /**
+ * Infer the base type from choices or kind
+ */
+type InferChoicesOrKind<T extends ArgumentDefinition> = T extends {
+  choices: readonly (infer U)[];
+}
+  ? U
+  : InferKind<T["type"]>;
+
+/**
  * Infer the TypeScript type from an argument definition
  */
 export type InferArgType<T extends ArgumentDefinition> = T extends { variadic: true }
   ? T extends { required: true }
-    ? InferKind<T["type"], true>
+    ? InferChoicesOrKind<T>[]
     : T extends { default: unknown }
-      ? InferKind<T["type"], true>
-      : InferKind<T["type"], true> | undefined
+      ? InferChoicesOrKind<T>[]
+      : InferChoicesOrKind<T>[] | undefined
   : T extends { required: true }
-    ? InferKind<T["type"]>
+    ? InferChoicesOrKind<T>
     : T extends { default: unknown }
-      ? InferKind<T["type"]>
-      : InferKind<T["type"]> | undefined;
+      ? InferChoicesOrKind<T>
+      : InferChoicesOrKind<T> | undefined;
 
 /**
  * Infer args type from argument definitions record

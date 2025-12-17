@@ -317,7 +317,25 @@ const applyDefaults = (
 };
 
 /**
- * Run custom validators on options
+ * Validate choices for an option value
+ */
+const validateChoices = (value: unknown, def: InternalOptionDef): ValidationError | undefined => {
+  if (!def.choices || def.choices.length === 0) return undefined;
+
+  if (!def.choices.includes(value)) {
+    const choicesStr = def.choices.map((c) => `"${c}"`).join(", ");
+    return {
+      type: "validation_failed",
+      message: `Invalid value "${value}" for --${def.name}. Must be one of: ${choicesStr}`,
+      field: def.name,
+    };
+  }
+
+  return undefined;
+};
+
+/**
+ * Run choices and custom validators on options
  */
 const runValidators = (
   options: ParsedOptions,
@@ -326,14 +344,24 @@ const runValidators = (
   const errors: ValidationError[] = [];
 
   for (const def of definitions) {
-    if (options[def.name] !== undefined && def.validate) {
-      const result = def.validate(options[def.name]);
-      if (result !== true) {
-        errors.push({
-          type: "validation_failed",
-          message: `Invalid value for --${def.name}: ${result}`,
-          field: def.name,
-        });
+    if (options[def.name] !== undefined) {
+      // Validate choices first
+      const choiceError = validateChoices(options[def.name], def);
+      if (choiceError) {
+        errors.push(choiceError);
+        continue;
+      }
+
+      // Then run custom validators
+      if (def.validate) {
+        const result = def.validate(options[def.name]);
+        if (result !== true) {
+          errors.push({
+            type: "validation_failed",
+            message: `Invalid value for --${def.name}: ${result}`,
+            field: def.name,
+          });
+        }
       }
     }
   }

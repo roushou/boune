@@ -1,13 +1,12 @@
-import type { ServerWebSocket } from "bun";
-import type { Cli } from "../runtime/cli.ts";
-import type { CliInfo } from "../docs/types.ts";
-import { extractCliInfo } from "../docs/extract.ts";
-import { color } from "../output/color.ts";
 import type { DevToolsEvent, DevToolsOptions } from "./types.ts";
 import { DevToolsStorage, type StorageOptions } from "./storage.ts";
-import { renderOverviewPage } from "./pages/overview.ts";
+import type { Cli } from "../runtime/cli.ts";
+import type { ServerWebSocket } from "bun";
+import { color } from "../output/color.ts";
+import { extractCliInfo } from "../docs/extract.ts";
 import { renderDocsPage } from "./pages/docs.ts";
 import { renderEventsPage } from "./pages/events.ts";
+import { renderOverviewPage } from "./pages/overview.ts";
 
 type WebSocketData = {
   id: string;

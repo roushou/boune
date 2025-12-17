@@ -4,7 +4,6 @@
  * Demo CLI showcasing boune features
  */
 import {
-  type ShellType,
   color,
   createProgressBar,
   createSpinner,
@@ -121,14 +120,14 @@ const serve = defineCommand({
       short: "H",
       default: "localhost",
       description: "Host to bind to",
-      validate: { oneOf: ["localhost", "0.0.0.0", "127.0.0.1"] },
+      choices: ["localhost", "0.0.0.0", "127.0.0.1"] as const,
     },
     env: {
       type: "string",
       short: "e",
       default: "development",
       description: "Environment",
-      validate: { oneOf: ["development", "staging", "production"] },
+      choices: ["development", "staging", "production"] as const,
     },
   },
   action({ options }) {
@@ -166,14 +165,16 @@ const completions = defineCommand({
   name: "completions",
   description: "Generate shell completion scripts",
   arguments: {
-    shell: { type: "string", required: true, description: "Shell type (bash, zsh, fish)" },
+    shell: {
+      type: "string",
+      required: true,
+      description: "Shell type (bash, zsh, fish)",
+      choices: ["bash", "zsh", "fish"] as const,
+    },
   },
   action({ args }) {
-    if (!["bash", "zsh", "fish"].includes(args.shell)) {
-      console.error(color.red(`Error: Invalid shell "${args.shell}". Use bash, zsh, or fish.`));
-      process.exit(1);
-    }
-    const script = app.completions(args.shell as ShellType);
+    // args.shell is now typed as "bash" | "zsh" | "fish"
+    const script = app.completions(args.shell);
     console.log(script);
   },
 });

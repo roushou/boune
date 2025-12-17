@@ -19,6 +19,7 @@ export interface InternalArgumentDef {
   type: Kind;
   default?: unknown;
   variadic?: boolean;
+  choices?: readonly unknown[];
   validate?: CompiledValidator;
 }
 
@@ -31,6 +32,7 @@ export interface InternalOptionDef {
   type: Kind;
   required: boolean;
   default?: unknown;
+  choices?: readonly unknown[];
   env?: string;
   validate?: CompiledValidator;
 }

@@ -70,6 +70,9 @@ export function generateCommandHelp(
     for (const argument of command.arguments) {
       const syntax = formatArgument(argument);
       let line = `  ${color.cyan(pad(syntax, maxArgLen + 2))}${argument.description}`;
+      if (argument.choices && argument.choices.length > 0) {
+        line += color.dim(` [choices: ${argument.choices.join(", ")}]`);
+      }
       if (argument.default !== undefined) {
         line += color.dim(` (default: ${JSON.stringify(argument.default)})`);
       }
@@ -86,6 +89,9 @@ export function generateCommandHelp(
     for (const option of allOptions) {
       const syntax = formatOption(option);
       let line = `  ${color.cyan(pad(syntax, maxOptLen + 2))}${option.description}`;
+      if (option.choices && option.choices.length > 0) {
+        line += color.dim(` [choices: ${option.choices.join(", ")}]`);
+      }
       if (option.default !== undefined) {
         line += color.dim(` (default: ${JSON.stringify(option.default)})`);
       }
@@ -144,6 +150,9 @@ export function generateCliHelp(config: CliConfig): string {
     for (const option of config.globalOptions) {
       const syntax = formatOption(option);
       let line = `  ${color.cyan(pad(syntax, maxOptLen + 2))}${option.description}`;
+      if (option.choices && option.choices.length > 0) {
+        line += color.dim(` [choices: ${option.choices.join(", ")}]`);
+      }
       if (option.default !== undefined) {
         line += color.dim(` (default: ${JSON.stringify(option.default)})`);
       }

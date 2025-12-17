@@ -1,6 +1,6 @@
-import { mkdirSync } from "node:fs";
-import { SQL } from "bun";
 import type { DevToolsEvent, EventType } from "./types.ts";
+import { SQL } from "bun";
+import { mkdirSync } from "node:fs";
 
 const DEFAULT_DB_PATH = ".boune/devtools.db";
 

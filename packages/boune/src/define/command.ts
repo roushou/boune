@@ -22,6 +22,7 @@ function normalizeArguments(args?: Record<string, ArgumentDefinition>): Internal
     type: def.type,
     default: def.default,
     variadic: def.variadic ?? false,
+    choices: def.choices,
     validate: def.validate ? compileValidation(def.validate, def.type) : undefined,
   }));
 }
@@ -40,6 +41,7 @@ function normalizeOptions(opts?: Record<string, OptionDefinition>): InternalOpti
     required: def.required ?? false,
     // Boolean options default to false
     default: def.default ?? (def.type === "boolean" ? false : undefined),
+    choices: def.choices,
     env: def.env,
     validate: def.validate ? compileValidation(def.validate, def.type) : undefined,
   }));
