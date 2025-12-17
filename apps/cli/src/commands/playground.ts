@@ -1,5 +1,5 @@
 import { color, defineCommand } from "boune";
-import { confirm, date, editor, list, multiselect, select, text, toggle } from "boune/prompt";
+import { confirm, date, editor, form, list, multiselect, select, text, toggle } from "boune/prompt";
 
 export type PromptType =
   | "text"
@@ -9,7 +9,8 @@ export type PromptType =
   | "editor"
   | "toggle"
   | "list"
-  | "date";
+  | "date"
+  | "form";
 
 export interface SelectOption {
   label: string;
@@ -37,6 +38,7 @@ export const playground = defineCommand({
           { label: "toggle", value: "toggle", hint: "Visual on/off switch" },
           { label: "list", value: "list", hint: "Comma-separated list input" },
           { label: "date", value: "date", hint: "Interactive calendar date picker" },
+          { label: "form", value: "form", hint: "Multi-field form input" },
           { label: "Exit", value: "exit" as PromptType, hint: "Exit playground" },
         ],
       });
@@ -72,6 +74,9 @@ export const playground = defineCommand({
           break;
         case "date":
           await runDateDemo();
+          break;
+        case "form":
+          await runFormDemo();
           break;
       }
 
@@ -374,6 +379,46 @@ async function runDateDemo(): Promise<void> {
   });
 }
 
+async function runFormDemo(): Promise<void> {
+  console.log(color.bold("Configure form prompt:\n"));
+  console.log(color.dim("This demo uses a pre-configured user registration form.\n"));
+
+  const message = await text({
+    message: "Form title:",
+    placeholder: "Create account:",
+    default: "Create account:",
+  });
+
+  console.log(color.dim("\n--- Running your prompt ---\n"));
+
+  const result = await form({
+    message,
+    fields: [
+      { name: "username", label: "Username", required: true, placeholder: "johndoe" },
+      {
+        name: "email",
+        label: "Email",
+        required: true,
+        placeholder: "john@example.com",
+        validate: (v) => (v.includes("@") ? true : "Must be a valid email"),
+      },
+      { name: "password", label: "Password", type: "password", required: true },
+      { name: "age", label: "Age", type: "number", placeholder: "25" },
+    ],
+  });
+
+  printResult(result);
+  printCodeSnippet("form", {
+    message,
+    fields: `[
+    { name: "username", label: "Username", required: true },
+    { name: "email", label: "Email", required: true, validate: (v) => v.includes("@") ? true : "Invalid" },
+    { name: "password", label: "Password", type: "password", required: true },
+    { name: "age", label: "Age", type: "number" },
+  ]`,
+  });
+}
+
 async function buildSelectOptions(): Promise<SelectOption[]> {
   const options: SelectOption[] = [];
 
@@ -470,6 +515,8 @@ export function getVariableName(type: PromptType): string {
       return "items";
     case "date":
       return "selectedDate";
+    case "form":
+      return "formData";
   }
 }
 
