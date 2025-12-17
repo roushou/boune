@@ -30,7 +30,8 @@ export const prompt = defineCommand({
     type: {
       type: "string",
       required: false,
-      description: `Prompt type (${PROMPT_TYPES.join(", ")})`,
+      description: "Prompt type to test",
+      choices: PROMPT_TYPES,
     },
   },
   options: {
@@ -50,19 +51,13 @@ export const prompt = defineCommand({
       return;
     }
 
-    let promptType = args.type as PromptType | undefined;
+    let promptType = args.type;
 
     if (!promptType) {
       promptType = await select({
         message: "Select a prompt type to test:",
         options: PROMPT_TYPES.map((t) => ({ label: t, value: t })),
       });
-    }
-
-    if (!PROMPT_TYPES.includes(promptType as PromptType)) {
-      console.log(color.red(`\nUnknown prompt type: ${promptType}`));
-      console.log(`Available: ${PROMPT_TYPES.join(", ")}\n`);
-      process.exit(1);
     }
 
     console.log(color.bold(`\nTesting ${color.cyan(promptType)} prompt\n`));

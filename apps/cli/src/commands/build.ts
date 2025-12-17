@@ -35,7 +35,8 @@ export const build = defineCommand({
     target: {
       type: "string",
       short: "t",
-      description: "Target platform (e.g., bun-linux-x64, bun-darwin-arm64)",
+      description: "Target platform",
+      choices: TARGETS,
     },
     minify: {
       type: "boolean",
@@ -72,13 +73,6 @@ export const build = defineCommand({
 
     const outdir = resolve(cwd, options.outdir);
     const outName = options.outfile || (await getOutputName(cwd));
-
-    // Validate target if specified
-    if (options.target && !TARGETS.includes(options.target as Target)) {
-      console.log(color.red(`Invalid target: ${options.target}`));
-      console.log(color.dim(`Valid targets: ${TARGETS.join(", ")}`));
-      process.exit(1);
-    }
 
     // Ensure output directory exists
     const { mkdir } = await import("node:fs/promises");
