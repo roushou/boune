@@ -20,6 +20,7 @@
     "./docs": "./src/docs/index.ts",
     "./prompt": "./src/prompt/index.ts",
     "./testing": "./src/testing/index.ts",
+    "./x/update-checker": "./src/x/update-checker/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
