@@ -63,11 +63,12 @@ export {
   info,
   createSpinner,
   createProgressBar,
+  createDraft,
   suggestCommands,
   formatSuggestions,
   levenshtein,
 } from "./output/index.ts";
-export type { Suggestion } from "./output/index.ts";
+export type { Suggestion, Draft, DraftLine } from "./output/index.ts";
 
 // Validation
 export { compileValidation } from "./validation/index.ts";
