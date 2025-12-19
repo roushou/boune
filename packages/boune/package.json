@@ -22,6 +22,7 @@
     "./testing": "./src/testing/index.ts",
     "./x/update-checker": "./src/x/update-checker/index.ts",
     "./x/open": "./src/x/open/index.ts",
+    "./x/doctor": "./src/x/doctor/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
