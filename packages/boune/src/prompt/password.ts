@@ -16,6 +16,7 @@ export interface PasswordOptions {
 export function createPasswordSchema(options: PasswordOptions) {
   return linePrompt<string>({
     message: options.message,
+    mask: options.mask,
     validator: options.validator,
     validate: options.validate,
 
@@ -28,8 +29,6 @@ export function createPasswordSchema(options: PasswordOptions) {
 
 /**
  * Prompt for password/secret input
- * Note: This is a simple implementation. For true hidden input,
- * you would need to disable terminal echo which requires native bindings.
  */
 export async function password(options: PasswordOptions): Promise<string> {
   const schema = createPasswordSchema(options);

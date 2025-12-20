@@ -7,7 +7,7 @@
 
 import * as tty from "node:tty";
 import type { KeyPromptSchema, LinePromptSchema, PromptSchema } from "./schema.ts";
-import { readKey, readLine } from "../stdin.ts";
+import { readKey, readLine, readMaskedLine } from "../stdin.ts";
 import { renderError, renderPromptLine } from "./render.ts";
 import { PromptMaxRetriesError } from "./errors.ts";
 
@@ -40,8 +40,8 @@ async function runLinePrompt<T>(schema: LinePromptSchema<string, T>): Promise<T>
     const promptLine = renderPromptLine(schema, { hint });
     process.stdout.write(promptLine);
 
-    // Read input
-    const raw = await readLine();
+    // Read input (use masked input for passwords)
+    const raw = schema.mask ? await readMaskedLine(schema.mask) : await readLine();
     const trimmed = raw.trim();
     const isEmpty = trimmed === "";
 

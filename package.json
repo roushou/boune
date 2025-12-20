@@ -13,6 +13,7 @@
     "format:check": "oxfmt . --check",
     "lint": "oxlint . --fix",
     "lint:check": "oxlint . --type-aware",
+    "types:check": "tsc --noEmit",
     "release": "bun scripts/release.ts"
   },
   "devDependencies": {

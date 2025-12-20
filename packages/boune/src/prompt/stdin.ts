@@ -49,6 +49,79 @@ export function readLine(): Promise<string> {
 }
 
 /**
+ * Read a line with masked output (for passwords)
+ * @param mask - Character to display instead of actual input (e.g., "*")
+ */
+export async function readMaskedLine(mask: string): Promise<string> {
+  readCount++;
+
+  const stdin = process.stdin;
+  const isTTY = tty.isatty(0);
+
+  // Fallback for non-TTY: just read a line (no masking possible)
+  if (!isTTY) {
+    return readLine();
+  }
+
+  // Close readline interface before using raw mode
+  if (rl) {
+    rl.close();
+    rl = null;
+  }
+
+  let input = "";
+
+  stdin.setRawMode(true);
+  stdin.resume();
+
+  return new Promise((resolve) => {
+    const onData = (data: Buffer): void => {
+      const char = data.toString();
+
+      // Enter key - done
+      if (char === "\r" || char === "\n") {
+        stdin.removeListener("data", onData);
+        stdin.setRawMode(false);
+        stdin.pause();
+        process.stdout.write("\n");
+        resolve(input);
+        return;
+      }
+
+      // Ctrl+C - cancel
+      if (char === "\x03") {
+        stdin.removeListener("data", onData);
+        stdin.setRawMode(false);
+        stdin.pause();
+        process.stdout.write("\n");
+        process.exit(130);
+      }
+
+      // Backspace
+      if (char === "\x7f" || char === "\b") {
+        if (input.length > 0) {
+          input = input.slice(0, -1);
+          // Move cursor back, overwrite with space, move back again
+          process.stdout.write("\b \b");
+        }
+        return;
+      }
+
+      // Ignore other control characters and escape sequences
+      if (char.charCodeAt(0) < 32 || char.startsWith("\x1b")) {
+        return;
+      }
+
+      // Regular character
+      input += char;
+      process.stdout.write(mask);
+    };
+
+    stdin.on("data", onData);
+  });
+}
+
+/**
  * Key event from raw keypress reading
  */
 export interface KeyPress {

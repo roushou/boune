@@ -57,6 +57,12 @@ export type LinePromptSchema<TRaw extends string, TOutput> = BasePromptSchema<TO
   inputMode: "line";
 
   /**
+   * Mask character for password input.
+   * When set, input is hidden and replaced with this character.
+   */
+  mask?: string;
+
+  /**
    * Build hint string to display after message
    * @returns Hint text or undefined for no hint
    */
