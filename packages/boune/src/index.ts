@@ -68,7 +68,7 @@ export {
   formatSuggestions,
   levenshtein,
 } from "./output/index.ts";
-export type { Suggestion, Draft, DraftLine } from "./output/index.ts";
+export type { Suggestion, SpinnerOptions, Draft, DraftLine } from "./output/index.ts";
 
 // Validation
 export { compileValidation } from "./validation/index.ts";
