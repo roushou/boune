@@ -1,5 +1,5 @@
 import type { DevToolsEvent, EventType } from "./types.ts";
-import { SQL } from "bun";
+import { Database } from "bun:sqlite";
 import { mkdirSync } from "node:fs";
 
 const DEFAULT_DB_PATH = ".boune/devtools.db";
@@ -55,10 +55,10 @@ type EventRow = {
  * ```
  */
 export class DevToolsStorage {
-  private db: SQL;
+  private db: Database;
   private path: string;
 
-  private constructor(db: SQL, path: string) {
+  private constructor(db: Database, path: string) {
     this.db = db;
     this.path = path;
   }
@@ -76,17 +76,17 @@ export class DevToolsStorage {
       }
     }
 
-    const db = new SQL(path);
+    const db = new Database(path);
     const storage = new DevToolsStorage(db, path);
-    await storage.init();
+    storage.init();
     return storage;
   }
 
   /**
    * Initialize the database schema
    */
-  private async init(): Promise<void> {
-    await this.db`
+  private init(): void {
+    this.db.run(`
       CREATE TABLE IF NOT EXISTS events (
         id TEXT PRIMARY KEY,
         type TEXT NOT NULL,
@@ -94,148 +94,70 @@ export class DevToolsStorage {
         data TEXT NOT NULL,
         created_at INTEGER DEFAULT (unixepoch('now') * 1000)
       )
-    `;
-    await this.db`CREATE INDEX IF NOT EXISTS idx_events_type ON events(type)`;
-    await this.db`CREATE INDEX IF NOT EXISTS idx_events_timestamp ON events(timestamp DESC)`;
+    `);
+    this.db.run("CREATE INDEX IF NOT EXISTS idx_events_type ON events(type)");
+    this.db.run("CREATE INDEX IF NOT EXISTS idx_events_timestamp ON events(timestamp DESC)");
   }
 
   /**
    * Insert a single event
    */
-  async insert(event: DevToolsEvent): Promise<void> {
+  insert(event: DevToolsEvent): void {
     const data = JSON.stringify(event.data);
-    await this.db`
-      INSERT OR REPLACE INTO events (id, type, timestamp, data)
-      VALUES (${event.id}, ${event.type}, ${event.timestamp}, ${data})
-    `;
+    this.db.run("INSERT OR REPLACE INTO events (id, type, timestamp, data) VALUES (?, ?, ?, ?)", [
+      event.id,
+      event.type,
+      event.timestamp,
+      data,
+    ]);
   }
 
   /**
    * Insert multiple events in a transaction
    */
-  async insertMany(events: DevToolsEvent[]): Promise<void> {
-    for (const event of events) {
-      await this.insert(event);
-    }
+  insertMany(events: DevToolsEvent[]): void {
+    const insert = this.db.prepare(
+      "INSERT OR REPLACE INTO events (id, type, timestamp, data) VALUES (?, ?, ?, ?)",
+    );
+    const transaction = this.db.transaction(() => {
+      for (const event of events) {
+        insert.run(event.id, event.type, event.timestamp, JSON.stringify(event.data));
+      }
+    });
+    transaction();
   }
 
   /**
    * Query events with filters
    */
-  async query(filter: EventFilter = {}): Promise<DevToolsEvent[]> {
+  query(filter: EventFilter = {}): DevToolsEvent[] {
     const { types, after, before, limit = 1000, offset = 0, order = "desc" } = filter;
 
-    let rows: EventRow[];
+    const conditions: string[] = [];
+    const params: (string | number)[] = [];
 
-    // Simple query without type filtering (most common case)
-    if (!types || types.length === 0) {
-      if (after !== undefined && before !== undefined) {
-        rows =
-          order === "asc"
-            ? await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE timestamp > ${after} AND timestamp < ${before}
-                ORDER BY timestamp ASC LIMIT ${limit} OFFSET ${offset}
-              `
-            : await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE timestamp > ${after} AND timestamp < ${before}
-                ORDER BY timestamp DESC LIMIT ${limit} OFFSET ${offset}
-              `;
-      } else if (after !== undefined) {
-        rows =
-          order === "asc"
-            ? await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE timestamp > ${after}
-                ORDER BY timestamp ASC LIMIT ${limit} OFFSET ${offset}
-              `
-            : await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE timestamp > ${after}
-                ORDER BY timestamp DESC LIMIT ${limit} OFFSET ${offset}
-              `;
-      } else if (before !== undefined) {
-        rows =
-          order === "asc"
-            ? await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE timestamp < ${before}
-                ORDER BY timestamp ASC LIMIT ${limit} OFFSET ${offset}
-              `
-            : await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE timestamp < ${before}
-                ORDER BY timestamp DESC LIMIT ${limit} OFFSET ${offset}
-              `;
-      } else {
-        rows =
-          order === "asc"
-            ? await this.db`
-                SELECT id, type, timestamp, data FROM events
-                ORDER BY timestamp ASC LIMIT ${limit} OFFSET ${offset}
-              `
-            : await this.db`
-                SELECT id, type, timestamp, data FROM events
-                ORDER BY timestamp DESC LIMIT ${limit} OFFSET ${offset}
-              `;
-      }
-    } else {
-      // Query with type filtering - use IN clause with array
-      if (after !== undefined && before !== undefined) {
-        rows =
-          order === "asc"
-            ? await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE type IN (${types}) AND timestamp > ${after} AND timestamp < ${before}
-                ORDER BY timestamp ASC LIMIT ${limit} OFFSET ${offset}
-              `
-            : await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE type IN (${types}) AND timestamp > ${after} AND timestamp < ${before}
-                ORDER BY timestamp DESC LIMIT ${limit} OFFSET ${offset}
-              `;
-      } else if (after !== undefined) {
-        rows =
-          order === "asc"
-            ? await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE type IN (${types}) AND timestamp > ${after}
-                ORDER BY timestamp ASC LIMIT ${limit} OFFSET ${offset}
-              `
-            : await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE type IN (${types}) AND timestamp > ${after}
-                ORDER BY timestamp DESC LIMIT ${limit} OFFSET ${offset}
-              `;
-      } else if (before !== undefined) {
-        rows =
-          order === "asc"
-            ? await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE type IN (${types}) AND timestamp < ${before}
-                ORDER BY timestamp ASC LIMIT ${limit} OFFSET ${offset}
-              `
-            : await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE type IN (${types}) AND timestamp < ${before}
-                ORDER BY timestamp DESC LIMIT ${limit} OFFSET ${offset}
-              `;
-      } else {
-        rows =
-          order === "asc"
-            ? await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE type IN (${types})
-                ORDER BY timestamp ASC LIMIT ${limit} OFFSET ${offset}
-              `
-            : await this.db`
-                SELECT id, type, timestamp, data FROM events
-                WHERE type IN (${types})
-                ORDER BY timestamp DESC LIMIT ${limit} OFFSET ${offset}
-              `;
-      }
+    if (types && types.length > 0) {
+      conditions.push(`type IN (${types.map(() => "?").join(", ")})`);
+      params.push(...types);
     }
+
+    if (after !== undefined) {
+      conditions.push("timestamp > ?");
+      params.push(after);
+    }
+
+    if (before !== undefined) {
+      conditions.push("timestamp < ?");
+      params.push(before);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    const orderClause = order === "asc" ? "ORDER BY timestamp ASC" : "ORDER BY timestamp DESC";
+
+    const sql = `SELECT id, type, timestamp, data FROM events ${whereClause} ${orderClause} LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+
+    const rows = this.db.query(sql).all(...params) as EventRow[];
 
     return rows.map((row) => ({
       id: row.id,
@@ -248,51 +170,55 @@ export class DevToolsStorage {
   /**
    * Get all events (alias for query with no filters)
    */
-  async all(options: { limit?: number; order?: "asc" | "desc" } = {}): Promise<DevToolsEvent[]> {
+  all(options: { limit?: number; order?: "asc" | "desc" } = {}): DevToolsEvent[] {
     return this.query(options);
   }
 
   /**
    * Get events after a specific timestamp (for polling)
    */
-  async since(timestamp: number): Promise<DevToolsEvent[]> {
+  since(timestamp: number): DevToolsEvent[] {
     return this.query({ after: timestamp, order: "asc" });
   }
 
   /**
    * Get the latest event timestamp
    */
-  async getLatestTimestamp(): Promise<number | null> {
-    const rows = await this.db`SELECT MAX(timestamp) as latest FROM events`;
-    return rows[0]?.latest ?? null;
+  getLatestTimestamp(): number | null {
+    const row = this.db.query("SELECT MAX(timestamp) as latest FROM events").get() as {
+      latest: number | null;
+    } | null;
+    return row?.latest ?? null;
   }
 
   /**
    * Get event count
    */
-  async count(filter?: { types?: EventType[] }): Promise<number> {
+  count(filter?: { types?: EventType[] }): number {
     if (filter?.types && filter.types.length > 0) {
-      const rows = await this
-        .db`SELECT COUNT(*) as count FROM events WHERE type IN (${filter.types})`;
-      return (rows[0] as { count: number }).count;
+      const placeholders = filter.types.map(() => "?").join(", ");
+      const row = this.db
+        .query(`SELECT COUNT(*) as count FROM events WHERE type IN (${placeholders})`)
+        .get(...filter.types) as { count: number };
+      return row.count;
     }
-    const rows = await this.db`SELECT COUNT(*) as count FROM events`;
-    return (rows[0] as { count: number }).count;
+    const row = this.db.query("SELECT COUNT(*) as count FROM events").get() as { count: number };
+    return row.count;
   }
 
   /**
    * Clear all events
    */
-  async clear(): Promise<void> {
-    await this.db`DELETE FROM events`;
+  clear(): void {
+    this.db.run("DELETE FROM events");
   }
 
   /**
    * Delete events older than a timestamp
    */
-  async prune(before: number): Promise<number> {
-    await this.db`DELETE FROM events WHERE timestamp < ${before}`;
-    return 0;
+  prune(before: number): number {
+    const result = this.db.run("DELETE FROM events WHERE timestamp < ?", [before]);
+    return result.changes;
   }
 
   /**
@@ -345,6 +271,6 @@ export async function captureToStorage(
     timestamp: Date.now(),
     data,
   };
-  await storage.insert(event);
+  storage.insert(event);
   return event;
 }

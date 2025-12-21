@@ -36,7 +36,7 @@ async function writeEvent(
     timestamp: Date.now(),
     data,
   };
-  await storage.insert(event);
+  storage.insert(event);
   return event;
 }
 

@@ -55,7 +55,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
   const storage = await DevToolsStorage.create(storageOptions);
 
   // Track the last event timestamp for polling
-  let lastEventTimestamp = (await storage.getLatestTimestamp()) ?? 0;
+  let lastEventTimestamp = storage.getLatestTimestamp() ?? 0;
 
   /**
    * Broadcast a message to all connected WebSocket clients
@@ -69,8 +69,8 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
   /**
    * Check for new events and broadcast them
    */
-  async function pollForNewEvents() {
-    const newEvents = await storage.since(lastEventTimestamp);
+  function pollForNewEvents() {
+    const newEvents = storage.since(lastEventTimestamp);
     if (newEvents.length > 0) {
       for (const event of newEvents) {
         broadcast(JSON.stringify({ type: "event", event }));
@@ -87,7 +87,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
   const server = Bun.serve<WebSocketData>({
     port: resolvedOptions.port,
 
-    async fetch(req, server) {
+    fetch(req, server) {
       const url = new URL(req.url);
       const path = url.pathname;
 
@@ -101,7 +101,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
       }
 
       // Get current events from storage
-      const events = await storage.all({ order: "asc" });
+      const events = storage.all({ order: "asc" });
 
       // Route to pages
       if (path === "/" || path === "/overview") {
@@ -120,11 +120,11 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
       if (path === "/api/events" && req.method === "GET") {
         const limitParam = url.searchParams.get("limit");
         const limit = limitParam ? parseInt(limitParam, 10) : 1000;
-        return json(await storage.query({ limit }));
+        return json(storage.query({ limit }));
       }
 
       if (path === "/api/events" && req.method === "DELETE") {
-        await storage.clear();
+        storage.clear();
         lastEventTimestamp = 0;
         broadcast(JSON.stringify({ type: "clear" }));
         return json({ success: true });
@@ -132,12 +132,12 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
 
       if (path === "/api/stats" && req.method === "GET") {
         return json({
-          totalEvents: await storage.count(),
-          commands: await storage.count({
+          totalEvents: storage.count(),
+          commands: storage.count({
             types: ["command:start", "command:end", "command:error"],
           }),
-          requests: await storage.count({ types: ["request:in", "request:out"] }),
-          logs: await storage.count({ types: ["log:info", "log:warn", "log:error"] }),
+          requests: storage.count({ types: ["request:in", "request:out"] }),
+          logs: storage.count({ types: ["log:info", "log:warn", "log:error"] }),
         });
       }
 
@@ -145,10 +145,10 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
     },
 
     websocket: {
-      async open(ws) {
+      open(ws) {
         clients.add(ws);
         // Send current events on connect
-        const events = await storage.all({ order: "asc" });
+        const events = storage.all({ order: "asc" });
         ws.send(JSON.stringify({ type: "init", events }));
       },
       close(ws) {
@@ -196,7 +196,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
     /**
      * Manually capture an event (writes to SQLite)
      */
-    async capture(type: DevToolsEvent["type"], data: Record<string, unknown> = {}) {
+    capture(type: DevToolsEvent["type"], data: Record<string, unknown> = {}) {
       if (!resolvedOptions.capture) return;
 
       const event: DevToolsEvent = {
@@ -205,7 +205,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
         timestamp: Date.now(),
         data,
       };
-      await storage.insert(event);
+      storage.insert(event);
       return event;
     },
 
@@ -217,8 +217,8 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
     /**
      * Clear all captured events
      */
-    async clearEvents() {
-      await storage.clear();
+    clearEvents() {
+      storage.clear();
       lastEventTimestamp = 0;
       broadcast(JSON.stringify({ type: "clear" }));
     },
@@ -226,7 +226,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
     /**
      * Get all events from storage
      */
-    async getEvents() {
+    getEvents() {
       return storage.all({ order: "asc" });
     },
 
