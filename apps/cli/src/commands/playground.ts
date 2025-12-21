@@ -14,7 +14,7 @@ import {
   text,
   toggle,
 } from "boune/prompt";
-import { color, createDraft, defineCommand } from "boune";
+import { color, createDraft, createSpinner, defineCommand } from "boune";
 
 export type PromptType =
   | "text"
@@ -30,7 +30,8 @@ export type PromptType =
   | "list"
   | "date"
   | "form"
-  | "draft";
+  | "draft"
+  | "spinner";
 
 export interface SelectOption {
   label: string;
@@ -65,6 +66,7 @@ export const playground = defineCommand({
             { label: "date", value: "date", hint: "Interactive calendar date picker" },
             { label: "form", value: "form", hint: "Multi-field form input" },
             { label: "draft", value: "draft", hint: "Live-updating multi-line output" },
+            { label: "spinner", value: "spinner", hint: "Async operation spinner" },
             { label: "Exit", value: "exit" as PromptType, hint: "Exit playground" },
           ],
         });
@@ -118,6 +120,9 @@ export const playground = defineCommand({
             break;
           case "draft":
             await runDraftDemo();
+            break;
+          case "spinner":
+            await runSpinnerDemo();
             break;
         }
 
@@ -687,6 +692,64 @@ async function runDraftDemo(): Promise<void> {
   console.log(color.cyan(`  layer1.done("layer1: 6.3MB — complete");`));
   console.log(color.cyan(``));
   console.log(color.cyan(`  draft.stop();`));
+  console.log(color.dim("─".repeat(40)));
+}
+
+async function runSpinnerDemo(): Promise<void> {
+  console.log(color.bold("Spinner Demo: Async Operations\n"));
+  console.log(color.dim("Demonstrating spinner states: loading, success, and failure.\n"));
+
+  await Bun.sleep(300);
+
+  // Demo 1: Successful operation
+  const spinner1 = createSpinner("Connecting to server...").start();
+  await Bun.sleep(1500);
+  spinner1.succeed("Connected to server");
+
+  await Bun.sleep(500);
+
+  // Demo 2: Another successful operation
+  const spinner2 = createSpinner("Fetching data...", { spinnerColor: "magenta" }).start();
+  await Bun.sleep(2000);
+  spinner2.succeed("Data fetched successfully");
+
+  await Bun.sleep(500);
+
+  // Demo 3: Failed operation
+  const spinner3 = createSpinner("Validating credentials...", { spinnerColor: "yellow" }).start();
+  await Bun.sleep(1500);
+  spinner3.fail("Invalid credentials");
+
+  await Bun.sleep(500);
+
+  // Demo 4: Custom colors
+  const spinner4 = createSpinner("Processing with custom colors...", {
+    spinnerColor: "blue",
+    successColor: "cyan",
+  }).start();
+  await Bun.sleep(1500);
+  spinner4.succeed("Processing complete");
+
+  console.log("");
+  console.log(color.bold("Code:"));
+  console.log(color.dim("─".repeat(40)));
+  console.log(color.cyan(`  import { createSpinner } from "boune";`));
+  console.log(color.cyan(``));
+  console.log(color.cyan(`  const spinner = createSpinner("Loading...").start();`));
+  console.log(color.cyan(`  await someAsyncTask();`));
+  console.log(color.cyan(`  spinner.succeed("Done!");`));
+  console.log(color.cyan(``));
+  console.log(color.cyan(`  // With custom colors`));
+  console.log(color.cyan(`  const spinner = createSpinner("Loading...", {`));
+  console.log(color.cyan(`    spinnerColor: "magenta",`));
+  console.log(color.cyan(`    successColor: "cyan",`));
+  console.log(color.cyan(`    failColor: "red",`));
+  console.log(color.cyan(`  }).start();`));
+  console.log(color.cyan(``));
+  console.log(color.cyan(`  // Methods`));
+  console.log(color.cyan(`  spinner.succeed("Success message");`));
+  console.log(color.cyan(`  spinner.fail("Error message");`));
+  console.log(color.cyan(`  spinner.stop("Custom final text");`));
   console.log(color.dim("─".repeat(40)));
 }
 
