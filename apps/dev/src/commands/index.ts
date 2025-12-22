@@ -1,9 +1,0 @@
-export { build } from "./build.ts";
-export { ci } from "./ci.ts";
-export { clean } from "./clean.ts";
-export { format } from "./format.ts";
-export { info } from "./info.ts";
-export { lint } from "./lint.ts";
-export { prompt } from "./prompt.ts";
-export { test } from "./test.ts";
-export { typecheck } from "./typecheck.ts";
