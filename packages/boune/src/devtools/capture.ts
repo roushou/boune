@@ -3,33 +3,26 @@ import { DevToolsStorage, type StorageOptions } from "./storage.ts";
 import type { MiddlewareHandler } from "../types/handlers.ts";
 
 let sharedStorage: DevToolsStorage | null = null;
-let storagePromise: Promise<DevToolsStorage> | null = null;
 
 /**
  * Get or create the shared storage instance
  */
-async function getStorage(options?: StorageOptions): Promise<DevToolsStorage> {
-  if (sharedStorage) return sharedStorage;
-
-  if (!storagePromise) {
-    storagePromise = DevToolsStorage.create(options).then((storage) => {
-      sharedStorage = storage;
-      return storage;
-    });
+function getStorage(options?: StorageOptions): DevToolsStorage {
+  if (!sharedStorage) {
+    sharedStorage = DevToolsStorage.create(options);
   }
-
-  return storagePromise;
+  return sharedStorage;
 }
 
 /**
  * Write an event to storage
  */
-async function writeEvent(
+function writeEvent(
   type: EventType,
   data: Record<string, unknown>,
   storageOptions?: StorageOptions,
-): Promise<DevToolsEvent> {
-  const storage = await getStorage(storageOptions);
+): DevToolsEvent {
+  const storage = getStorage(storageOptions);
   const event: DevToolsEvent = {
     id: crypto.randomUUID(),
     type,
@@ -185,17 +178,17 @@ export function createDevToolsLogger(options: { dbPath?: string } = {}) {
  * import { captureEvent } from "boune/devtools";
  *
  * // Capture an incoming request
- * await captureEvent("request:in", { method: "POST", url: "/api/users" });
+ * captureEvent("request:in", { method: "POST", url: "/api/users" });
  *
  * // Capture an outgoing response
- * await captureEvent("request:out", { status: 200, duration: 45 });
+ * captureEvent("request:out", { status: 200, duration: 45 });
  * ```
  */
-export async function captureEvent(
+export function captureEvent(
   type: EventType,
   data: Record<string, unknown> = {},
   options: { dbPath?: string } = {},
-): Promise<DevToolsEvent> {
+): DevToolsEvent {
   const storageOptions: StorageOptions | undefined = options.dbPath
     ? { path: options.dbPath }
     : undefined;
@@ -209,10 +202,10 @@ export async function captureEvent(
  * ```typescript
  * import { getSharedStorage } from "boune/devtools";
  *
- * const storage = await getSharedStorage();
- * const events = await storage.query({ types: ["command:error"], limit: 10 });
+ * const storage = getSharedStorage();
+ * const events = storage.query({ types: ["command:error"], limit: 10 });
  * ```
  */
-export async function getSharedStorage(options?: StorageOptions): Promise<DevToolsStorage> {
+export function getSharedStorage(options?: StorageOptions): DevToolsStorage {
   return getStorage(options);
 }

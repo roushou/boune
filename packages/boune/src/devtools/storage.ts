@@ -66,7 +66,7 @@ export class DevToolsStorage {
   /**
    * Create a new storage instance
    */
-  static async create(options: StorageOptions = {}): Promise<DevToolsStorage> {
+  static create(options: StorageOptions = {}): DevToolsStorage {
     const { path = DEFAULT_DB_PATH, autoCreate = true } = options;
 
     if (autoCreate) {
@@ -242,9 +242,9 @@ let defaultStorage: DevToolsStorage | null = null;
 /**
  * Get the default storage instance (creates one if needed)
  */
-export async function getDefaultStorage(options?: StorageOptions): Promise<DevToolsStorage> {
+export function getDefaultStorage(options?: StorageOptions): DevToolsStorage {
   if (!defaultStorage) {
-    defaultStorage = await DevToolsStorage.create(options);
+    defaultStorage = DevToolsStorage.create(options);
   }
   return defaultStorage;
 }
@@ -256,15 +256,15 @@ export async function getDefaultStorage(options?: StorageOptions): Promise<DevTo
  * ```typescript
  * import { captureToStorage } from "boune/devtools";
  *
- * await captureToStorage("command:start", { command: "build" });
+ * captureToStorage("command:start", { command: "build" });
  * ```
  */
-export async function captureToStorage(
+export function captureToStorage(
   type: EventType,
   data: Record<string, unknown> = {},
   options?: StorageOptions,
-): Promise<DevToolsEvent> {
-  const storage = await getDefaultStorage(options);
+): DevToolsEvent {
+  const storage = getDefaultStorage(options);
   const event: DevToolsEvent = {
     id: crypto.randomUUID(),
     type,

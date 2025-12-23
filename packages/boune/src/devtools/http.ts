@@ -10,33 +10,26 @@ import { DevToolsStorage, type StorageOptions } from "./storage.ts";
 const DEFAULT_MAX_BODY_SIZE = 10 * 1024; // 10KB
 
 let sharedStorage: DevToolsStorage | null = null;
-let storagePromise: Promise<DevToolsStorage> | null = null;
 
 /**
  * Get or create the shared storage instance
  */
-async function getStorage(options?: StorageOptions): Promise<DevToolsStorage> {
-  if (sharedStorage) return sharedStorage;
-
-  if (!storagePromise) {
-    storagePromise = DevToolsStorage.create(options).then((storage) => {
-      sharedStorage = storage;
-      return storage;
-    });
+function getStorage(options?: StorageOptions): DevToolsStorage {
+  if (!sharedStorage) {
+    sharedStorage = DevToolsStorage.create(options);
   }
-
-  return storagePromise;
+  return sharedStorage;
 }
 
 /**
  * Write an HTTP event to storage
  */
-async function writeHttpEvent(
+function writeHttpEvent(
   type: EventType,
   data: Record<string, unknown>,
   storageOptions?: StorageOptions,
-): Promise<DevToolsEvent> {
-  const storage = await getStorage(storageOptions);
+): DevToolsEvent {
+  const storage = getStorage(storageOptions);
   const event: DevToolsEvent = {
     id: crypto.randomUUID(),
     type,
@@ -73,6 +66,22 @@ function extractHeaders(headers: Headers): Record<string, string> {
 }
 
 /**
+ * Normalize headers to a plain object
+ */
+function normalizeHeaders(
+  headers: Headers | Record<string, string> | [string, string][] | undefined,
+): Record<string, string> | undefined {
+  if (!headers) return undefined;
+  if (headers instanceof Headers) {
+    return extractHeaders(headers);
+  }
+  if (Array.isArray(headers)) {
+    return Object.fromEntries(headers);
+  }
+  return headers;
+}
+
+/**
  * Safely extract body content with size limit
  */
 async function extractBody(
@@ -92,7 +101,7 @@ async function extractBody(
 
       totalSize += value.length;
       if (totalSize > maxSize) {
-        reader.cancel();
+        void reader.cancel();
         return `[Body truncated at ${maxSize} bytes]`;
       }
       chunks.push(value);
@@ -186,7 +195,7 @@ export function wrapFetch(
       }
     }
 
-    // Write request:out event (fire and forget)
+    // Write request:out event
     writeHttpEvent("request:out", { ...requestInfo, ...metadata }, storageOptions);
 
     try {
@@ -211,7 +220,7 @@ export function wrapFetch(
         responseInfo.body = await extractBody(clonedResponse.body, maxBodySize);
       }
 
-      // Write request:in event (fire and forget)
+      // Write request:in event
       writeHttpEvent(
         "request:in",
         {
@@ -226,7 +235,7 @@ export function wrapFetch(
     } catch (error) {
       const duration = performance.now() - startTime;
 
-      // Write error event (fire and forget)
+      // Write error event
       writeHttpEvent(
         "request:in",
         {
@@ -288,7 +297,7 @@ export function createHttpClient(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...init?.headers,
+          ...normalizeHeaders(init?.headers),
         },
         body: body ? JSON.stringify(body) : undefined,
       });
@@ -304,7 +313,7 @@ export function createHttpClient(
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          ...init?.headers,
+          ...normalizeHeaders(init?.headers),
         },
         body: body ? JSON.stringify(body) : undefined,
       });
@@ -328,7 +337,7 @@ export function createHttpClient(
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          ...init?.headers,
+          ...normalizeHeaders(init?.headers),
         },
         body: body ? JSON.stringify(body) : undefined,
       });

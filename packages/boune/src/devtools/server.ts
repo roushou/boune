@@ -30,13 +30,13 @@ export type DevServerOptions = DevToolsOptions & {
  * const cli = defineCli({ ... });
  *
  * // Start the devtools dashboard
- * const devtools = await createDevServer(cli, { port: 4000 });
+ * const devtools = createDevServer(cli, { port: 4000 });
  *
  * // Events are automatically read from .boune/devtools.db
  * // Use createCaptureMiddleware() in your CLI to capture events
  * ```
  */
-export async function createDevServer(cli: Cli, options: DevServerOptions = {}) {
+export function createDevServer(cli: Cli, options: DevServerOptions = {}) {
   const cliInfo = extractCliInfo(cli);
   const clients = new Set<ServerWebSocket<WebSocketData>>();
 
@@ -52,7 +52,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
   const storageOptions: StorageOptions | undefined = resolvedOptions.dbPath
     ? { path: resolvedOptions.dbPath }
     : undefined;
-  const storage = await DevToolsStorage.create(storageOptions);
+  const storage = DevToolsStorage.create(storageOptions);
 
   // Track the last event timestamp for polling
   let lastEventTimestamp = storage.getLatestTimestamp() ?? 0;
@@ -236,7 +236,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
     stop() {
       clearInterval(pollTimer);
       storage.close();
-      server.stop();
+      void server.stop();
     },
   };
 }
@@ -245,7 +245,7 @@ export async function createDevServer(cli: Cli, options: DevServerOptions = {}) 
  * Start devtools and wait indefinitely (for CLI usage)
  */
 export async function serveDevTools(cli: Cli, options: DevServerOptions = {}): Promise<void> {
-  await createDevServer(cli, options);
+  createDevServer(cli, options);
   await new Promise(() => {});
 }
 
