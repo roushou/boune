@@ -31,7 +31,7 @@
     "dev": "bun run src/app.ts"
   },
   "dependencies": {
-    "boune": "^0.10.0"
+    "boune": "^0.10.2"
   },
   "engines": {
     "bun": ">=1.3.0"
