@@ -163,8 +163,11 @@ export function createDevServer(cli: Cli, options: DevServerOptions = {}) {
           if (data.type === "ping") {
             ws.send(JSON.stringify({ type: "pong" }));
           }
-        } catch {
-          // Ignore invalid messages
+        } catch (err) {
+          // Log parse errors in debug mode to help diagnose protocol issues
+          if (process.env.DEBUG) {
+            console.warn("[devtools] Invalid WebSocket message:", err);
+          }
         }
       },
     },

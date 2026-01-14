@@ -49,12 +49,14 @@ async function openEditor(options: {
   const exitCode = await proc.exited;
 
   if (exitCode !== 0) {
-    // Clean up temp file
+    // Clean up temp file (best-effort)
     try {
       const { unlink } = await import("node:fs/promises");
       await unlink(tempFile);
-    } catch {
-      // Ignore cleanup errors
+    } catch (err) {
+      if (process.env.DEBUG) {
+        console.warn("[editor] Failed to clean up temp file:", tempFile, err);
+      }
     }
     throw new Error(`Editor exited with code ${exitCode}`);
   }
@@ -62,12 +64,14 @@ async function openEditor(options: {
   // Read the content
   const content = await Bun.file(tempFile).text();
 
-  // Clean up temp file
+  // Clean up temp file (best-effort)
   try {
     const { unlink } = await import("node:fs/promises");
     await unlink(tempFile);
-  } catch {
-    // Ignore cleanup errors
+  } catch (err) {
+    if (process.env.DEBUG) {
+      console.warn("[editor] Failed to clean up temp file:", tempFile, err);
+    }
   }
 
   return content;

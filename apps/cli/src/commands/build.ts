@@ -242,8 +242,11 @@ async function findEntryPoint(cwd: string, explicitEntry?: string): Promise<stri
           return mainPath;
         }
       }
-    } catch {
-      // Ignore
+    } catch (err) {
+      // Failed to parse package.json - fall back to common entry points
+      if (process.env.DEBUG) {
+        console.warn("[build] Failed to parse package.json:", err);
+      }
     }
   }
 
