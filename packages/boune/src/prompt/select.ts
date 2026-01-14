@@ -7,6 +7,7 @@ import {
   runPrompt,
 } from "./core/index.ts";
 import { color } from "../output/color.ts";
+import { at } from "../utils/array.ts";
 
 export interface SelectOption<T = string> {
   label: string;
@@ -52,7 +53,7 @@ function renderOptions<T>(state: SelectState<T>, isInitial: boolean): void {
   }
 
   for (let i = 0; i < choices.length; i++) {
-    const choice = choices[i]!;
+    const choice = at(choices, i);
     const isSelected = i === selectedIndex;
     process.stdout.write(ansi.clearLine);
     console.log(renderOptionLine(choice, isSelected));
@@ -111,8 +112,9 @@ export function createSelectSchema<T>(options: SelectOptions<T>) {
         // Show cursor and display selected value
         process.stdout.write(ansi.showCursor);
         clearLines(choices.length);
-        console.log(color.dim("  ✓ ") + color.cyan(choices[selectedIndex]!.label));
-        return { done: true, value: choices[selectedIndex]!.value };
+        const selected = at(choices, selectedIndex);
+        console.log(color.dim("  ✓ ") + color.cyan(selected.label));
+        return { done: true, value: selected.value };
       }
 
       if (key.name === "escape" || (key.ctrl && key.name === "c")) {
@@ -154,7 +156,7 @@ async function selectFallback<T>(options: SelectOptions<T>): Promise<T> {
 
   // Print options
   for (let i = 0; i < choices.length; i++) {
-    const choice = choices[i]!;
+    const choice = at(choices, i);
     const isDefault = i === defaultIndex;
     const prefix = isDefault ? color.cyan(`  ${i + 1}.`) : `  ${i + 1}.`;
     let line = `${prefix} ${choice.label}`;
@@ -177,7 +179,7 @@ async function selectFallback<T>(options: SelectOptions<T>): Promise<T> {
 
     parse: (raw, isEmpty) => {
       if (isEmpty && defaultIndex >= 0) {
-        return { ok: true, value: choices[defaultIndex]!.value };
+        return { ok: true, value: at(choices, defaultIndex).value };
       }
 
       const num = parseInt(raw, 10);
@@ -188,7 +190,7 @@ async function selectFallback<T>(options: SelectOptions<T>): Promise<T> {
         };
       }
 
-      return { ok: true, value: choices[num - 1]!.value };
+      return { ok: true, value: at(choices, num - 1).value };
     },
   });
 
@@ -221,7 +223,7 @@ function renderMultiselectOptions<T>(state: MultiselectState<T>, isInitial: bool
   }
 
   for (let i = 0; i < choices.length; i++) {
-    const choice = choices[i]!;
+    const choice = at(choices, i);
     const isCursor = i === cursorIndex;
     const isSelected = selectedIndices.has(i);
 
@@ -326,13 +328,13 @@ export function createMultiselectSchema<T>(
         clearLines(choices.length);
         const selectedLabels = Array.from(selectedIndices)
           .sort((a, b) => a - b)
-          .map((i) => choices[i]!.label)
+          .map((i) => at(choices, i).label)
           .join(", ");
         console.log(color.dim("  ✓ ") + color.cyan(selectedLabels || "(none)"));
 
         const values = Array.from(selectedIndices)
           .sort((a, b) => a - b)
-          .map((i) => choices[i]!.value);
+          .map((i) => at(choices, i).value);
         return { done: true, value: values };
       }
 
@@ -376,7 +378,7 @@ async function multiselectFallback<T>(
 
   // Print options
   for (let i = 0; i < choices.length; i++) {
-    const choice = choices[i]!;
+    const choice = at(choices, i);
     let line = `  ${i + 1}. ${choice.label}`;
     if (choice.hint) {
       line += color.dim(` - ${choice.hint}`);
@@ -414,7 +416,7 @@ async function multiselectFallback<T>(
         return { ok: false, error: `Please select at most ${max} option(s)` };
       }
 
-      return { ok: true, value: nums.map((n) => choices[n - 1]!.value) };
+      return { ok: true, value: nums.map((n) => at(choices, n - 1).value) };
     },
   });
 
