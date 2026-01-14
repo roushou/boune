@@ -68,17 +68,21 @@ function extractHeaders(headers: Headers): Record<string, string> {
 /**
  * Normalize headers to a plain object
  */
-function normalizeHeaders(
-  headers: Headers | Record<string, string> | [string, string][] | undefined,
-): Record<string, string> | undefined {
+function normalizeHeaders(headers: RequestInit["headers"]): Record<string, string> | undefined {
   if (!headers) return undefined;
   if (headers instanceof Headers) {
     return extractHeaders(headers);
   }
   if (Array.isArray(headers)) {
-    return Object.fromEntries(headers);
+    // Headers can be string[][] where each inner array is [key, value]
+    return Object.fromEntries(headers as [string, string][]);
   }
-  return headers;
+  // Handle Record<string, string | readonly string[]> by joining arrays
+  const result: Record<string, string> = {};
+  for (const [key, value] of Object.entries(headers)) {
+    result[key] = typeof value === "string" ? value : value.join(", ");
+  }
+  return result;
 }
 
 /**
