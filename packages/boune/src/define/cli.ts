@@ -1,27 +1,30 @@
-import type { CliConfig, CliSchema, CommandConfig, InternalOptionDef } from "../types/index.ts";
-import { defineCommand, isCommandConfig } from "./command.ts";
+import type { CliConfig, CliSchema, InternalOptionDef } from "../types/index.ts";
+import { buildCommandRegistry, normalizeOptions } from "./command.ts";
 import { Cli } from "../runtime/cli.ts";
-import type { OptionDefinition } from "../types/option.ts";
-import { compileValidation } from "../validation/compile.ts";
 
 /**
- * Normalize option definitions to internal format
+ * Built-in global options
  */
-function normalizeGlobalOptions(opts?: Record<string, OptionDefinition>): InternalOptionDef[] {
-  if (!opts) return [];
-  return Object.entries(opts).map(([name, def]) => ({
-    name,
-    short: def.short,
-    long: def.long ?? name,
-    description: def.description ?? "",
-    type: def.type,
-    required: def.required ?? false,
-    // Boolean options default to false
-    default: def.default ?? (def.type === "boolean" ? false : undefined),
-    env: def.env,
-    validate: def.validate ? compileValidation(def.validate, def.type) : undefined,
-  }));
-}
+const builtInOptions: Record<string, InternalOptionDef> = {
+  help: {
+    name: "help",
+    short: "h",
+    long: "help",
+    description: "Show help",
+    type: "boolean",
+    required: false,
+    default: false,
+  },
+  version: {
+    name: "version",
+    short: "V",
+    long: "version",
+    description: "Show version",
+    type: "boolean",
+    required: false,
+    default: false,
+  },
+};
 
 /**
  * Define a CLI from a declarative schema
@@ -54,56 +57,27 @@ function normalizeGlobalOptions(opts?: Record<string, OptionDefinition>): Intern
  * ```
  */
 export function defineCli(schema: CliSchema): Cli {
+  // Build global options: help is always included, version only if specified
+  const globalOptions: InternalOptionDef[] = [builtInOptions.help!];
+  if (schema.version) {
+    globalOptions.push(builtInOptions.version!);
+  }
+
   const config: CliConfig = {
     name: schema.name,
     version: schema.version ?? "",
     description: schema.description ?? "",
     commands: {},
-    globalOptions: [
-      {
-        name: "help",
-        short: "h",
-        long: "help",
-        description: "Show help",
-        type: "boolean",
-        required: false,
-        default: false,
-      },
-    ],
+    globalOptions,
     middleware: schema.middleware,
     onError: schema.onError,
   };
 
-  if (schema.version) {
-    config.globalOptions.push({
-      name: "version",
-      short: "V",
-      long: "version",
-      description: "Show version",
-      type: "boolean",
-      required: false,
-      default: false,
-    });
-  }
-
   // Add user-defined global options
-  config.globalOptions.push(...normalizeGlobalOptions(schema.globalOptions));
+  config.globalOptions.push(...normalizeOptions(schema.globalOptions));
 
-  for (const [name, cmdSchemaOrConfig] of Object.entries(schema.commands)) {
-    let cmdConfig: CommandConfig;
-
-    if (isCommandConfig(cmdSchemaOrConfig)) {
-      cmdConfig = cmdSchemaOrConfig;
-    } else {
-      cmdConfig = defineCommand(cmdSchemaOrConfig);
-    }
-
-    config.commands[name] = cmdConfig;
-
-    for (const alias of cmdConfig.aliases) {
-      config.commands[alias] = cmdConfig;
-    }
-  }
+  // Build command registry with aliases
+  config.commands = buildCommandRegistry(schema.commands);
 
   return Cli.fromConfig(config);
 }

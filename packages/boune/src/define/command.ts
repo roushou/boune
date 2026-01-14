@@ -30,7 +30,7 @@ function normalizeArguments(args?: Record<string, ArgumentDefinition>): Internal
 /**
  * Normalize option definitions to internal format
  */
-function normalizeOptions(opts?: Record<string, OptionDefinition>): InternalOptionDef[] {
+export function normalizeOptions(opts?: Record<string, OptionDefinition>): InternalOptionDef[] {
   if (!opts) return [];
   return Object.entries(opts).map(([name, def]) => ({
     name,
@@ -45,6 +45,30 @@ function normalizeOptions(opts?: Record<string, OptionDefinition>): InternalOpti
     env: def.env,
     validate: def.validate ? compileValidation(def.validate, def.type) : undefined,
   }));
+}
+
+/**
+ * Build a command registry from schemas, handling both pre-built configs and schemas
+ * Also registers aliases pointing to the same config
+ */
+export function buildCommandRegistry(
+  schemas: Record<string, CommandSchema<never, never, never> | CommandConfig> | undefined,
+): Record<string, CommandConfig> {
+  if (!schemas) return {};
+
+  const registry: Record<string, CommandConfig> = {};
+
+  for (const [name, schemaOrConfig] of Object.entries(schemas)) {
+    const config = isCommandConfig(schemaOrConfig) ? schemaOrConfig : defineCommand(schemaOrConfig);
+
+    registry[name] = config;
+
+    for (const alias of config.aliases) {
+      registry[alias] = config;
+    }
+  }
+
+  return registry;
 }
 
 /**
@@ -94,28 +118,6 @@ export function defineCommand<
   TOptDefs extends Record<string, OptionDefinition> = Record<string, OptionDefinition>,
   TPromptDefs extends Record<string, PromptDefinition> = Record<string, PromptDefinition>,
 >(schema: CommandSchema<TArgDefs, TOptDefs, TPromptDefs>): CommandConfig {
-  const subcommands: Record<string, CommandConfig> = {};
-
-  if (schema.subcommands) {
-    for (const [name, subSchemaOrConfig] of Object.entries(schema.subcommands)) {
-      let subConfig: CommandConfig;
-
-      if (isCommandConfig(subSchemaOrConfig)) {
-        subConfig = subSchemaOrConfig;
-      } else {
-        subConfig = defineCommand(subSchemaOrConfig);
-      }
-
-      subcommands[name] = subConfig;
-
-      if (subConfig.aliases) {
-        for (const alias of subConfig.aliases) {
-          subcommands[alias] = subConfig;
-        }
-      }
-    }
-  }
-
   return {
     name: schema.name,
     description: schema.description ?? "",
@@ -123,7 +125,7 @@ export function defineCommand<
     arguments: normalizeArguments(schema.arguments),
     options: normalizeOptions(schema.options),
     prompts: buildPrompts(schema.prompts),
-    subcommands,
+    subcommands: buildCommandRegistry(schema.subcommands),
     action: schema.action as CommandConfig["action"],
     before: schema.before,
     after: schema.after,
