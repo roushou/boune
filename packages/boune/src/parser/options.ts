@@ -126,7 +126,7 @@ const handleBooleanOption = (
       return {
         ...state,
         options: { ...state.options, [def.name]: result.value },
-        seenOptions: new Set([...state.seenOptions, def.name]),
+        seenOptions: new Set(state.seenOptions).add(def.name),
         skipNext: true,
       };
     }
@@ -135,7 +135,7 @@ const handleBooleanOption = (
   return {
     ...state,
     options: { ...state.options, [def.name]: true },
-    seenOptions: new Set([...state.seenOptions, def.name]),
+    seenOptions: new Set(state.seenOptions).add(def.name),
   };
 };
 
@@ -153,7 +153,7 @@ const handleValueOption = (
       ? {
           ...state,
           options: { ...state.options, [def.name]: result.value },
-          seenOptions: new Set([...state.seenOptions, def.name]),
+          seenOptions: new Set(state.seenOptions).add(def.name),
           skipNext: true,
         }
       : {
@@ -166,7 +166,7 @@ const handleValueOption = (
               field: def.name,
             },
           ],
-          seenOptions: new Set([...state.seenOptions, def.name]),
+          seenOptions: new Set(state.seenOptions).add(def.name),
           skipNext: true,
         };
   }
@@ -177,7 +177,7 @@ const handleValueOption = (
       return {
         ...state,
         options: { ...state.options, [def.name]: result.value },
-        seenOptions: new Set([...state.seenOptions, def.name]),
+        seenOptions: new Set(state.seenOptions).add(def.name),
         skipNext: true,
       };
     }
@@ -189,7 +189,7 @@ const handleValueOption = (
       ...state.errors,
       { type: "invalid_type", message: `Option --${def.name} requires a value`, field: def.name },
     ],
-    seenOptions: new Set([...state.seenOptions, def.name]),
+    seenOptions: new Set(state.seenOptions).add(def.name),
   };
 };
 
