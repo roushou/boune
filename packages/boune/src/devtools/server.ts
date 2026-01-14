@@ -72,12 +72,14 @@ export function createDevServer(cli: Cli, options: DevServerOptions = {}) {
   function pollForNewEvents() {
     const newEvents = storage.since(lastEventTimestamp);
     if (newEvents.length > 0) {
+      // Broadcast all events first
       for (const event of newEvents) {
         broadcast(JSON.stringify({ type: "event", event }));
-        if (event.timestamp > lastEventTimestamp) {
-          lastEventTimestamp = event.timestamp;
-        }
       }
+      // Update timestamp atomically after all events are processed
+      // to avoid missing events that arrive during broadcast
+      const maxTimestamp = Math.max(...newEvents.map((e) => e.timestamp));
+      lastEventTimestamp = maxTimestamp;
     }
   }
 
