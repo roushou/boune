@@ -31,7 +31,7 @@ export const parseArgumentsPhase: Phase = {
   run: (ctx) => {
     if (!ctx.command) return { type: "continue", ctx };
 
-    const positionalValues = ctx.tokens.filter((t) => t.type === "argument").map((t) => t.value);
+    const positionalValues = ctx.tokens.flatMap((t) => (t.type === "argument" ? [t.value] : []));
     const { args, errors } = parseArguments(positionalValues, ctx.command.arguments);
 
     return {

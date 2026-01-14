@@ -308,7 +308,7 @@ const applyDefaults = (
     options,
   );
 
-  const newErrors = results.filter(({ result }) => result.error).map(({ result }) => result.error!);
+  const newErrors = results.flatMap(({ result }) => (result.error ? [result.error] : []));
 
   return {
     options: newOptions,
