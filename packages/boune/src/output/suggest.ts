@@ -6,46 +6,66 @@ import type { CommandConfig } from "../types/index.ts";
 
 /**
  * Calculate Levenshtein distance between two strings
+ * Optimized to use O(min(m,n)) space instead of O(m*n)
  */
 export function levenshtein(a: string, b: string): number {
+  // Ensure 'a' is the shorter string for minimal memory usage
+  if (a.length > b.length) {
+    [a, b] = [b, a];
+  }
+
   const m = a.length;
   const n = b.length;
 
-  // Create matrix
-  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  // Edge cases
+  if (m === 0) return n;
+  if (n === 0) return m;
 
-  // Initialize base cases
-  for (let i = 0; i <= m; i++) dp[i]![0] = i;
-  for (let j = 0; j <= n; j++) dp[0]![j] = j;
+  // Use two rows instead of full matrix: previous and current
+  let prev = new Array<number>(m + 1);
+  let curr = new Array<number>(m + 1);
 
-  // Fill matrix
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i]![j] = Math.min(
-        dp[i - 1]![j]! + 1, // deletion
-        dp[i]![j - 1]! + 1, // insertion
-        dp[i - 1]![j - 1]! + cost, // substitution
-      );
-    }
+  // Initialize first row
+  for (let i = 0; i <= m; i++) {
+    prev[i] = i;
   }
 
-  return dp[m]![n]!;
+  // Fill row by row
+  for (let j = 1; j <= n; j++) {
+    curr[0] = j;
+
+    for (let i = 1; i <= m; i++) {
+      const cost = a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1;
+      curr[i] = Math.min(
+        (prev[i] as number) + 1, // deletion
+        (curr[i - 1] as number) + 1, // insertion
+        (prev[i - 1] as number) + cost, // substitution
+      );
+    }
+
+    // Swap rows
+    [prev, curr] = [curr, prev];
+  }
+
+  // Result is in prev (due to final swap)
+  return prev[m] as number;
 }
 
 /**
  * Check if a string starts with another (prefix match)
+ * Accepts pre-lowercased strings for efficiency
  */
-function isPrefixMatch(input: string, candidate: string): boolean {
-  return candidate.toLowerCase().startsWith(input.toLowerCase());
+function isPrefixMatch(inputLower: string, candidateLower: string): boolean {
+  return candidateLower.startsWith(inputLower);
 }
 
 /**
  * Calculate similarity score (0-1, higher is better)
+ * Accepts pre-lowercased strings for efficiency
  */
-function similarity(input: string, candidate: string): number {
-  const distance = levenshtein(input.toLowerCase(), candidate.toLowerCase());
-  const maxLen = Math.max(input.length, candidate.length);
+function similarity(inputLower: string, candidateLower: string): number {
+  const distance = levenshtein(inputLower, candidateLower);
+  const maxLen = Math.max(inputLower.length, candidateLower.length);
   return maxLen === 0 ? 1 : 1 - distance / maxLen;
 }
 
@@ -70,24 +90,27 @@ export function suggestCommands(
 ): Suggestion[] {
   const { maxSuggestions = 3, minScore = 0.4 } = options ?? {};
 
+  // Pre-compute lowercase input once
+  const inputLower = input.toLowerCase();
+
   // Get unique commands (filter out aliases pointing to same config)
   const seen = new Set<CommandConfig>();
-  const uniqueCommands: Array<{ name: string; config: CommandConfig }> = [];
+  const uniqueCommands: Array<{ name: string; nameLower: string; config: CommandConfig }> = [];
 
   for (const [name, config] of Object.entries(commands)) {
     if (!seen.has(config) && !config.hidden) {
       seen.add(config);
-      uniqueCommands.push({ name, config });
+      uniqueCommands.push({ name, nameLower: name.toLowerCase(), config });
     }
   }
 
   // Calculate scores for each command
   const scored: Suggestion[] = [];
 
-  for (const { name, config } of uniqueCommands) {
+  for (const { name, nameLower, config } of uniqueCommands) {
     // Prefix matches get a boost
-    const prefixBoost = isPrefixMatch(input, name) ? 0.3 : 0;
-    const score = similarity(input, name) + prefixBoost;
+    const prefixBoost = isPrefixMatch(inputLower, nameLower) ? 0.3 : 0;
+    const score = similarity(inputLower, nameLower) + prefixBoost;
 
     if (score >= minScore) {
       scored.push({
@@ -99,7 +122,9 @@ export function suggestCommands(
 
     // Also check aliases
     for (const alias of config.aliases) {
-      const aliasScore = similarity(input, alias) + (isPrefixMatch(input, alias) ? 0.3 : 0);
+      const aliasLower = alias.toLowerCase();
+      const aliasScore =
+        similarity(inputLower, aliasLower) + (isPrefixMatch(inputLower, aliasLower) ? 0.3 : 0);
       if (aliasScore >= minScore && aliasScore > score) {
         // Only add alias if it's a better match than the main name
         const existing = scored.find((s) => s.name === name);
