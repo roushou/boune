@@ -3,8 +3,8 @@
  * Multiple lines that can be rewritten in place
  */
 
-import { color } from "./color.ts";
 import { ansi } from "../prompt/core/render.ts";
+import { color } from "./color.ts";
 
 export type DraftLine = {
   /** Update this line's content */

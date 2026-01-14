@@ -1,19 +1,34 @@
 {
   "name": "boune",
   "version": "0.10.0",
-  "type": "module",
   "description": "A batteries-included CLI framework for Bun — prompts, colors, spinners, and more",
-  "author": "Kenji Lau",
+  "keywords": [
+    "arguments",
+    "bun",
+    "cli",
+    "command-line",
+    "framework",
+    "options",
+    "parser",
+    "prompts",
+    "terminal",
+    "typescript"
+  ],
+  "homepage": "https://github.com/roushou/boune#readme",
+  "bugs": {
+    "url": "https://github.com/roushou/boune/issues"
+  },
   "license": "MIT",
+  "author": "Kenji Lau",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/roushou/boune.git",
     "directory": "packages/boune"
   },
-  "homepage": "https://github.com/roushou/boune#readme",
-  "bugs": {
-    "url": "https://github.com/roushou/boune/issues"
-  },
+  "files": [
+    "src"
+  ],
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./devtools": "./src/devtools/index.ts",
@@ -26,21 +41,6 @@
     "./x/logger": "./src/x/logger/index.ts",
     "./package.json": "./package.json"
   },
-  "files": [
-    "src"
-  ],
-  "keywords": [
-    "cli",
-    "bun",
-    "command-line",
-    "parser",
-    "framework",
-    "terminal",
-    "arguments",
-    "options",
-    "prompts",
-    "typescript"
-  ],
   "engines": {
     "bun": ">=1.0.0"
   }

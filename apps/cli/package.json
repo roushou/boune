@@ -1,35 +1,35 @@
 {
   "name": "@boune/cli",
   "version": "0.1.0",
-  "type": "module",
   "description": "Boune CLI - Initialize projects, manage configurations, and build CLIs",
-  "author": "Kenji Lau",
+  "keywords": [
+    "boune",
+    "bun",
+    "cli",
+    "command-line",
+    "scaffolding"
+  ],
+  "homepage": "https://github.com/roushou/boune#readme",
+  "bugs": {
+    "url": "https://github.com/roushou/boune/issues"
+  },
   "license": "MIT",
+  "author": "Kenji Lau",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/roushou/boune.git",
     "directory": "apps/cli"
   },
-  "homepage": "https://github.com/roushou/boune#readme",
-  "bugs": {
-    "url": "https://github.com/roushou/boune/issues"
-  },
   "bin": {
     "boune": "./src/app.ts"
-  },
-  "scripts": {
-    "dev": "bun run src/app.ts"
   },
   "files": [
     "src"
   ],
-  "keywords": [
-    "cli",
-    "bun",
-    "boune",
-    "command-line",
-    "scaffolding"
-  ],
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/app.ts"
+  },
   "dependencies": {
     "boune": "^0.10.0"
   },

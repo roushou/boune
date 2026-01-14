@@ -6,8 +6,8 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "rootDir": "./src",
-    "outDir": "./dist",
+    "outDir": "./dist"
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../boune" }],
+  "references": [{ "path": "../boune" }]
 }

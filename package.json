@@ -1,11 +1,11 @@
 {
   "name": "boune-monorepo",
   "private": true,
-  "type": "module",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
+  "type": "module",
   "scripts": {
     "dev": "bun run apps/dev/src/app.ts",
     "clean": "bun run ./scripts/clean.ts",
@@ -18,8 +18,8 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "oxfmt": "^0.17.0",
-    "oxlint": "^1.32.0",
+    "oxfmt": "^0.24.0",
+    "oxlint": "^1.39.0",
     "oxlint-tsgolint": "^0.8.5",
     "typescript": "^5"
   }

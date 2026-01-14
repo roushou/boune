@@ -20,7 +20,7 @@
 
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
+    "noPropertyAccessFromIndexSignature": false
   },
-  "references": [{ "path": "./packages/boune" }, { "path": "./packages/create-boune" }],
+  "references": [{ "path": "./packages/boune" }, { "path": "./packages/create-boune" }]
 }

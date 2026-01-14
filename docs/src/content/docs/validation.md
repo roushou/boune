@@ -196,7 +196,10 @@ const create = defineCommand({
       validate: {
         minLength: 3,
         maxLength: 20,
-        regex: { value: /^[a-z][a-z0-9-]*$/, message: "Must start with letter, only lowercase, numbers, and hyphens" },
+        regex: {
+          value: /^[a-z][a-z0-9-]*$/,
+          message: "Must start with letter, only lowercase, numbers, and hyphens",
+        },
       },
     },
   },

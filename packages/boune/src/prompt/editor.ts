@@ -1,9 +1,9 @@
 import { renderError, renderPromptLine } from "./core/index.ts";
 import type { CompiledValidator } from "../validation/compile.ts";
+import { at } from "../utils/array.ts";
 import { join } from "node:path";
 import { readLine } from "./stdin.ts";
 import { tmpdir } from "node:os";
-import { at } from "../utils/array.ts";
 
 export interface EditorOptions {
   message: string;

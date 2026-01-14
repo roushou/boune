@@ -21,11 +21,13 @@ const deploy = defineCommand({
   },
 });
 
-const cli = defineCli(withDevtools({
-  name: "myapp",
-  version: "1.0.0",
-  commands: { deploy },
-}));
+const cli = defineCli(
+  withDevtools({
+    name: "myapp",
+    version: "1.0.0",
+    commands: { deploy },
+  }),
+);
 
 cli.run();
 ```
@@ -56,19 +58,24 @@ The dashboard provides:
 Customize devtools behavior:
 
 ```typescript
-const cli = defineCli(withDevtools({
-  name: "myapp",
-  commands: { deploy },
-}, {
-  // Default port for devtools server
-  defaultPort: 3000,
+const cli = defineCli(
+  withDevtools(
+    {
+      name: "myapp",
+      commands: { deploy },
+    },
+    {
+      // Default port for devtools server
+      defaultPort: 3000,
 
-  // Custom database path for event storage
-  dbPath: ".myapp/events.db",
+      // Custom database path for event storage
+      dbPath: ".myapp/events.db",
 
-  // Capture events in production (default: false)
-  captureInProduction: false,
-}));
+      // Capture events in production (default: false)
+      captureInProduction: false,
+    },
+  ),
+);
 ```
 
 ## Command Options

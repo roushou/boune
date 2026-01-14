@@ -22,8 +22,8 @@ export function levenshtein(a: string, b: string): number {
   if (n === 0) return m;
 
   // Use two rows instead of full matrix: previous and current
-  let prev = new Array<number>(m + 1);
-  let curr = new Array<number>(m + 1);
+  let prev = Array.from<number>({ length: m + 1 });
+  let curr = Array.from<number>({ length: m + 1 });
 
   // Initialize first row
   for (let i = 0; i <= m; i++) {

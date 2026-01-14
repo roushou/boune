@@ -6,8 +6,8 @@ import {
   linePrompt,
   runPrompt,
 } from "./core/index.ts";
-import { color } from "../output/color.ts";
 import { at } from "../utils/array.ts";
+import { color } from "../output/color.ts";
 
 export interface SelectOption<T = string> {
   label: string;

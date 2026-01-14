@@ -52,9 +52,7 @@ Your content here...
 const navigation = [
   {
     title: "Section Name",
-    items: [
-      { label: "Page Title", href: "/docs/your-page" },
-    ],
+    items: [{ label: "Page Title", href: "/docs/your-page" }],
   },
 ];
 ```

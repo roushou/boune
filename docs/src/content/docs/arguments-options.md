@@ -74,7 +74,8 @@ const cat = defineCommand({
     files: { type: "string", required: true, variadic: true, description: "Files to read" },
   },
   action({ args }) {
-    for (const file of args.files) { // string[]
+    for (const file of args.files) {
+      // string[]
       console.log(Bun.file(file).text());
     }
   },
@@ -203,7 +204,7 @@ const build = defineCommand({
     },
   },
   action({ options }) {
-    options.format;   // Type: "cjs" | "esm" | "iife"
+    options.format; // Type: "cjs" | "esm" | "iife"
     options.logLevel; // Type: 0 | 1 | 2
   },
 });

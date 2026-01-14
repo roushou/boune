@@ -1,37 +1,37 @@
 {
   "name": "create-boune",
   "version": "0.10.0",
-  "type": "module",
   "description": "Scaffold a new CLI project with boune",
-  "author": "Kenji Lau",
-  "license": "MIT",
-  "bin": {
-    "create-boune": "./src/index.ts"
+  "keywords": [
+    "boune",
+    "bun",
+    "cli",
+    "create",
+    "generator",
+    "scaffold"
+  ],
+  "homepage": "https://github.com/roushou/boune#readme",
+  "bugs": {
+    "url": "https://github.com/roushou/boune/issues"
   },
+  "license": "MIT",
+  "author": "Kenji Lau",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/roushou/boune.git",
     "directory": "packages/create-boune"
   },
-  "homepage": "https://github.com/roushou/boune#readme",
-  "bugs": {
-    "url": "https://github.com/roushou/boune/issues"
+  "bin": {
+    "create-boune": "./src/index.ts"
   },
   "files": [
     "src"
   ],
-  "keywords": [
-    "cli",
-    "bun",
-    "create",
-    "scaffold",
-    "generator",
-    "boune"
-  ],
-  "engines": {
-    "bun": ">=1.3.0"
-  },
+  "type": "module",
   "dependencies": {
     "boune": "^0.10.0"
+  },
+  "engines": {
+    "bun": ">=1.3.0"
   }
 }

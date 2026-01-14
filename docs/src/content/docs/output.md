@@ -62,10 +62,10 @@ Pre-styled message helpers:
 ```typescript
 import { error, warning, success, info } from "boune/output";
 
-console.log(error("Something went wrong"));   // error: Something went wrong
-console.log(warning("Deprecated feature"));   // warning: Deprecated feature
-console.log(success("Build completed"));      // success: Build completed
-console.log(info("Processing files..."));     // info: Processing files...
+console.log(error("Something went wrong")); // error: Something went wrong
+console.log(warning("Deprecated feature")); // warning: Deprecated feature
+console.log(success("Build completed")); // success: Build completed
+console.log(info("Processing files...")); // info: Processing files...
 ```
 
 ## Spinners
@@ -284,11 +284,13 @@ const deploy = defineCommand({
 
     // Summary
     console.log("\n" + color.bold("Deployment Summary"));
-    console.log(keyValue({
-      Environment: "production",
-      Files: files.length.toString(),
-      Duration: "45s",
-    }));
+    console.log(
+      keyValue({
+        Environment: "production",
+        Files: files.length.toString(),
+        Duration: "45s",
+      }),
+    );
 
     console.log("\n" + success("Deployed successfully!"));
   },

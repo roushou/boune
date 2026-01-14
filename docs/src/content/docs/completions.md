@@ -16,7 +16,9 @@ import { generateCompletion } from "boune/completions";
 const cli = defineCli({
   name: "myapp",
   version: "1.0.0",
-  commands: { /* ... */ },
+  commands: {
+    /* ... */
+  },
 });
 
 // Generate for a specific shell
@@ -53,7 +55,7 @@ const completions = defineCommand({
 const cli = defineCli({
   name: "myapp",
   version: "1.0.0",
-  commands: { completions, /* ... */ },
+  commands: { completions /* ... */ },
 });
 ```
 

@@ -1,6 +1,6 @@
 import { PromptCancelledError, ansi, keyPrompt, runPrompt } from "./core/index.ts";
-import { color } from "../output/color.ts";
 import { at } from "../utils/array.ts";
+import { color } from "../output/color.ts";
 
 export interface FormField {
   /** Field name (used as key in result object) */

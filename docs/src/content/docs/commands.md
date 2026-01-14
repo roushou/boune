@@ -47,12 +47,16 @@ import { defineCli, defineCommand } from "boune";
 
 const build = defineCommand({
   name: "build",
-  action() { /* ... */ },
+  action() {
+    /* ... */
+  },
 });
 
 const serve = defineCommand({
   name: "serve",
-  action() { /* ... */ },
+  action() {
+    /* ... */
+  },
 });
 
 const cli = defineCli({

@@ -104,11 +104,7 @@ const build = defineCommand({
 });
 
 test("build with options", async () => {
-  const result = await testCli(cli).run([
-    "build",
-    "--output", "out",
-    "--minify",
-  ]);
+  const result = await testCli(cli).run(["build", "--output", "out", "--minify"]);
 
   expect(result.code).toBe(0);
   expect(result.stdout).toContain("Building to out");
@@ -138,9 +134,7 @@ const deploy = defineCommand({
 });
 
 test("reads token from environment", async () => {
-  const result = await testCli(cli)
-    .env({ API_TOKEN: "secret123" })
-    .run(["deploy"]);
+  const result = await testCli(cli).env({ API_TOKEN: "secret123" }).run(["deploy"]);
 
   expect(result.code).toBe(0);
   expect(result.stdout).toContain("Token: secret123");
@@ -256,9 +250,7 @@ describe("deploy command", () => {
   });
 
   test("deploys with token", async () => {
-    const result = await testCli(cli)
-      .env({ API_TOKEN: "valid" })
-      .run(["deploy"]);
+    const result = await testCli(cli).env({ API_TOKEN: "valid" }).run(["deploy"]);
     expect(result.code).toBe(0);
   });
 });

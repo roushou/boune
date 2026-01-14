@@ -22,7 +22,9 @@ const loggingMiddleware: MiddlewareHandler = async (ctx, next) => {
 const cli = defineCli({
   name: "myapp",
   version: "1.0.0",
-  commands: { /* ... */ },
+  commands: {
+    /* ... */
+  },
   middleware: [loggingMiddleware],
 });
 ```
@@ -114,9 +116,9 @@ const cli = defineCli({
   version: "1.0.0",
   commands: { deploy },
   middleware: [
-    authMiddleware,      // Runs first
-    loggingMiddleware,   // Runs second
-    timingMiddleware,    // Runs third
+    authMiddleware, // Runs first
+    loggingMiddleware, // Runs second
+    timingMiddleware, // Runs third
   ],
 });
 ```
@@ -170,7 +172,9 @@ Use `onError` for centralized error handling:
 const cli = defineCli({
   name: "myapp",
   version: "1.0.0",
-  commands: { /* ... */ },
+  commands: {
+    /* ... */
+  },
   onError: (error, ctx) => {
     console.error(`Command '${ctx.command.name}' failed: ${error.message}`);
 

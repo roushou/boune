@@ -1,8 +1,8 @@
 import * as path from "node:path";
-import { readKey, readLine, isInteractive } from "./stdin.ts";
 import { PromptCancelledError, ansi } from "./core/index.ts";
-import { color } from "../output/color.ts";
+import { isInteractive, readKey, readLine } from "./stdin.ts";
 import { at } from "../utils/array.ts";
+import { color } from "../output/color.ts";
 
 export interface FilepathOptions {
   message: string;
