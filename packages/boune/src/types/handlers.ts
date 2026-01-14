@@ -37,12 +37,22 @@ export interface MiddlewareContext<
 /**
  * Middleware handler that wraps command execution
  *
+ * For `before` middleware: `next()` continues to the next middleware, then runs the command action.
+ * For `after` middleware: `next()` continues to the next after handler in the chain.
+ *
  * @example
  * ```typescript
+ * // Before middleware - wraps command execution
  * const loggingMiddleware: MiddlewareHandler = async (ctx, next) => {
  *   console.log(`Running command: ${ctx.command.name}`);
  *   await next();
  *   console.log(`Command completed`);
+ * };
+ *
+ * // After middleware - runs cleanup after command
+ * const cleanupMiddleware: MiddlewareHandler = async (ctx, next) => {
+ *   await cleanup();
+ *   await next(); // Continue to next after handler
  * };
  * ```
  */

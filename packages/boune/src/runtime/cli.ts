@@ -69,10 +69,9 @@ export class Cli {
         });
       });
 
-      if (command.after) {
-        for (const handler of command.after) {
-          await handler(middlewareCtx, async () => {});
-        }
+      // Run after middleware with proper chaining (next() calls the next after handler)
+      if (command.after && command.after.length > 0) {
+        await runMiddleware(command.after, middlewareCtx, async () => {});
       }
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));

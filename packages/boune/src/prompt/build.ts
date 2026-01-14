@@ -76,7 +76,7 @@ function createRunnablePrompt<T extends PromptDefinition>(
         case "select": {
           const schema = createSelectSchema({
             message: definition.message,
-            options: definition.options as { label: string; value: unknown; hint?: string }[],
+            choices: definition.options as { label: string; value: unknown; hint?: string }[],
             default: definition.default,
           });
           return runPrompt(schema) as Promise<InferPromptType<T>>;
@@ -85,7 +85,7 @@ function createRunnablePrompt<T extends PromptDefinition>(
         case "multiselect": {
           const schema = createMultiselectSchema({
             message: definition.message,
-            options: definition.options as { label: string; value: unknown; hint?: string }[],
+            choices: definition.options as { label: string; value: unknown; hint?: string }[],
             min: definition.min,
             max: definition.max,
           });
@@ -96,7 +96,7 @@ function createRunnablePrompt<T extends PromptDefinition>(
           // Autocomplete doesn't use schema pattern, call directly
           return autocomplete({
             message: definition.message,
-            options: definition.options as { label: string; value: unknown }[],
+            choices: definition.options as { label: string; value: unknown }[],
             limit: definition.limit,
             allowCustom: definition.allowCustom,
             initial: definition.initial,
