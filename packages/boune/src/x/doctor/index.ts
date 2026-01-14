@@ -276,8 +276,16 @@ export const checks = {
         if (lines.length < 2) {
           return { status: "warn", message: "Could not determine" };
         }
-        const parts = lines[1].split(/\s+/);
-        const available = parseInt(parts[3], 10);
+        const line = lines[1];
+        if (!line) {
+          return { status: "warn", message: "Could not parse" };
+        }
+        const parts = line.split(/\s+/);
+        const availableStr = parts[3];
+        if (!availableStr) {
+          return { status: "warn", message: "Could not parse" };
+        }
+        const available = parseInt(availableStr, 10);
         if (isNaN(available)) {
           return { status: "warn", message: "Could not parse" };
         }

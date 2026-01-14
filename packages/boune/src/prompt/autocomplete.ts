@@ -1,4 +1,4 @@
-import { readKey, readLine, isTTY } from "./stdin.ts";
+import { readKey, readLine, isInteractive } from "./stdin.ts";
 import { PromptCancelledError, ansi } from "./core/index.ts";
 import { color } from "../output/color.ts";
 import { at } from "../utils/array.ts";
@@ -163,8 +163,6 @@ export async function autocomplete<T = string>(
     filter = defaultFilter,
   } = options;
 
-  const isTTY = isTTY();
-
   // Print message
   console.log(
     color.cyan("? ") +
@@ -172,7 +170,7 @@ export async function autocomplete<T = string>(
       color.dim(" (type to filter, ↑↓ to navigate, enter to select)"),
   );
 
-  if (!isTTY) {
+  if (!isInteractive()) {
     return autocompleteFallback(options);
   }
 
