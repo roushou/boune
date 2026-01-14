@@ -30,6 +30,90 @@ type SelectState<T> = {
 };
 
 /**
+ * Key type from readline
+ */
+type Key = {
+  name: string;
+  ctrl?: boolean;
+  meta?: boolean;
+  shift?: boolean;
+};
+
+/**
+ * Navigation direction type
+ */
+type NavigationAction = { type: "navigate"; delta: number };
+type SelectAction = { type: "select" };
+type CancelAction = { type: "cancel" };
+type ToggleAction = { type: "toggle" };
+type ToggleAllAction = { type: "toggleAll" };
+type NoAction = { type: "none" };
+
+type KeyAction =
+  | NavigationAction
+  | SelectAction
+  | CancelAction
+  | ToggleAction
+  | ToggleAllAction
+  | NoAction;
+
+/**
+ * Key bindings for navigation (shared between select and multiselect)
+ */
+const navigationBindings: Record<string, KeyAction> = {
+  up: { type: "navigate", delta: -1 },
+  k: { type: "navigate", delta: -1 },
+  down: { type: "navigate", delta: 1 },
+  j: { type: "navigate", delta: 1 },
+};
+
+/**
+ * Key bindings for select prompt
+ */
+const selectBindings: Record<string, KeyAction> = {
+  ...navigationBindings,
+  return: { type: "select" },
+  escape: { type: "cancel" },
+};
+
+/**
+ * Key bindings for multiselect prompt
+ */
+const multiselectBindings: Record<string, KeyAction> = {
+  ...navigationBindings,
+  space: { type: "toggle" },
+  a: { type: "toggleAll" },
+  return: { type: "select" },
+  escape: { type: "cancel" },
+};
+
+/**
+ * Get action for a key press
+ */
+function getKeyAction(key: Key, bindings: Record<string, KeyAction>): KeyAction {
+  // Check for ctrl+c cancel
+  if (key.ctrl && key.name === "c") {
+    return { type: "cancel" };
+  }
+  return bindings[key.name] ?? { type: "none" };
+}
+
+/**
+ * Calculate new index after navigation (wraps around)
+ */
+function navigateIndex(currentIndex: number, delta: number, length: number): number {
+  return (currentIndex + delta + length) % length;
+}
+
+/**
+ * Handle cancel action
+ */
+function handleCancel(): never {
+  process.stdout.write(ansi.showCursor);
+  throw new PromptCancelledError();
+}
+
+/**
  * Render a single option line
  */
 function renderOptionLine<T>(choice: SelectOption<T>, isSelected: boolean): string {
@@ -97,33 +181,28 @@ export function createSelectSchema<T>(options: SelectOptions<T>) {
     handleKey: (key, rawState) => {
       const state = rawState as SelectState<T>;
       const { choices, selectedIndex } = state;
+      const action = getKeyAction(key, selectBindings);
 
-      if (key.name === "up" || key.name === "k") {
-        const newIndex = selectedIndex > 0 ? selectedIndex - 1 : choices.length - 1;
-        return { done: false, state: { ...state, selectedIndex: newIndex } };
+      switch (action.type) {
+        case "navigate": {
+          const newIndex = navigateIndex(selectedIndex, action.delta, choices.length);
+          return { done: false, state: { ...state, selectedIndex: newIndex } };
+        }
+
+        case "select": {
+          process.stdout.write(ansi.showCursor);
+          clearLines(choices.length);
+          const selected = at(choices, selectedIndex);
+          console.log(color.dim("  ✓ ") + color.cyan(selected.label));
+          return { done: true, value: selected.value };
+        }
+
+        case "cancel":
+          handleCancel();
+
+        default:
+          return { done: false, state };
       }
-
-      if (key.name === "down" || key.name === "j") {
-        const newIndex = selectedIndex < choices.length - 1 ? selectedIndex + 1 : 0;
-        return { done: false, state: { ...state, selectedIndex: newIndex } };
-      }
-
-      if (key.name === "return") {
-        // Show cursor and display selected value
-        process.stdout.write(ansi.showCursor);
-        clearLines(choices.length);
-        const selected = at(choices, selectedIndex);
-        console.log(color.dim("  ✓ ") + color.cyan(selected.label));
-        return { done: true, value: selected.value };
-      }
-
-      if (key.name === "escape" || (key.ctrl && key.name === "c")) {
-        process.stdout.write(ansi.showCursor);
-        throw new PromptCancelledError();
-      }
-
-      // Ignore other keys
-      return { done: false, state };
     },
 
     cleanup: () => {
@@ -279,71 +358,66 @@ export function createMultiselectSchema<T>(
     handleKey: (key, rawState) => {
       const state = rawState as MultiselectState<T>;
       const { choices, cursorIndex, selectedIndices, min, max } = state;
+      const action = getKeyAction(key, multiselectBindings);
 
-      if (key.name === "up" || key.name === "k") {
-        const newIndex = cursorIndex > 0 ? cursorIndex - 1 : choices.length - 1;
-        return { done: false, state: { ...state, cursorIndex: newIndex } };
-      }
-
-      if (key.name === "down" || key.name === "j") {
-        const newIndex = cursorIndex < choices.length - 1 ? cursorIndex + 1 : 0;
-        return { done: false, state: { ...state, cursorIndex: newIndex } };
-      }
-
-      if (key.name === "space") {
-        const newSelected = new Set(selectedIndices);
-        if (newSelected.has(cursorIndex)) {
-          newSelected.delete(cursorIndex);
-        } else if (newSelected.size < max) {
-          newSelected.add(cursorIndex);
+      switch (action.type) {
+        case "navigate": {
+          const newIndex = navigateIndex(cursorIndex, action.delta, choices.length);
+          return { done: false, state: { ...state, cursorIndex: newIndex } };
         }
-        return { done: false, state: { ...state, selectedIndices: newSelected } };
-      }
 
-      if (key.name === "a" && !key.ctrl) {
-        // Toggle all
-        const newSelected = new Set<number>();
-        if (selectedIndices.size === choices.length) {
-          // Clear all
-        } else {
-          // Select all (up to max)
-          for (let i = 0; i < Math.min(choices.length, max); i++) {
-            newSelected.add(i);
+        case "toggle": {
+          const newSelected = new Set(selectedIndices);
+          if (newSelected.has(cursorIndex)) {
+            newSelected.delete(cursorIndex);
+          } else if (newSelected.size < max) {
+            newSelected.add(cursorIndex);
           }
+          return { done: false, state: { ...state, selectedIndices: newSelected } };
         }
-        return { done: false, state: { ...state, selectedIndices: newSelected } };
-      }
 
-      if (key.name === "return") {
-        if (selectedIndices.size < min) {
-          // Show error - re-render with error state
+        case "toggleAll": {
+          const newSelected = new Set<number>();
+          if (selectedIndices.size !== choices.length) {
+            // Select all (up to max)
+            for (let i = 0; i < Math.min(choices.length, max); i++) {
+              newSelected.add(i);
+            }
+          }
+          // If all selected, newSelected stays empty (clear all)
+          return { done: false, state: { ...state, selectedIndices: newSelected } };
+        }
+
+        case "select": {
+          if (selectedIndices.size < min) {
+            // Show error - re-render with error state
+            clearLines(choices.length);
+            console.log(color.red(`  Please select at least ${min} option(s)`));
+            renderMultiselectOptions(state, true);
+            return { done: false, state };
+          }
+
+          // Show cursor and display selected values
+          process.stdout.write(ansi.showCursor);
           clearLines(choices.length);
-          console.log(color.red(`  Please select at least ${min} option(s)`));
-          renderMultiselectOptions(state, true);
-          return { done: false, state };
+          const selectedLabels = Array.from(selectedIndices)
+            .sort((a, b) => a - b)
+            .map((i) => at(choices, i).label)
+            .join(", ");
+          console.log(color.dim("  ✓ ") + color.cyan(selectedLabels || "(none)"));
+
+          const values = Array.from(selectedIndices)
+            .sort((a, b) => a - b)
+            .map((i) => at(choices, i).value);
+          return { done: true, value: values };
         }
 
-        // Show cursor and display selected values
-        process.stdout.write(ansi.showCursor);
-        clearLines(choices.length);
-        const selectedLabels = Array.from(selectedIndices)
-          .sort((a, b) => a - b)
-          .map((i) => at(choices, i).label)
-          .join(", ");
-        console.log(color.dim("  ✓ ") + color.cyan(selectedLabels || "(none)"));
+        case "cancel":
+          handleCancel();
 
-        const values = Array.from(selectedIndices)
-          .sort((a, b) => a - b)
-          .map((i) => at(choices, i).value);
-        return { done: true, value: values };
+        default:
+          return { done: false, state };
       }
-
-      if (key.name === "escape" || (key.ctrl && key.name === "c")) {
-        process.stdout.write(ansi.showCursor);
-        throw new PromptCancelledError();
-      }
-
-      return { done: false, state };
     },
 
     cleanup: () => {
