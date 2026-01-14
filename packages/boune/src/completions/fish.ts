@@ -1,4 +1,5 @@
 import type { CliConfig, CommandConfig, InternalOptionDef } from "../types/index.ts";
+import { getVisibleCommands } from "./shared.ts";
 
 /**
  * Generate fish completion script for a CLI
@@ -97,20 +98,6 @@ function formatFishOption(cliName: string, option: InternalOptionDef, condition?
   parts.push(`-d '${desc}'`);
 
   return parts.join(" ");
-}
-
-function getVisibleCommands(commands: Record<string, CommandConfig>): CommandConfig[] {
-  const seen = new Set<CommandConfig>();
-  const result: CommandConfig[] = [];
-
-  for (const config of Object.values(commands)) {
-    if (!seen.has(config) && !config.hidden) {
-      seen.add(config);
-      result.push(config);
-    }
-  }
-
-  return result;
 }
 
 function generateFishCommandCompletions(cliName: string, command: CommandConfig): string[] {

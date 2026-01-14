@@ -1,4 +1,5 @@
 import type { CliConfig, CommandConfig, InternalOptionDef } from "../types/index.ts";
+import { getVisibleCommands } from "./shared.ts";
 
 /**
  * Generate bash completion script for a CLI
@@ -78,20 +79,6 @@ function formatBashOption(option: InternalOptionDef): string {
   const longFlag = option.long ?? option.name;
   parts.push(`--${longFlag}`);
   return parts.join(" ");
-}
-
-function getVisibleCommands(commands: Record<string, CommandConfig>): CommandConfig[] {
-  const seen = new Set<CommandConfig>();
-  const result: CommandConfig[] = [];
-
-  for (const config of Object.values(commands)) {
-    if (!seen.has(config) && !config.hidden) {
-      seen.add(config);
-      result.push(config);
-    }
-  }
-
-  return result;
 }
 
 function generateBashCommandCase(command: CommandConfig, indent: string): string[] {

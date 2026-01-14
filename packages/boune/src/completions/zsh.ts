@@ -1,4 +1,5 @@
 import type { CliConfig, CommandConfig, InternalOptionDef } from "../types/index.ts";
+import { getVisibleCommands } from "./shared.ts";
 
 /**
  * Generate zsh completion script for a CLI
@@ -96,20 +97,6 @@ function formatZshOption(option: InternalOptionDef): string {
     return `'--${longFlag}[${desc}]:value'`;
   }
   return `'--${longFlag}[${desc}]'`;
-}
-
-function getVisibleCommands(commands: Record<string, CommandConfig>): CommandConfig[] {
-  const seen = new Set<CommandConfig>();
-  const result: CommandConfig[] = [];
-
-  for (const config of Object.values(commands)) {
-    if (!seen.has(config) && !config.hidden) {
-      seen.add(config);
-      result.push(config);
-    }
-  }
-
-  return result;
 }
 
 function generateZshCommandCase(command: CommandConfig, indent: string): string[] {
