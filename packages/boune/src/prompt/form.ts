@@ -1,5 +1,6 @@
 import { PromptCancelledError, ansi, keyPrompt, runPrompt } from "./core/index.ts";
 import { color } from "../output/color.ts";
+import { at } from "../utils/array.ts";
 
 export interface FormField {
   /** Field name (used as key in result object) */
@@ -99,7 +100,7 @@ function renderForm(state: FormState, isInitial: boolean): void {
 
   // Render each field
   for (let i = 0; i < fields.length; i++) {
-    const field = fields[i]!;
+    const field = at(fields, i);
     const value = values.get(field.name) ?? field.default ?? "";
     const isActive = i === activeIndex;
     const error = errors.get(field.name);
@@ -186,13 +187,13 @@ export function createFormSchema(options: FormOptions) {
     handleKey: (key, rawState) => {
       const state = rawState as FormState;
       const { fields, values, activeIndex, cursorPos } = state;
-      const currentField = fields[activeIndex]!;
+      const currentField = at(fields, activeIndex);
       const currentValue = values.get(currentField.name) ?? currentField.default ?? "";
 
       // Navigation
       if (key.name === "up" || (key.name === "tab" && key.ctrl)) {
         const newIndex = activeIndex > 0 ? activeIndex - 1 : fields.length - 1;
-        const newField = fields[newIndex]!;
+        const newField = at(fields, newIndex);
         const newValue = values.get(newField.name) ?? newField.default ?? "";
         return {
           done: false,
@@ -202,7 +203,7 @@ export function createFormSchema(options: FormOptions) {
 
       if (key.name === "down" || key.name === "tab") {
         const newIndex = activeIndex < fields.length - 1 ? activeIndex + 1 : 0;
-        const newField = fields[newIndex]!;
+        const newField = at(fields, newIndex);
         const newValue = values.get(newField.name) ?? newField.default ?? "";
         return {
           done: false,

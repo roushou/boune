@@ -3,6 +3,7 @@ import * as tty from "node:tty";
 import { readKey, readLine } from "./stdin.ts";
 import { PromptCancelledError } from "./core/errors.ts";
 import { color } from "../output/color.ts";
+import { at } from "../utils/array.ts";
 
 export interface FilepathOptions {
   message: string;
@@ -381,7 +382,7 @@ export async function filepath(options: FilepathOptions): Promise<string> {
       // Navigate into directory
       const entryIndex = cursorIndex - goUpOffset;
       if (entryIndex >= 0 && entryIndex < entries.length) {
-        const entry = entries[entryIndex]!;
+        const entry = at(entries, entryIndex);
 
         if (entry.isDirectory) {
           // Enter directory
@@ -468,7 +469,7 @@ export async function filepath(options: FilepathOptions): Promise<string> {
     } else if (key.name === "tab") {
       // Tab completion: if single match, complete it
       if (entries.length === 1) {
-        const entry = entries[0]!;
+        const entry = at(entries, 0);
         if (entry.isDirectory) {
           currentPath = entry.fullPath;
           input = "";

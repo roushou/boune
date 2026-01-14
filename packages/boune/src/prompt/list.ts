@@ -1,5 +1,6 @@
 import { linePrompt, runPrompt } from "./core/index.ts";
 import type { CompiledValidator } from "../validation/compile.ts";
+import { at } from "../utils/array.ts";
 
 export interface ListOptions {
   message: string;
@@ -95,7 +96,7 @@ export function createListSchema(options: ListOptions) {
       // Validate individual items
       if (validateItem) {
         for (let i = 0; i < items.length; i++) {
-          const result = validateItem(items[i]!, i);
+          const result = validateItem(at(items, i), i);
           if (result !== true) {
             return { ok: false, error: result };
           }

@@ -3,6 +3,7 @@ import type { CompiledValidator } from "../validation/compile.ts";
 import { join } from "node:path";
 import { readLine } from "./stdin.ts";
 import { tmpdir } from "node:os";
+import { at } from "../utils/array.ts";
 
 export interface EditorOptions {
   message: string;
@@ -34,7 +35,7 @@ async function openEditor(options: {
 
   // Parse editor command (may include args like "code --wait")
   const parts = editorCmd.split(/\s+/);
-  const editorBin = parts[0]!;
+  const editorBin = at(parts, 0);
   const editorArgs = [...parts.slice(1), tempFile];
 
   // Spawn editor and wait for it to close

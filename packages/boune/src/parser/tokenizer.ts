@@ -39,13 +39,15 @@ const tokenPatterns: TokenPattern[] = [
       const tokens: Token[] = [];
       // All flags except last are standalone
       for (let i = 0; i < flags.length - 1; i++) {
-        tokens.push({ type: "option", value: flags[i]!, raw: `-${flags[i]}` });
+        const flag = flags.charAt(i);
+        tokens.push({ type: "option", value: flag, raw: `-${flag}` });
       }
       // Last flag gets the value
+      const lastFlag = flags.charAt(flags.length - 1);
       tokens.push({
         type: "option",
-        value: flags[flags.length - 1]!,
-        raw: `-${flags[flags.length - 1]}`,
+        value: lastFlag,
+        raw: `-${lastFlag}`,
       });
       tokens.push({ type: "value", value, raw: value });
       return tokens;

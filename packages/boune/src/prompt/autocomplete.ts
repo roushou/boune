@@ -3,6 +3,7 @@ import * as tty from "node:tty";
 import { readKey, readLine } from "./stdin.ts";
 import { PromptCancelledError } from "./core/errors.ts";
 import { color } from "../output/color.ts";
+import { at } from "../utils/array.ts";
 
 export interface AutocompleteOption<T = string> {
   label: string;
@@ -60,7 +61,7 @@ function highlightMatch(label: string, input: string): string {
   let inputIdx = 0;
 
   for (let i = 0; i < label.length; i++) {
-    const char = label[i]!;
+    const char = label.charAt(i);
     if (inputIdx < lowerInput.length && lowerLabel[i] === lowerInput[inputIdx]) {
       result += color.cyan(char);
       inputIdx++;
@@ -107,7 +108,7 @@ function render<T>(
     lineCount++;
   } else {
     for (let i = 0; i < visibleCount; i++) {
-      const option = filteredOptions[i]!;
+      const option = at(filteredOptions, i);
       const isSelected = i === cursorIndex;
 
       process.stdout.write(CLEAR_LINE);
@@ -234,7 +235,7 @@ export async function autocomplete<T = string>(
       process.stdout.write(MOVE_UP(previousLineCount) + MOVE_TO_COL_0);
 
       if (filteredOptions.length > 0 && cursorIndex < filteredOptions.length) {
-        const selected = filteredOptions[cursorIndex]!;
+        const selected = at(filteredOptions, cursorIndex);
         console.log(color.dim("  ✓ ") + color.cyan(selected.label));
         return selected.value;
       }
@@ -293,7 +294,7 @@ async function autocompleteFallback<T>(options: AutocompleteOptions<T>): Promise
 
   // Print options
   for (let i = 0; i < choices.length; i++) {
-    const choice = choices[i]!;
+    const choice = at(choices, i);
     console.log(`  ${i + 1}. ${choice.label}`);
   }
 
@@ -306,7 +307,7 @@ async function autocompleteFallback<T>(options: AutocompleteOptions<T>): Promise
   // Check if it's a number selection
   const num = parseInt(trimmed, 10);
   if (!isNaN(num) && num >= 1 && num <= choices.length) {
-    return choices[num - 1]!.value;
+    return at(choices, num - 1).value;
   }
 
   // Check for exact label match

@@ -1,4 +1,5 @@
 import type { InternalArgumentDef, Kind, ParsedArgs, ValidationError } from "../types/index.ts";
+import { at } from "../utils/array.ts";
 
 /**
  * Result type for coercion operations
@@ -100,7 +101,7 @@ const parseVariadicArg = (
       errors.length > 0
         ? {
             type: "invalid_type",
-            message: `Invalid value for <${def.name}>: ${errors[0]!.error}`,
+            message: `Invalid value for <${def.name}>: ${at(errors, 0).error}`,
             field: def.name,
           }
         : undefined,
