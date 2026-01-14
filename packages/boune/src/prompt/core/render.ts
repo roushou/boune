@@ -16,6 +16,7 @@ export const ansi = {
   clearLine: "\x1b[2K",
   moveToColumn0: "\r",
   moveUp: (n: number) => `\x1b[${n}A`,
+  moveToColumn: (n: number) => `\x1b[${n}G`,
 } as const;
 
 /**

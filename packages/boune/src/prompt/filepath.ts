@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import * as tty from "node:tty";
 import { readKey, readLine } from "./stdin.ts";
-import { PromptCancelledError } from "./core/errors.ts";
+import { PromptCancelledError, ansi } from "./core/index.ts";
 import { color } from "../output/color.ts";
 import { at } from "../utils/array.ts";
 
@@ -30,13 +30,6 @@ export interface Entry {
   isDirectory: boolean;
   fullPath: string;
 }
-
-// ANSI escape codes
-const SHOW_CURSOR = "\x1b[?25h";
-const CLEAR_LINE = "\x1b[2K";
-const MOVE_UP = (n: number): string => `\x1b[${n}A`;
-const MOVE_TO_COL_0 = "\r";
-const MOVE_TO_COL = (n: number): string => `\x1b[${n}G`;
 
 /**
  * Build glob pattern for extensions
@@ -173,7 +166,7 @@ function render(
 ): number {
   // On re-render: we're on the input line, move to column 0
   if (!isInitialRender) {
-    process.stdout.write(MOVE_TO_COL_0);
+    process.stdout.write(ansi.moveToColumn0);
   }
 
   // Calculate relative path display
@@ -181,7 +174,7 @@ function render(
   const relativePath = path.relative(basePath, currentPath) || ".";
 
   // Input line with current path
-  process.stdout.write(CLEAR_LINE);
+  process.stdout.write(ansi.clearLine);
   const pathDisplay = color.dim(`  ${relativePath}/`);
   console.log(pathDisplay + input);
 
@@ -191,7 +184,7 @@ function render(
   const canGoUp = currentPath !== basePath && currentPath !== path.parse(currentPath).root;
 
   if (entries.length === 0 && !canGoUp) {
-    process.stdout.write(CLEAR_LINE);
+    process.stdout.write(ansi.clearLine);
     console.log(color.dim("    (empty)"));
     lineCount++;
   } else {
@@ -215,7 +208,7 @@ function render(
     if (canGoUp) {
       if (itemIndex >= startIdx && renderedCount < limit) {
         const isSelected = cursorIndex === 0;
-        process.stdout.write(CLEAR_LINE);
+        process.stdout.write(ansi.clearLine);
         const pointer = isSelected ? color.cyan("❯") : " ";
         const label = isSelected ? color.cyan("..") : "..";
         console.log(`  ${pointer} 📁 ${label}`);
@@ -229,7 +222,7 @@ function render(
     for (const entry of entries) {
       if (itemIndex >= startIdx && renderedCount < limit) {
         const isSelected = cursorIndex === itemIndex;
-        process.stdout.write(CLEAR_LINE);
+        process.stdout.write(ansi.clearLine);
         const pointer = isSelected ? color.cyan("❯") : " ";
         const icon = getIcon(entry);
         const name = isSelected ? color.cyan(entry.name) : entry.name;
@@ -243,7 +236,7 @@ function render(
 
     // Scroll indicators
     if (totalItems > limit) {
-      process.stdout.write(CLEAR_LINE);
+      process.stdout.write(ansi.clearLine);
       const showing = `${startIdx + 1}-${Math.min(startIdx + limit, totalItems)}`;
       console.log(color.dim(`    (${showing} of ${totalItems})`));
       lineCount++;
@@ -253,17 +246,17 @@ function render(
   // Clear extra lines from previous render
   const extraLines = previousLineCount > lineCount ? previousLineCount - lineCount : 0;
   for (let i = 0; i < extraLines; i++) {
-    process.stdout.write(CLEAR_LINE + "\n");
+    process.stdout.write(ansi.clearLine + "\n");
   }
 
   // Move cursor back to input line
   const linesToMoveUp = lineCount + extraLines;
   if (linesToMoveUp > 0) {
-    process.stdout.write(MOVE_UP(linesToMoveUp));
+    process.stdout.write(ansi.moveUp(linesToMoveUp));
   }
   // Position after the path prefix + input
   const col = 2 + relativePath.length + 1 + input.length + 1;
-  process.stdout.write(MOVE_TO_COL(col));
+  process.stdout.write(ansi.moveToColumn(col));
 
   return lineCount;
 }
@@ -296,7 +289,7 @@ export async function filepath(options: FilepathOptions): Promise<string> {
     return filepathFallback(options);
   }
 
-  process.stdout.write(SHOW_CURSOR);
+  process.stdout.write(ansi.showCursor);
 
   let currentPath = path.resolve(basePath);
   let input = "";
@@ -411,11 +404,11 @@ export async function filepath(options: FilepathOptions): Promise<string> {
           const result = validator(selectedPath);
           if (result !== true) {
             // Show error briefly, re-render
-            process.stdout.write(MOVE_TO_COL_0);
+            process.stdout.write(ansi.moveToColumn0);
             for (let i = 0; i < previousLineCount; i++) {
-              process.stdout.write(CLEAR_LINE + "\n");
+              process.stdout.write(ansi.clearLine + "\n");
             }
-            process.stdout.write(MOVE_UP(previousLineCount) + MOVE_TO_COL_0);
+            process.stdout.write(ansi.moveUp(previousLineCount) + ansi.moveToColumn0);
             console.log(color.red(`  ${result}`));
             previousLineCount = render(
               currentPath,
@@ -432,11 +425,11 @@ export async function filepath(options: FilepathOptions): Promise<string> {
         }
 
         // Clean up and return
-        process.stdout.write(MOVE_TO_COL_0);
+        process.stdout.write(ansi.moveToColumn0);
         for (let i = 0; i < previousLineCount; i++) {
-          process.stdout.write(CLEAR_LINE + "\n");
+          process.stdout.write(ansi.clearLine + "\n");
         }
-        process.stdout.write(MOVE_UP(previousLineCount) + MOVE_TO_COL_0);
+        process.stdout.write(ansi.moveUp(previousLineCount) + ansi.moveToColumn0);
         console.log(
           color.dim("  ✓ ") + color.cyan(path.relative(basePath, selectedPath) || selectedPath),
         );
@@ -454,11 +447,11 @@ export async function filepath(options: FilepathOptions): Promise<string> {
           }
         }
 
-        process.stdout.write(MOVE_TO_COL_0);
+        process.stdout.write(ansi.moveToColumn0);
         for (let i = 0; i < previousLineCount; i++) {
-          process.stdout.write(CLEAR_LINE + "\n");
+          process.stdout.write(ansi.clearLine + "\n");
         }
-        process.stdout.write(MOVE_UP(previousLineCount) + MOVE_TO_COL_0);
+        process.stdout.write(ansi.moveUp(previousLineCount) + ansi.moveToColumn0);
         console.log(
           color.dim("  ✓ ") +
             color.cyan(path.relative(basePath, newPath) || newPath) +
@@ -522,11 +515,11 @@ export async function filepath(options: FilepathOptions): Promise<string> {
         );
       }
     } else if (key.name === "escape" || (key.ctrl && key.name === "c")) {
-      process.stdout.write(MOVE_TO_COL_0);
+      process.stdout.write(ansi.moveToColumn0);
       for (let i = 0; i < previousLineCount; i++) {
-        process.stdout.write(CLEAR_LINE + "\n");
+        process.stdout.write(ansi.clearLine + "\n");
       }
-      process.stdout.write(MOVE_UP(previousLineCount) + MOVE_TO_COL_0);
+      process.stdout.write(ansi.moveUp(previousLineCount) + ansi.moveToColumn0);
       throw new PromptCancelledError();
     } else if (key.raw.length === 1 && key.raw >= " " && !key.ctrl) {
       input += key.raw;

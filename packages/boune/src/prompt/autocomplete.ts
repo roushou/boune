@@ -1,7 +1,7 @@
 import * as tty from "node:tty";
 
 import { readKey, readLine } from "./stdin.ts";
-import { PromptCancelledError } from "./core/errors.ts";
+import { PromptCancelledError, ansi } from "./core/index.ts";
 import { color } from "../output/color.ts";
 import { at } from "../utils/array.ts";
 
@@ -22,13 +22,6 @@ export interface AutocompleteOptions<T = string> {
   /** Custom filter function (default: case-insensitive substring match) */
   filter?: (input: string, choice: AutocompleteOption<T>) => boolean;
 }
-
-// ANSI escape codes
-const SHOW_CURSOR = "\x1b[?25h";
-const CLEAR_LINE = "\x1b[2K";
-const MOVE_UP = (n: number): string => `\x1b[${n}A`;
-const MOVE_TO_COL_0 = "\r";
-const MOVE_TO_COL = (n: number): string => `\x1b[${n}G`;
 
 /**
  * Default fuzzy filter - case-insensitive substring match
@@ -90,11 +83,11 @@ function render<T>(
 ): number {
   // On re-render: we're on the input line, move to column 0
   if (!isInitialRender) {
-    process.stdout.write(MOVE_TO_COL_0);
+    process.stdout.write(ansi.moveToColumn0);
   }
 
   // Input line
-  process.stdout.write(CLEAR_LINE);
+  process.stdout.write(ansi.clearLine);
   const inputLine = color.dim("  › ") + input;
   console.log(inputLine);
 
@@ -103,7 +96,7 @@ function render<T>(
   let lineCount = 1; // Input line
 
   if (filteredOptions.length === 0 && input) {
-    process.stdout.write(CLEAR_LINE);
+    process.stdout.write(ansi.clearLine);
     console.log(color.dim("    No matches"));
     lineCount++;
   } else {
@@ -111,7 +104,7 @@ function render<T>(
       const option = at(filteredOptions, i);
       const isSelected = i === cursorIndex;
 
-      process.stdout.write(CLEAR_LINE);
+      process.stdout.write(ansi.clearLine);
       const pointer = isSelected ? color.cyan("❯") : " ";
       const label = isSelected ? color.cyan(option.label) : highlightMatch(option.label, input);
       console.log(`  ${pointer} ${label}`);
@@ -120,7 +113,7 @@ function render<T>(
 
     // Show scroll indicator if there are more options
     if (filteredOptions.length > limit) {
-      process.stdout.write(CLEAR_LINE);
+      process.stdout.write(ansi.clearLine);
       console.log(color.dim(`    ... and ${filteredOptions.length - limit} more`));
       lineCount++;
     }
@@ -129,7 +122,7 @@ function render<T>(
   // Clear any extra lines from previous render
   const extraLines = previousLineCount > lineCount ? previousLineCount - lineCount : 0;
   for (let i = 0; i < extraLines; i++) {
-    process.stdout.write(CLEAR_LINE + "\n");
+    process.stdout.write(ansi.clearLine + "\n");
   }
 
   // Move cursor back to input line, after the input text
@@ -137,9 +130,9 @@ function render<T>(
   // We need to go back to row 0 (input line)
   const linesToMoveUp = lineCount + extraLines;
   if (linesToMoveUp > 0) {
-    process.stdout.write(MOVE_UP(linesToMoveUp));
+    process.stdout.write(ansi.moveUp(linesToMoveUp));
   }
-  process.stdout.write(MOVE_TO_COL(5 + input.length));
+  process.stdout.write(ansi.moveToColumn(5 + input.length));
 
   return lineCount;
 }
@@ -186,7 +179,7 @@ export async function autocomplete<T = string>(
   }
 
   // Show cursor for typing
-  process.stdout.write(SHOW_CURSOR);
+  process.stdout.write(ansi.showCursor);
 
   let input = initial;
   let cursorIndex = 0;
@@ -228,11 +221,11 @@ export async function autocomplete<T = string>(
       }
     } else if (key.name === "return") {
       // We're on the input line - clear from here down
-      process.stdout.write(MOVE_TO_COL_0);
+      process.stdout.write(ansi.moveToColumn0);
       for (let i = 0; i < previousLineCount; i++) {
-        process.stdout.write(CLEAR_LINE + "\n");
+        process.stdout.write(ansi.clearLine + "\n");
       }
-      process.stdout.write(MOVE_UP(previousLineCount) + MOVE_TO_COL_0);
+      process.stdout.write(ansi.moveUp(previousLineCount) + ansi.moveToColumn0);
 
       if (filteredOptions.length > 0 && cursorIndex < filteredOptions.length) {
         const selected = at(filteredOptions, cursorIndex);
@@ -263,11 +256,11 @@ export async function autocomplete<T = string>(
       }
     } else if (key.name === "escape" || (key.ctrl && key.name === "c")) {
       // We're on the input line - clear from here down
-      process.stdout.write(MOVE_TO_COL_0);
+      process.stdout.write(ansi.moveToColumn0);
       for (let i = 0; i < previousLineCount; i++) {
-        process.stdout.write(CLEAR_LINE + "\n");
+        process.stdout.write(ansi.clearLine + "\n");
       }
-      process.stdout.write(MOVE_UP(previousLineCount) + MOVE_TO_COL_0);
+      process.stdout.write(ansi.moveUp(previousLineCount) + ansi.moveToColumn0);
       throw new PromptCancelledError();
     } else if (key.raw.length === 1 && key.raw >= " " && !key.ctrl) {
       // Regular character input

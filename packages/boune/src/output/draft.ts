@@ -4,6 +4,7 @@
  */
 
 import { color } from "./color.ts";
+import { ansi } from "../prompt/core/render.ts";
 
 export type DraftLine = {
   /** Update this line's content */
@@ -34,11 +35,6 @@ type LineState = {
   status: "pending" | "done" | "fail" | "warn";
   originalText: string;
 };
-
-const CLEAR_LINE = "\x1b[2K";
-const MOVE_UP = "\x1b[1A";
-const HIDE_CURSOR = "\x1b[?25l";
-const SHOW_CURSOR = "\x1b[?25h";
 
 function formatLine(state: LineState): string {
   switch (state.status) {
@@ -106,12 +102,12 @@ export function createDraft(): Draft {
 
     // Move cursor up to overwrite previous output
     if (lineCount > 0) {
-      process.stdout.write(MOVE_UP.repeat(lineCount));
+      process.stdout.write(ansi.moveUp(lineCount));
     }
 
     // Write each line
     for (const line of lines) {
-      process.stdout.write(CLEAR_LINE);
+      process.stdout.write(ansi.clearLine);
       console.log(formatLine(line));
     }
 
@@ -167,11 +163,11 @@ export function createDraft(): Draft {
   }
 
   // Hide cursor while draft is active
-  process.stdout.write(HIDE_CURSOR);
+  process.stdout.write(ansi.hideCursor);
 
   // Show cursor on exit
   const cleanup = (): void => {
-    process.stdout.write(SHOW_CURSOR);
+    process.stdout.write(ansi.showCursor);
   };
   process.on("exit", cleanup);
   process.on("SIGINT", () => {
@@ -199,7 +195,7 @@ export function createDraft(): Draft {
     stop(): void {
       if (stopped) return;
       stopped = true;
-      process.stdout.write(SHOW_CURSOR);
+      process.stdout.write(ansi.showCursor);
       process.removeListener("exit", cleanup);
     },
 
@@ -207,11 +203,11 @@ export function createDraft(): Draft {
       if (stopped) return;
       // Move up and clear all lines
       if (lineCount > 0) {
-        process.stdout.write(MOVE_UP.repeat(lineCount));
+        process.stdout.write(ansi.moveUp(lineCount));
         for (let i = 0; i < lineCount; i++) {
-          process.stdout.write(CLEAR_LINE + "\n");
+          process.stdout.write(ansi.clearLine + "\n");
         }
-        process.stdout.write(MOVE_UP.repeat(lineCount));
+        process.stdout.write(ansi.moveUp(lineCount));
       }
       lines.length = 0;
       lineCount = 0;
