@@ -169,7 +169,7 @@ describe("testCli", () => {
   });
 
   test("passes arguments to command", async () => {
-    let receivedArgs: any;
+    let receivedArgs: { target: string } | undefined;
 
     const cli = defineCli({
       name: "test",
@@ -191,11 +191,11 @@ describe("testCli", () => {
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("Deploying to production");
-    expect(receivedArgs.target).toBe("production");
+    expect(receivedArgs?.target).toBe("production");
   });
 
   test("passes options to command", async () => {
-    let receivedOptions: any;
+    let receivedOptions: { port: number; host: string } | undefined;
 
     const cli = defineCli({
       name: "test",
@@ -218,8 +218,8 @@ describe("testCli", () => {
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("Serving on 0.0.0.0:8080");
-    expect(receivedOptions.port).toBe(8080);
-    expect(receivedOptions.host).toBe("0.0.0.0");
+    expect(receivedOptions?.port).toBe(8080);
+    expect(receivedOptions?.host).toBe("0.0.0.0");
   });
 
   test("handles timeout", async () => {

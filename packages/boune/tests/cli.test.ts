@@ -53,7 +53,7 @@ describe("defineCli", () => {
   });
 
   test("passes parsed args to action", async () => {
-    let receivedContext: any;
+    let receivedContext: { args: { name: string } } | undefined;
 
     const app = defineCli({
       name: "myapp",
@@ -72,11 +72,11 @@ describe("defineCli", () => {
 
     await testCli(app).run(["greet", "World"]);
 
-    expect(receivedContext.args.name).toBe("World");
+    expect(receivedContext?.args.name).toBe("World");
   });
 
   test("passes parsed options to action", async () => {
-    let receivedContext: any;
+    let receivedContext: { options: { port: number } } | undefined;
 
     const app = defineCli({
       name: "myapp",
@@ -95,7 +95,7 @@ describe("defineCli", () => {
 
     await testCli(app).run(["serve", "--port", "8080"]);
 
-    expect(receivedContext.options.port).toBe(8080);
+    expect(receivedContext?.options.port).toBe(8080);
   });
 
   test("shows help with --help flag", async () => {
@@ -320,7 +320,7 @@ describe("defineCli", () => {
   });
 
   test("adds global options", async () => {
-    let receivedContext: any;
+    let receivedContext: { options: { verbose: boolean } } | undefined;
 
     const app = defineCli({
       name: "myapp",
@@ -339,6 +339,6 @@ describe("defineCli", () => {
 
     await testCli(app).run(["build", "--verbose"]);
 
-    expect(receivedContext.options.verbose).toBe(true);
+    expect(receivedContext?.options.verbose).toBe(true);
   });
 });
