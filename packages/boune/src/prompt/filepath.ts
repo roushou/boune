@@ -1,6 +1,5 @@
 import * as path from "node:path";
-import * as tty from "node:tty";
-import { readKey, readLine } from "./stdin.ts";
+import { readKey, readLine, isTTY } from "./stdin.ts";
 import { PromptCancelledError, ansi } from "./core/index.ts";
 import { color } from "../output/color.ts";
 import { at } from "../utils/array.ts";
@@ -276,7 +275,7 @@ function render(
 export async function filepath(options: FilepathOptions): Promise<string> {
   const { message, basePath = process.cwd(), allowNew = false, limit = 10, validator } = options;
 
-  const isTTY = tty.isatty(0);
+  const isTTY = isTTY();
 
   // Print message
   console.log(

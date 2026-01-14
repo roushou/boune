@@ -5,6 +5,14 @@
 import * as readline from "node:readline";
 import * as tty from "node:tty";
 
+/**
+ * Check if stdin is a TTY (interactive terminal)
+ * Use this for consistent TTY detection across all prompts
+ */
+export function isTTY(): boolean {
+  return isTTY();
+}
+
 let readCount = 0;
 let rl: readline.Interface | null = null;
 
@@ -56,7 +64,7 @@ export async function readMaskedLine(mask: string): Promise<string> {
   readCount++;
 
   const stdin = process.stdin;
-  const isTTY = tty.isatty(0);
+  const isTTY = isTTY();
 
   // Fallback for non-TTY: just read a line (no masking possible)
   if (!isTTY) {
@@ -182,7 +190,7 @@ export async function readKey(): Promise<KeyPress> {
   readCount++;
 
   const stdin = process.stdin;
-  const isTTY = tty.isatty(0);
+  const isTTY = isTTY();
 
   if (!isTTY) {
     // Fallback for non-TTY: read a line and return first char as key

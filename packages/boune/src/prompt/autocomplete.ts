@@ -1,6 +1,4 @@
-import * as tty from "node:tty";
-
-import { readKey, readLine } from "./stdin.ts";
+import { readKey, readLine, isTTY } from "./stdin.ts";
 import { PromptCancelledError, ansi } from "./core/index.ts";
 import { color } from "../output/color.ts";
 import { at } from "../utils/array.ts";
@@ -165,7 +163,7 @@ export async function autocomplete<T = string>(
     filter = defaultFilter,
   } = options;
 
-  const isTTY = tty.isatty(0);
+  const isTTY = isTTY();
 
   // Print message
   console.log(
