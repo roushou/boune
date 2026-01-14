@@ -3,6 +3,15 @@
 import { color, createSpinner, defineCli, defineCommand } from "boune";
 import { generateProject } from "./generator.ts";
 
+/** Valid template options */
+const TEMPLATES = ["minimal", "full"] as const;
+type Template = (typeof TEMPLATES)[number];
+
+/** Type guard to validate template input */
+function isValidTemplate(value: string | undefined): value is Template {
+  return value !== undefined && TEMPLATES.includes(value as Template);
+}
+
 const newCommand = defineCommand({
   name: "new",
   description: "Create a new CLI project",
@@ -43,7 +52,21 @@ const newCommand = defineCommand({
 
     // Use args/options if provided, otherwise prompt
     const projectName = args.name || (await prompts.name.run());
-    const template = (options.template as "minimal" | "full") || (await prompts.template.run());
+
+    // Validate template option if provided
+    let template: Template;
+    if (options.template !== undefined) {
+      if (!isValidTemplate(options.template)) {
+        console.log(
+          color.red(`  Invalid template "${options.template}". Use: ${TEMPLATES.join(", ")}`),
+        );
+        console.log();
+        process.exit(1);
+      }
+      template = options.template;
+    } else {
+      template = await prompts.template.run();
+    }
 
     // Show summary
     console.log();
