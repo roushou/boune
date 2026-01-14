@@ -1,6 +1,7 @@
 import type {
   BooleanValidationRules,
   NumberValidationRules,
+  RuleSpec,
   RuleValue,
   StringValidationRules,
   ValidationResult,
@@ -23,66 +24,54 @@ function extractRuleValue<T>(rule: RuleValue<T>): { value: T; message?: string }
 }
 
 /**
- * Compile string validation rules into a validator function
+ * Rule keys for string validation (excludes 'refine' which is handled separately)
  */
-function compileStringRules(rules: StringValidationRules): CompiledValidator {
-  const checks: CompiledValidator[] = [];
+const stringRuleKeys = ["email", "url", "regex", "minLength", "maxLength"] as const;
 
-  if (rules.email !== undefined) {
-    const { message } = extractRuleValue(rules.email);
-    checks.push((value) => {
-      if (!stringRules.email.check(value as string)) {
-        return message ?? stringRules.email.message();
-      }
-      return true;
+/**
+ * Rule keys for number validation (excludes 'refine' which is handled separately)
+ */
+const numberRuleKeys = ["integer", "positive", "negative", "min", "max"] as const;
+
+/**
+ * Generic rule compiler - converts declarative rules into validator functions
+ *
+ * @param rules - The validation rules object (e.g., { email: true, minLength: 5 })
+ * @param ruleSet - The rule specifications (e.g., stringRules, numberRules)
+ * @param ruleKeys - The keys to check in the rules object
+ * @param refine - Optional custom refine function
+ */
+function compileRules<T, K extends string>(
+  rules: Record<string, unknown>,
+  ruleSet: Record<K, RuleSpec<T, never[]>>,
+  ruleKeys: readonly K[],
+  refine?: (value: T) => ValidationResult,
+): CompiledValidator {
+  const checks: CompiledValidator[] = ruleKeys
+    .filter((key) => rules[key] !== undefined)
+    .map((key) => {
+      const { value: param, message } = extractRuleValue(rules[key] as RuleValue<unknown>);
+      const rule = ruleSet[key];
+
+      return (val: unknown): ValidationResult => {
+        // For boolean rules (like email: true), param is true and we don't pass it
+        // For value rules (like minLength: 5), param is the constraint value
+        const passed = param === true ? rule.check(val as T) : rule.check(val as T, param as never);
+
+        if (!passed) {
+          // Use custom message if provided, otherwise use rule's default message
+          return message ?? (param === true ? rule.message() : rule.message(param as never));
+        }
+        return true;
+      };
     });
+
+  // Add refine check if provided
+  if (refine) {
+    checks.push((value) => refine(value as T));
   }
 
-  if (rules.url !== undefined) {
-    const { message } = extractRuleValue(rules.url);
-    checks.push((value) => {
-      if (!stringRules.url.check(value as string)) {
-        return message ?? stringRules.url.message();
-      }
-      return true;
-    });
-  }
-
-  if (rules.regex !== undefined) {
-    const { value: pattern, message } = extractRuleValue(rules.regex);
-    checks.push((value) => {
-      if (!stringRules.regex.check(value as string, pattern)) {
-        return message ?? stringRules.regex.message(pattern);
-      }
-      return true;
-    });
-  }
-
-  if (rules.minLength !== undefined) {
-    const { value: min, message } = extractRuleValue(rules.minLength);
-    checks.push((value) => {
-      if (!stringRules.minLength.check(value as string, min)) {
-        return message ?? stringRules.minLength.message(min);
-      }
-      return true;
-    });
-  }
-
-  if (rules.maxLength !== undefined) {
-    const { value: max, message } = extractRuleValue(rules.maxLength);
-    checks.push((value) => {
-      if (!stringRules.maxLength.check(value as string, max)) {
-        return message ?? stringRules.maxLength.message(max);
-      }
-      return true;
-    });
-  }
-
-  if (rules.refine !== undefined) {
-    const refine = rules.refine;
-    checks.push((value) => refine(value as string));
-  }
-
+  // Return combined validator
   return (value) => {
     for (const check of checks) {
       const result = check(value);
@@ -92,85 +81,27 @@ function compileStringRules(rules: StringValidationRules): CompiledValidator {
     }
     return true;
   };
+}
+
+/**
+ * Compile string validation rules into a validator function
+ */
+function compileStringRules(rules: StringValidationRules): CompiledValidator {
+  return compileRules(rules as Record<string, unknown>, stringRules, stringRuleKeys, rules.refine);
 }
 
 /**
  * Compile number validation rules into a validator function
  */
 function compileNumberRules(rules: NumberValidationRules): CompiledValidator {
-  const checks: CompiledValidator[] = [];
-
-  if (rules.integer !== undefined) {
-    const { message } = extractRuleValue(rules.integer);
-    checks.push((value) => {
-      if (!numberRules.integer.check(value as number)) {
-        return message ?? numberRules.integer.message();
-      }
-      return true;
-    });
-  }
-
-  if (rules.positive !== undefined) {
-    const { message } = extractRuleValue(rules.positive);
-    checks.push((value) => {
-      if (!numberRules.positive.check(value as number)) {
-        return message ?? numberRules.positive.message();
-      }
-      return true;
-    });
-  }
-
-  if (rules.negative !== undefined) {
-    const { message } = extractRuleValue(rules.negative);
-    checks.push((value) => {
-      if (!numberRules.negative.check(value as number)) {
-        return message ?? numberRules.negative.message();
-      }
-      return true;
-    });
-  }
-
-  if (rules.min !== undefined) {
-    const { value: min, message } = extractRuleValue(rules.min);
-    checks.push((value) => {
-      if (!numberRules.min.check(value as number, min)) {
-        return message ?? numberRules.min.message(min);
-      }
-      return true;
-    });
-  }
-
-  if (rules.max !== undefined) {
-    const { value: max, message } = extractRuleValue(rules.max);
-    checks.push((value) => {
-      if (!numberRules.max.check(value as number, max)) {
-        return message ?? numberRules.max.message(max);
-      }
-      return true;
-    });
-  }
-
-  if (rules.refine !== undefined) {
-    const refine = rules.refine;
-    checks.push((value) => refine(value as number));
-  }
-
-  return (value) => {
-    for (const check of checks) {
-      const result = check(value);
-      if (result !== true) {
-        return result;
-      }
-    }
-    return true;
-  };
+  return compileRules(rules as Record<string, unknown>, numberRules, numberRuleKeys, rules.refine);
 }
 
 /**
  * Compile boolean validation rules into a validator function
  */
 function compileBooleanRules(rules: BooleanValidationRules): CompiledValidator {
-  if (rules.refine !== undefined) {
+  if (rules.refine) {
     const refine = rules.refine;
     return (value) => refine(value as boolean);
   }
