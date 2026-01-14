@@ -5,6 +5,41 @@ import { formatError } from "../../x/logger/index.ts";
 import { generateCliHelp } from "../../output/help.ts";
 
 /**
+ * Result of resolving a command path
+ */
+type ResolvedCommand = {
+  command: CommandConfig;
+  parentCommands: string[];
+};
+
+/**
+ * Resolve a command from a path by walking the command tree
+ */
+function resolveCommandPath(
+  commands: Record<string, CommandConfig>,
+  path: string[],
+): ResolvedCommand | null {
+  const [first, ...rest] = path;
+  const initialCommand = commands[first!];
+
+  if (!initialCommand) {
+    return null;
+  }
+
+  let command: CommandConfig = initialCommand;
+  const parentCommands: string[] = [];
+
+  for (const name of rest) {
+    parentCommands.push(command.name);
+    const sub = command.subcommands[name];
+    if (!sub) break;
+    command = sub;
+  }
+
+  return { command, parentCommands };
+}
+
+/**
  * Phase 4: Extract command path from tokens
  */
 export const extractCommandPathPhase: Phase = {
@@ -18,12 +53,7 @@ export const extractCommandPathPhase: Phase = {
     for (const token of ctx.tokens) {
       if (token.type === "argument") {
         const cmd = currentCommands[token.value];
-        if (cmd && commandPath.length === 0) {
-          commandPath.push(token.value);
-          currentCommands = cmd.subcommands;
-          continue;
-        }
-        if (cmd && commandPath.length > 0) {
+        if (cmd) {
           commandPath.push(token.value);
           currentCommands = cmd.subcommands;
           continue;
@@ -70,11 +100,10 @@ export const handleNoCommandPhase: Phase = {
 export const resolveCommandPhase: Phase = {
   name: "resolveCommand",
   run: (ctx, config) => {
-    const [first, ...rest] = ctx.commandPath;
-    const initialCommand = config.commands[first!];
+    const resolved = resolveCommandPath(config.commands, ctx.commandPath);
 
-    if (!initialCommand) {
-      const suggestions = suggestCommands(first ?? "", config.commands);
+    if (!resolved) {
+      const suggestions = suggestCommands(ctx.commandPath[0] ?? "", config.commands);
       console.error(formatError(`Unknown command: ${ctx.commandPath.join(" ")}`));
       if (suggestions.length > 0) {
         console.error(formatSuggestions(suggestions));
@@ -82,19 +111,9 @@ export const resolveCommandPhase: Phase = {
       return { type: "exit", code: 1 };
     }
 
-    let command: CommandConfig = initialCommand;
-    const parentCommands: string[] = [];
-
-    for (const name of rest) {
-      parentCommands.push(command.name);
-      const sub: CommandConfig | undefined = command.subcommands[name];
-      if (!sub) break;
-      command = sub;
-    }
-
     return {
       type: "continue",
-      ctx: { ...ctx, command, parentCommands },
+      ctx: { ...ctx, ...resolved },
     };
   },
 };
