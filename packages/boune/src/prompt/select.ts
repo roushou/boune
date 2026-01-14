@@ -65,14 +65,10 @@ function renderOptions<T>(state: SelectState<T>, isInitial: boolean): void {
 export function createSelectSchema<T>(options: SelectOptions<T>) {
   const { message, options: choices, default: defaultValue } = options;
 
-  // Find initial index
-  const initialIndex =
-    defaultValue !== undefined
-      ? Math.max(
-          0,
-          choices.findIndex((c) => c.value === defaultValue),
-        )
-      : 0;
+  // Find initial index (fall back to 0 if default value not found)
+  const foundIndex =
+    defaultValue !== undefined ? choices.findIndex((c) => c.value === defaultValue) : -1;
+  const initialIndex = foundIndex >= 0 ? foundIndex : 0;
 
   return keyPrompt<T>({
     message,
