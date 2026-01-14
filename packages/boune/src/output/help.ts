@@ -31,6 +31,61 @@ function pad(str: string, width: number): string {
 }
 
 /**
+ * Configuration for rendering a help section
+ */
+type SectionConfig<T> = {
+  title: string;
+  items: T[];
+  formatSyntax: (item: T) => string;
+  getDescription: (item: T) => string;
+  getMetadata: (item: T) => string[];
+};
+
+/**
+ * Render a help section with aligned columns
+ */
+function renderSection<T>(config: SectionConfig<T>): string[] {
+  const { title, items, formatSyntax, getDescription, getMetadata } = config;
+
+  if (items.length === 0) return [];
+
+  const maxLen = Math.max(...items.map((item) => formatSyntax(item).length));
+
+  return [
+    color.bold(`${title}:`),
+    ...items.map((item) => {
+      const syntax = formatSyntax(item);
+      const description = getDescription(item);
+      const metadata = getMetadata(item)
+        .filter(Boolean)
+        .map((m) => color.dim(m))
+        .join("");
+      return `  ${color.cyan(pad(syntax, maxLen + 2))}${description}${metadata}`;
+    }),
+    "",
+  ];
+}
+
+/**
+ * Metadata formatters for different item types
+ */
+const argumentMetadata = (arg: CommandConfig["arguments"][number]): string[] => [
+  arg.choices?.length ? ` [choices: ${arg.choices.join(", ")}]` : "",
+  arg.default !== undefined ? ` (default: ${JSON.stringify(arg.default)})` : "",
+];
+
+const optionMetadata = (opt: InternalOptionDef): string[] => [
+  opt.choices?.length ? ` [choices: ${opt.choices.join(", ")}]` : "",
+  opt.default !== undefined ? ` (default: ${JSON.stringify(opt.default)})` : "",
+  opt.env ? ` (env: ${opt.env})` : "",
+];
+
+const simpleOptionMetadata = (opt: InternalOptionDef): string[] => [
+  opt.choices?.length ? ` [choices: ${opt.choices.join(", ")}]` : "",
+  opt.default !== undefined ? ` (default: ${JSON.stringify(opt.default)})` : "",
+];
+
+/**
  * Generate help text for a command
  */
 export function generateCommandHelp(
@@ -44,8 +99,7 @@ export function generateCommandHelp(
 
   // Description
   if (command.description) {
-    lines.push(command.description);
-    lines.push("");
+    lines.push(command.description, "");
   }
 
   // Usage
@@ -60,67 +114,48 @@ export function generateCommandHelp(
   for (const argument of command.arguments) {
     usage += ` ${formatArgument(argument)}`;
   }
-  lines.push(usage);
-  lines.push("");
+  lines.push(usage, "");
 
-  // Arguments
-  if (command.arguments.length > 0) {
-    lines.push(color.bold("Arguments:"));
-    const maxArgLen = Math.max(...command.arguments.map((a) => formatArgument(a).length));
-    for (const argument of command.arguments) {
-      const syntax = formatArgument(argument);
-      let line = `  ${color.cyan(pad(syntax, maxArgLen + 2))}${argument.description}`;
-      if (argument.choices && argument.choices.length > 0) {
-        line += color.dim(` [choices: ${argument.choices.join(", ")}]`);
-      }
-      if (argument.default !== undefined) {
-        line += color.dim(` (default: ${JSON.stringify(argument.default)})`);
-      }
-      lines.push(line);
-    }
-    lines.push("");
-  }
+  // Arguments section
+  lines.push(
+    ...renderSection({
+      title: "Arguments",
+      items: command.arguments,
+      formatSyntax: formatArgument,
+      getDescription: (arg) => arg.description,
+      getMetadata: argumentMetadata,
+    }),
+  );
 
-  // Options
+  // Options section
   const allOptions = [...command.options, ...globalOptions];
-  if (allOptions.length > 0) {
-    lines.push(color.bold("Options:"));
-    const maxOptLen = Math.max(...allOptions.map((o) => formatOption(o).length));
-    for (const option of allOptions) {
-      const syntax = formatOption(option);
-      let line = `  ${color.cyan(pad(syntax, maxOptLen + 2))}${option.description}`;
-      if (option.choices && option.choices.length > 0) {
-        line += color.dim(` [choices: ${option.choices.join(", ")}]`);
-      }
-      if (option.default !== undefined) {
-        line += color.dim(` (default: ${JSON.stringify(option.default)})`);
-      }
-      if (option.env) {
-        line += color.dim(` (env: ${option.env})`);
-      }
-      lines.push(line);
-    }
-    lines.push("");
-  }
+  lines.push(
+    ...renderSection({
+      title: "Options",
+      items: allOptions,
+      formatSyntax: formatOption,
+      getDescription: (opt) => opt.description,
+      getMetadata: optionMetadata,
+    }),
+  );
 
-  // Subcommands
+  // Subcommands section
   const visibleSubcommands = Object.values(command.subcommands).filter(
     (cmd, index, arr) => !cmd.hidden && arr.findIndex((c) => c.name === cmd.name) === index,
   );
-  if (visibleSubcommands.length > 0) {
-    lines.push(color.bold("Commands:"));
-    const maxCmdLen = Math.max(...visibleSubcommands.map((c) => c.name.length));
-    for (const cmd of visibleSubcommands) {
-      lines.push(`  ${color.cyan(pad(cmd.name, maxCmdLen + 2))}${cmd.description}`);
-    }
-    lines.push("");
-  }
+  lines.push(
+    ...renderSection({
+      title: "Commands",
+      items: visibleSubcommands,
+      formatSyntax: (cmd) => cmd.name,
+      getDescription: (cmd) => cmd.description,
+      getMetadata: () => [],
+    }),
+  );
 
   // Aliases
   if (command.aliases.length > 0) {
-    lines.push(color.bold("Aliases:"));
-    lines.push(`  ${command.aliases.join(", ")}`);
-    lines.push("");
+    lines.push(color.bold("Aliases:"), `  ${command.aliases.join(", ")}`, "");
   }
 
   return lines.join("\n");
@@ -134,45 +169,36 @@ export function generateCliHelp(config: CliConfig): string {
 
   // Description
   if (config.description) {
-    lines.push(config.description);
-    lines.push("");
+    lines.push(config.description, "");
   }
 
   // Usage
-  lines.push(color.bold("Usage:"));
-  lines.push(`  ${config.name} <command> [options]`);
-  lines.push("");
+  lines.push(color.bold("Usage:"), `  ${config.name} <command> [options]`, "");
 
-  // Global options
-  if (config.globalOptions.length > 0) {
-    lines.push(color.bold("Options:"));
-    const maxOptLen = Math.max(...config.globalOptions.map((o) => formatOption(o).length));
-    for (const option of config.globalOptions) {
-      const syntax = formatOption(option);
-      let line = `  ${color.cyan(pad(syntax, maxOptLen + 2))}${option.description}`;
-      if (option.choices && option.choices.length > 0) {
-        line += color.dim(` [choices: ${option.choices.join(", ")}]`);
-      }
-      if (option.default !== undefined) {
-        line += color.dim(` (default: ${JSON.stringify(option.default)})`);
-      }
-      lines.push(line);
-    }
-    lines.push("");
-  }
+  // Global options section
+  lines.push(
+    ...renderSection({
+      title: "Options",
+      items: config.globalOptions,
+      formatSyntax: formatOption,
+      getDescription: (opt) => opt.description,
+      getMetadata: simpleOptionMetadata,
+    }),
+  );
 
-  // Commands
+  // Commands section
   const visibleCommands = Object.values(config.commands).filter(
     (cmd, index, arr) => !cmd.hidden && arr.findIndex((c) => c.name === cmd.name) === index,
   );
-  if (visibleCommands.length > 0) {
-    lines.push(color.bold("Commands:"));
-    const maxCmdLen = Math.max(...visibleCommands.map((c) => c.name.length));
-    for (const cmd of visibleCommands) {
-      lines.push(`  ${color.cyan(pad(cmd.name, maxCmdLen + 2))}${cmd.description}`);
-    }
-    lines.push("");
-  }
+  lines.push(
+    ...renderSection({
+      title: "Commands",
+      items: visibleCommands,
+      formatSyntax: (cmd) => cmd.name,
+      getDescription: (cmd) => cmd.description,
+      getMetadata: () => [],
+    }),
+  );
 
   // Version
   if (config.version) {
