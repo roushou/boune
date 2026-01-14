@@ -334,3 +334,4 @@ bun test --watch
 
 - [Commands](/docs/commands) - Define more commands
 - [Validation](/docs/validation) - Validate user input
+- [Utilities](/docs/utilities) - Logger, update checker, and more

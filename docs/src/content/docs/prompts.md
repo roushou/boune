@@ -284,6 +284,191 @@ const proceed = await confirm({
 });
 ```
 
+## Additional Standalone Prompts
+
+The following prompts are available as standalone functions only (not declarative in commands):
+
+### Toggle
+
+A visual boolean toggle between two labeled states. More intuitive than confirm for on/off settings:
+
+```typescript
+import { toggle } from "boune/prompt";
+
+const darkMode = await toggle({
+  message: "Enable dark mode?",
+  active: "On",
+  inactive: "Off",
+  default: true,
+});
+```
+
+Use left/right arrows, `h`/`l` keys, space, or tab to toggle.
+
+#### Properties
+
+| Property   | Type      | Description                    |
+| ---------- | --------- | ------------------------------ |
+| `message`  | `string`  | Prompt message                 |
+| `default`  | `boolean` | Default value (default: false) |
+| `active`   | `string`  | Label for "on" state ("Yes")   |
+| `inactive` | `string`  | Label for "off" state ("No")   |
+
+### List
+
+Prompt for multiple values entered as a delimited string:
+
+```typescript
+import { list } from "boune/prompt";
+
+// Basic comma-separated list
+const tags = await list({
+  message: "Enter tags:",
+});
+// User enters: "react, typescript, bun"
+// Returns: ["react", "typescript", "bun"]
+
+// With constraints
+const emails = await list({
+  message: "Enter email addresses:",
+  min: 1,
+  max: 5,
+  validateItem: (email) => {
+    return email.includes("@") ? true : `"${email}" is not a valid email`;
+  },
+});
+
+// Custom separator
+const paths = await list({
+  message: "Enter paths:",
+  separator: ":",
+});
+```
+
+#### Properties
+
+| Property       | Type                                              | Description                          |
+| -------------- | ------------------------------------------------- | ------------------------------------ |
+| `message`      | `string`                                          | Prompt message                       |
+| `default`      | `string[]`                                        | Default values                       |
+| `separator`    | `string`                                          | Separator for parsing (default: ",") |
+| `trim`         | `boolean`                                         | Trim whitespace from items (true)    |
+| `filterEmpty`  | `boolean`                                         | Filter out empty items (true)        |
+| `min`          | `number`                                          | Minimum number of items              |
+| `max`          | `number`                                          | Maximum number of items              |
+| `validateItem` | `(item: string, index: number) => string \| true` | Custom item validator                |
+
+### Date
+
+Interactive calendar date picker:
+
+```typescript
+import { date } from "boune/prompt";
+
+const deadline = await date({
+  message: "Select deadline:",
+  min: new Date(), // Can't select past dates
+});
+
+const birthday = await date({
+  message: "Enter birthday:",
+  format: "MM/DD/YYYY",
+});
+```
+
+Navigation:
+
+- Left/Right or `h`/`l`: Navigate days
+- Up/Down or `j`/`k`: Navigate weeks
+- `+`/`-` or PageUp/PageDown: Navigate months
+
+#### Properties
+
+| Property  | Type                                           | Description             |
+| --------- | ---------------------------------------------- | ----------------------- |
+| `message` | `string`                                       | Prompt message          |
+| `default` | `Date`                                         | Default date (today)    |
+| `min`     | `Date`                                         | Minimum allowed date    |
+| `max`     | `Date`                                         | Maximum allowed date    |
+| `format`  | `"YYYY-MM-DD" \| "MM/DD/YYYY" \| "DD/MM/YYYY"` | Date format for display |
+
+### Editor
+
+Open the user's preferred editor for multi-line text input:
+
+```typescript
+import { editor } from "boune/prompt";
+
+const description = await editor({
+  message: "Enter description:",
+  extension: "md", // Syntax highlighting hint
+  default: "# My Project\n\nDescription here...",
+});
+
+const config = await editor({
+  message: "Edit configuration:",
+  extension: "json",
+  validator: (content) => {
+    try {
+      JSON.parse(content);
+      return true;
+    } catch {
+      return "Invalid JSON";
+    }
+  },
+});
+```
+
+Opens `$VISUAL` or `$EDITOR` (falls back to vi) with a temporary file.
+
+#### Properties
+
+| Property      | Type       | Description                                    |
+| ------------- | ---------- | ---------------------------------------------- |
+| `message`     | `string`   | Prompt message                                 |
+| `default`     | `string`   | Default content to pre-fill                    |
+| `extension`   | `string`   | File extension for syntax highlighting ("txt") |
+| `validator`   | `function` | Validator function                             |
+| `waitMessage` | `string`   | Message while editor is open                   |
+
+### Form
+
+Collect multiple fields at once in an interactive form layout:
+
+```typescript
+import { form } from "boune/prompt";
+
+const user = await form({
+  message: "Create account:",
+  fields: [
+    { name: "username", label: "Username", required: true },
+    {
+      name: "email",
+      label: "Email",
+      required: true,
+      validator: (v) => (v.includes("@") ? true : "Invalid email"),
+    },
+    { name: "password", label: "Password", type: "password", required: true },
+    { name: "age", label: "Age", type: "number" },
+  ],
+});
+// Returns: { username: "john", email: "john@example.com", password: "secret", age: "25" }
+```
+
+Navigate with Tab/Arrow keys, submit with Enter.
+
+#### Field Properties
+
+| Property      | Type                                | Description                   |
+| ------------- | ----------------------------------- | ----------------------------- |
+| `name`        | `string`                            | Field name (key in result)    |
+| `label`       | `string`                            | Display label                 |
+| `type`        | `"text" \| "password" \| "number"`  | Field type (default: "text")  |
+| `required`    | `boolean`                           | Whether the field is required |
+| `default`     | `string`                            | Default value                 |
+| `placeholder` | `string`                            | Placeholder text              |
+| `validator`   | `(value: string) => string \| true` | Custom validator              |
+
 ## Conditional Prompts
 
 Run prompts conditionally based on previous answers:

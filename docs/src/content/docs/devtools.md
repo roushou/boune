@@ -187,3 +187,4 @@ $ myapp docs
 
 - [Middleware](/docs/middleware) - Learn about middleware patterns
 - [Testing](/docs/testing) - Test your CLI
+- [Utilities](/docs/utilities) - Logger, update checker, and more

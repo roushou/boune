@@ -55,19 +55,6 @@ if (supportsColor()) {
 }
 ```
 
-## Message Formatting
-
-Pre-styled message helpers:
-
-```typescript
-import { error, warning, success, info } from "boune/output";
-
-console.log(error("Something went wrong")); // error: Something went wrong
-console.log(warning("Deprecated feature")); // warning: Deprecated feature
-console.log(success("Build completed")); // success: Build completed
-console.log(info("Processing files...")); // info: Processing files...
-```
-
 ## Spinners
 
 Show progress for async operations:
@@ -256,11 +243,78 @@ License: MIT
 console.log(keyValue(info, " = ")); // Use = instead of :
 ```
 
+## Draft (Multi-line Updates)
+
+Create live-updating multi-line output, similar to `docker pull`:
+
+```typescript
+import { createDraft } from "boune/output";
+
+const draft = createDraft();
+
+const line1 = draft.addLine("Downloading assets...");
+const line2 = draft.addLine("Compiling...");
+const line3 = draft.addLine("Deploying...");
+
+// Update lines independently
+line1.update("Downloading assets: 45%");
+line1.update("Downloading assets: 100%");
+line1.done("Assets downloaded");
+
+line2.fail("Compilation failed");
+line3.warn("Deployment skipped");
+
+// Finalize output
+draft.stop();
+```
+
+### Draft Methods
+
+| Method       | Description                    |
+| ------------ | ------------------------------ |
+| `.addLine()` | Add a new line, returns handle |
+| `.render()`  | Force re-render all lines      |
+| `.stop()`    | Finalize and stop updating     |
+| `.clear()`   | Clear all lines                |
+
+### Line Handle Methods
+
+| Method          | Description                 |
+| --------------- | --------------------------- |
+| `.update(text)` | Update line content         |
+| `.done(text?)`  | Mark with success checkmark |
+| `.fail(text?)`  | Mark with failure X         |
+| `.warn(text?)`  | Mark with warning symbol    |
+| `.clear()`      | Clear this line             |
+
+### Example: Parallel Downloads
+
+```typescript
+const draft = createDraft();
+
+const layers = [
+  draft.addLine("layer 1: waiting..."),
+  draft.addLine("layer 2: waiting..."),
+  draft.addLine("layer 3: waiting..."),
+];
+
+// Update as downloads progress
+layers[0].update("layer 1: ████████░░ 80%");
+layers[1].update("layer 2: ██████░░░░ 60%");
+
+// Mark complete
+layers[0].done("layer 1: complete");
+layers[1].done("layer 2: complete");
+layers[2].done("layer 3: complete");
+
+draft.stop();
+```
+
 ## Complete Example
 
 ```typescript
 import { defineCommand } from "boune";
-import { color, createSpinner, createProgressBar, success, error, keyValue } from "boune/output";
+import { color, createSpinner, createProgressBar, keyValue } from "boune/output";
 
 const deploy = defineCommand({
   name: "deploy",
@@ -292,7 +346,7 @@ const deploy = defineCommand({
       }),
     );
 
-    console.log("\n" + success("Deployed successfully!"));
+    console.log("\n" + color.green("✓ Deployed successfully!"));
   },
 });
 ```
