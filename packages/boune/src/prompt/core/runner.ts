@@ -60,19 +60,9 @@ async function runLinePrompt<T>(schema: LinePromptSchema<string, T>): Promise<T>
 
     const value = parseResult.value;
 
-    // Run validator
+    // Run validation
     if (schema.validator) {
       const validation = schema.validator(value);
-      if (validation !== true) {
-        console.log(renderError(validation));
-        attempt++;
-        continue;
-      }
-    }
-
-    // Run legacy validate function
-    if (schema.validate) {
-      const validation = schema.validate(value);
       if (validation !== true) {
         console.log(renderError(validation));
         attempt++;

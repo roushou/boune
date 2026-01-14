@@ -20,8 +20,8 @@ export interface FilepathOptions {
   showHidden?: boolean;
   /** Maximum visible items */
   limit?: number;
-  /** Custom validation */
-  validate?: (filepath: string) => string | true;
+  /** Validator function for the selected path */
+  validator?: (filepath: string) => string | true;
 }
 
 export interface Entry {
@@ -280,7 +280,7 @@ function render(
  * ```
  */
 export async function filepath(options: FilepathOptions): Promise<string> {
-  const { message, basePath = process.cwd(), allowNew = false, limit = 10, validate } = options;
+  const { message, basePath = process.cwd(), allowNew = false, limit = 10, validator } = options;
 
   const isTTY = tty.isatty(0);
 
@@ -406,8 +406,8 @@ export async function filepath(options: FilepathOptions): Promise<string> {
         const selectedPath = entry.fullPath;
 
         // Validate
-        if (validate) {
-          const result = validate(selectedPath);
+        if (validator) {
+          const result = validator(selectedPath);
           if (result !== true) {
             // Show error briefly, re-render
             process.stdout.write(MOVE_TO_COL_0);
@@ -446,8 +446,8 @@ export async function filepath(options: FilepathOptions): Promise<string> {
       if (allowNew && input) {
         const newPath = path.join(currentPath, input);
 
-        if (validate) {
-          const result = validate(newPath);
+        if (validator) {
+          const result = validator(newPath);
           if (result !== true) {
             continue;
           }
@@ -549,7 +549,7 @@ export async function filepath(options: FilepathOptions): Promise<string> {
  * Fallback for non-TTY environments
  */
 async function filepathFallback(options: FilepathOptions): Promise<string> {
-  const { basePath = process.cwd(), allowNew, validate } = options;
+  const { basePath = process.cwd(), allowNew, validator } = options;
 
   process.stdout.write(color.dim(`  Enter path (relative to ${basePath}): `));
 
@@ -573,8 +573,8 @@ async function filepathFallback(options: FilepathOptions): Promise<string> {
   }
 
   // Validate
-  if (validate) {
-    const result = validate(fullPath);
+  if (validator) {
+    const result = validator(fullPath);
     if (result !== true) {
       console.log(color.red(`  ${result}`));
       return filepathFallback(options);

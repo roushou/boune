@@ -9,14 +9,20 @@ export interface GenerateOptions {
   skipGit?: boolean;
 }
 
+export interface GenerateResult {
+  /** Warnings for non-critical failures (git init, install) */
+  warnings: string[];
+}
+
 const templates = {
   minimal: getMinimalTemplate,
   full: getFullTemplate,
 } as const;
 
-export async function generateProject(options: GenerateOptions): Promise<void> {
+export async function generateProject(options: GenerateOptions): Promise<GenerateResult> {
   const { name, template, skipInstall, skipGit } = options;
   const dir = `./${name}`;
+  const warnings: string[] = [];
 
   // Check if directory exists
   if (await Bun.file(dir).exists()) {
@@ -32,13 +38,21 @@ export async function generateProject(options: GenerateOptions): Promise<void> {
     await Bun.write(filePath, file.content);
   }
 
-  // Initialize git
+  // Initialize git (optional - warn on failure)
   if (!skipGit) {
-    await Bun.$`git -C ${dir} init`.quiet().nothrow();
+    const result = await Bun.$`git -C ${dir} init`.quiet().nothrow();
+    if (result.exitCode !== 0) {
+      warnings.push("Failed to initialize git repository. You can run 'git init' manually.");
+    }
   }
 
-  // Install dependencies
+  // Install dependencies (optional - warn on failure)
   if (!skipInstall) {
-    await Bun.$`bun install --cwd ${dir}`.quiet().nothrow();
+    const result = await Bun.$`bun install --cwd ${dir}`.quiet().nothrow();
+    if (result.exitCode !== 0) {
+      warnings.push("Failed to install dependencies. You can run 'bun install' manually.");
+    }
   }
+
+  return { warnings };
 }

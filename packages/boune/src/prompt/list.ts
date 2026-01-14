@@ -17,9 +17,7 @@ export interface ListOptions {
   max?: number;
   /** Custom validation function for individual items */
   validateItem?: (item: string, index: number) => string | true;
-  /** Custom validation function for the entire list */
-  validate?: (value: string[]) => string | true;
-  /** Compiled validator function */
+  /** Validator function (compiled or custom) */
   validator?: CompiledValidator;
 }
 
@@ -36,7 +34,6 @@ export function createListSchema(options: ListOptions) {
     min,
     max,
     validateItem,
-    validate,
     validator,
   } = options;
 
@@ -44,7 +41,6 @@ export function createListSchema(options: ListOptions) {
     message,
     default: defaultValue,
     validator,
-    validate,
 
     hint: () => {
       const parts: string[] = [];

@@ -5,9 +5,7 @@ export interface TextOptions {
   message: string;
   default?: string;
   placeholder?: string;
-  /** Custom validation function (legacy) */
-  validate?: (value: string) => string | true;
-  /** Compiled validator function */
+  /** Validator function (compiled or custom) */
   validator?: CompiledValidator;
 }
 
@@ -19,7 +17,6 @@ export function createTextSchema(options: TextOptions) {
     message: options.message,
     default: options.default,
     validator: options.validator,
-    validate: options.validate,
 
     parse: (raw, _isEmpty) => {
       // Text always parses successfully (empty string is valid unless required)

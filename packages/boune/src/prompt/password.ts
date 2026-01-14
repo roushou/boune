@@ -4,9 +4,7 @@ import type { CompiledValidator } from "../validation/compile.ts";
 export interface PasswordOptions {
   message: string;
   mask?: string;
-  /** Custom validation function (legacy) */
-  validate?: (value: string) => string | true;
-  /** Compiled validator function */
+  /** Validator function (compiled or custom) */
   validator?: CompiledValidator;
 }
 
@@ -18,7 +16,6 @@ export function createPasswordSchema(options: PasswordOptions) {
     message: options.message,
     mask: options.mask,
     validator: options.validator,
-    validate: options.validate,
 
     parse: (raw, _isEmpty) => {
       // Password always parses successfully

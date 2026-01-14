@@ -86,7 +86,7 @@ const newCommand = defineCommand({
     const spinner = createSpinner("Creating project...").start();
 
     try {
-      await generateProject({
+      const result = await generateProject({
         name: projectName,
         template,
         skipInstall: options.noInstall ?? false,
@@ -94,6 +94,14 @@ const newCommand = defineCommand({
       });
 
       spinner.succeed("Project created!");
+
+      // Show warnings for non-critical failures
+      if (result.warnings.length > 0) {
+        console.log();
+        for (const warning of result.warnings) {
+          console.log(color.yellow(`  ⚠ ${warning}`));
+        }
+      }
 
       // Next steps
       console.log();

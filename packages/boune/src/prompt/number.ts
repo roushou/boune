@@ -12,9 +12,7 @@ export interface NumberOptions {
   integer?: boolean;
   /** Step increment (for display hint) */
   step?: number;
-  /** Custom validation function (legacy) */
-  validate?: (value: number) => string | true;
-  /** Compiled validator function */
+  /** Validator function (compiled or custom) */
   validator?: CompiledValidator;
 }
 
@@ -66,7 +64,6 @@ export function createNumberSchema(options: NumberOptions) {
     message: options.message,
     default: options.default,
     validator: options.validator,
-    validate: options.validate,
 
     hint: () => {
       const hint = buildHint(options);

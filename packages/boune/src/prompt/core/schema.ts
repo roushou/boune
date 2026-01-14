@@ -31,11 +31,8 @@ export type BasePromptSchema<T> = {
   /** Default value if input is empty */
   default?: T;
 
-  /** Compiled validator function */
+  /** Validator function (compiled or custom) */
   validator?: CompiledValidator;
-
-  /** Legacy validation function */
-  validate?: (value: T) => string | true;
 
   /** Retry configuration */
   retry?: {

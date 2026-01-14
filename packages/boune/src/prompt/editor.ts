@@ -10,9 +10,7 @@ export interface EditorOptions {
   default?: string;
   /** File extension for syntax highlighting (e.g., "md", "json", "ts") */
   extension?: string;
-  /** Custom validation function */
-  validate?: (value: string) => string | true;
-  /** Compiled validator function */
+  /** Validator function (compiled or custom) */
   validator?: CompiledValidator;
   /** Wait message while editor is open */
   waitMessage?: string;
@@ -96,7 +94,6 @@ export async function editor(options: EditorOptions): Promise<string> {
     message,
     default: defaultValue,
     extension = "txt",
-    validate,
     validator,
     waitMessage = "Waiting for editor...",
   } = options;
@@ -139,19 +136,9 @@ export async function editor(options: EditorOptions): Promise<string> {
 
     content = content.trim();
 
-    // Run validator
+    // Run validation
     if (validator) {
       const validation = validator(content);
-      if (validation !== true) {
-        console.log(renderError(validation));
-        attempt++;
-        continue;
-      }
-    }
-
-    // Run legacy validate function
-    if (validate) {
-      const validation = validate(content);
       if (validation !== true) {
         console.log(renderError(validation));
         attempt++;

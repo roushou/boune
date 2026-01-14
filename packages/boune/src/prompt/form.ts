@@ -14,8 +14,8 @@ export interface FormField {
   default?: string;
   /** Placeholder text */
   placeholder?: string;
-  /** Validation function */
-  validate?: (value: string) => string | true;
+  /** Validator function for this field */
+  validator?: (value: string) => string | true;
 }
 
 export interface FormOptions {
@@ -134,8 +134,8 @@ function validateForm(state: FormState): Map<string, string> {
     }
 
     // Custom validation
-    if (field.validate && value.trim()) {
-      const result = field.validate(value);
+    if (field.validator && value.trim()) {
+      const result = field.validator(value);
       if (result !== true) {
         errors.set(field.name, result);
       }
@@ -356,7 +356,7 @@ export function createFormSchema(options: FormOptions) {
  *   message: "Create account:",
  *   fields: [
  *     { name: "username", label: "Username", required: true },
- *     { name: "email", label: "Email", required: true, validate: (v) =>
+ *     { name: "email", label: "Email", required: true, validator: (v) =>
  *       v.includes("@") ? true : "Invalid email"
  *     },
  *     { name: "password", label: "Password", type: "password", required: true },
