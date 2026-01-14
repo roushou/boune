@@ -11,7 +11,7 @@ export interface AutocompleteOption<T = string> {
 
 export interface AutocompleteOptions<T = string> {
   message: string;
-  options: AutocompleteOption<T>[];
+  choices: AutocompleteOption<T>[];
   /** Maximum number of visible options */
   limit?: number;
   /** Allow submitting typed value even if it doesn't match any option */
@@ -19,7 +19,7 @@ export interface AutocompleteOptions<T = string> {
   /** Initial input value */
   initial?: string;
   /** Custom filter function (default: case-insensitive substring match) */
-  filter?: (input: string, option: AutocompleteOption<T>) => boolean;
+  filter?: (input: string, choice: AutocompleteOption<T>) => boolean;
 }
 
 // ANSI escape codes
@@ -150,7 +150,7 @@ function render<T>(
  * ```typescript
  * const framework = await autocomplete({
  *   message: "Select a framework:",
- *   options: [
+ *   choices: [
  *     { label: "React", value: "react" },
  *     { label: "Vue", value: "vue" },
  *     { label: "Svelte", value: "svelte" },
@@ -164,7 +164,7 @@ export async function autocomplete<T = string>(
 ): Promise<T | string> {
   const {
     message,
-    options: choices,
+    choices,
     limit = 10,
     allowCustom = false,
     initial = "",
@@ -289,7 +289,7 @@ export async function autocomplete<T = string>(
  * Fallback for non-TTY environments
  */
 async function autocompleteFallback<T>(options: AutocompleteOptions<T>): Promise<T | string> {
-  const { options: choices, allowCustom } = options;
+  const { choices, allowCustom } = options;
 
   // Print options
   for (let i = 0; i < choices.length; i++) {

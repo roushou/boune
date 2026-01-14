@@ -17,7 +17,7 @@ export interface SelectOption<T = string> {
 
 export interface SelectOptions<T = string> {
   message: string;
-  options: SelectOption<T>[];
+  choices: SelectOption<T>[];
   default?: T;
 }
 
@@ -64,7 +64,7 @@ function renderOptions<T>(state: SelectState<T>, isInitial: boolean): void {
  * Create a select prompt schema (key-based)
  */
 export function createSelectSchema<T>(options: SelectOptions<T>) {
-  const { message, options: choices, default: defaultValue } = options;
+  const { message, choices, default: defaultValue } = options;
 
   // Find initial index (fall back to 0 if default value not found)
   const foundIndex =
@@ -147,7 +147,7 @@ export async function select<T = string>(options: SelectOptions<T>): Promise<T> 
  * Fallback for non-TTY environments (numbered selection)
  */
 async function selectFallback<T>(options: SelectOptions<T>): Promise<T> {
-  const { message, options: choices, default: defaultValue } = options;
+  const { message, choices, default: defaultValue } = options;
   const defaultIndex =
     defaultValue !== undefined ? choices.findIndex((c) => c.value === defaultValue) : -1;
 
@@ -248,7 +248,7 @@ function renderMultiselectOptions<T>(state: MultiselectState<T>, isInitial: bool
 export function createMultiselectSchema<T>(
   options: SelectOptions<T> & { min?: number; max?: number },
 ) {
-  const { message, options: choices, min = 0, max = choices.length } = options;
+  const { message, choices, min = 0, max = choices.length } = options;
 
   return keyPrompt<T[]>({
     message,
@@ -371,7 +371,7 @@ export async function multiselect<T = string>(
 async function multiselectFallback<T>(
   options: SelectOptions<T> & { min?: number; max?: number },
 ): Promise<T[]> {
-  const { message, options: choices, min = 0, max = choices.length } = options;
+  const { message, choices, min = 0, max = choices.length } = options;
 
   // Print header
   console.log(color.cyan("? ") + color.bold(message));
