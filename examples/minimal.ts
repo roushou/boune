@@ -21,4 +21,4 @@ const cli = defineCli({
   commands: { hello },
 });
 
-cli.run();
+void cli.run();

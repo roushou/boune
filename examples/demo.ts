@@ -195,4 +195,4 @@ const app = defineCli({
   },
 });
 
-app.run();
+void app.run();

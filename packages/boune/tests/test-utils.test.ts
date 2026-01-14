@@ -180,8 +180,8 @@ describe("testCli", () => {
             target: { type: "string", required: true },
           },
           action: (ctx) => {
-            receivedArgs = ctx.args;
-            console.log(`Deploying to ${ctx.args.target}`);
+            receivedArgs = ctx.args as { target: string };
+            console.log(`Deploying to ${(ctx.args as { target: string }).target}`);
           },
         },
       },
@@ -207,8 +207,9 @@ describe("testCli", () => {
             host: { type: "string", default: "localhost" },
           },
           action: (ctx) => {
-            receivedOptions = ctx.options;
-            console.log(`Serving on ${ctx.options.host}:${ctx.options.port}`);
+            const opts = ctx.options as { port: number; host: string };
+            receivedOptions = opts;
+            console.log(`Serving on ${opts.host}:${opts.port}`);
           },
         },
       },

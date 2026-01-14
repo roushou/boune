@@ -51,7 +51,7 @@ export const playground = defineCommand({
       while (true) {
         const promptType = await select<PromptType>({
           message: "Select a prompt type to try:",
-          options: [
+          choices: [
             { label: "text", value: "text", hint: "Single-line text input" },
             { label: "password", value: "password", hint: "Hidden password input" },
             { label: "number", value: "number", hint: "Numeric input with validation" },
@@ -291,11 +291,11 @@ async function runSelectDemo(): Promise<void> {
 
   const result = await select({
     message,
-    options,
+    choices: options,
   });
 
   printResult(result);
-  printCodeSnippet("select", { message, options });
+  printCodeSnippet("select", { message, choices: options });
 }
 
 async function runMultiselectDemo(): Promise<void> {
@@ -318,11 +318,11 @@ async function runMultiselectDemo(): Promise<void> {
 
   const result = await multiselect({
     message,
-    options,
+    choices: options,
   });
 
   printResult(result);
-  printCodeSnippet("multiselect", { message, options, required });
+  printCodeSnippet("multiselect", { message, choices: options, required });
 }
 
 async function runAutocompleteDemo(): Promise<void> {
@@ -340,7 +340,7 @@ async function runAutocompleteDemo(): Promise<void> {
 
   const result = await autocomplete({
     message,
-    options: [
+    choices: [
       { label: "JavaScript", value: "javascript" },
       { label: "TypeScript", value: "typescript" },
       { label: "Python", value: "python" },
@@ -353,7 +353,7 @@ async function runAutocompleteDemo(): Promise<void> {
   printResult(result);
   printCodeSnippet("autocomplete", {
     message,
-    options: [
+    choices: [
       { label: "JavaScript", value: "javascript" },
       { label: "TypeScript", value: "typescript" },
       { label: "Python", value: "python" },
@@ -400,7 +400,7 @@ async function runEditorDemo(): Promise<void> {
 
   const extension = await select({
     message: "File extension (for syntax highlighting):",
-    options: [
+    choices: [
       { label: "txt", value: "txt", hint: "Plain text" },
       { label: "md", value: "md", hint: "Markdown" },
       { label: "json", value: "json", hint: "JSON" },
@@ -531,7 +531,7 @@ async function runDateDemo(): Promise<void> {
 
   const format = await select({
     message: "Date format:",
-    options: [
+    choices: [
       { label: "YYYY-MM-DD", value: "YYYY-MM-DD", hint: "ISO format (2024-12-25)" },
       { label: "MM/DD/YYYY", value: "MM/DD/YYYY", hint: "US format (12/25/2024)" },
       { label: "DD/MM/YYYY", value: "DD/MM/YYYY", hint: "EU format (25/12/2024)" },
@@ -590,7 +590,7 @@ async function runFormDemo(): Promise<void> {
         label: "Email",
         required: true,
         placeholder: "john@example.com",
-        validate: (v) => (v.includes("@") ? true : "Must be a valid email"),
+        validator: (v: string) => (v.includes("@") ? true : "Must be a valid email"),
       },
       { name: "password", label: "Password", type: "password", required: true },
       { name: "age", label: "Age", type: "number", placeholder: "25" },
@@ -861,6 +861,8 @@ export function getVariableName(type: PromptType): string {
       return "formData";
     case "draft":
       return "draft";
+    case "spinner":
+      return "spinner";
   }
 }
 

@@ -82,7 +82,7 @@ const hello = defineCommand({
   },
 });
 
-defineCli({
+void defineCli({
   name: "hooks-demo",
   version: "1.0.0",
   description: "Demonstrating CLI middleware",

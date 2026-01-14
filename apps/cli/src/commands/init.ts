@@ -181,7 +181,7 @@ async function runWizard(
     (options.template as "minimal" | "full") ||
     (await select({
       message: "Select a template:",
-      options: Object.entries(TEMPLATES).map(([value, { label, description }]) => ({
+      choices: Object.entries(TEMPLATES).map(([value, { label, description }]) => ({
         label,
         value: value as "minimal" | "full",
         hint: description,
@@ -193,7 +193,7 @@ async function runWizard(
   if (template === "full") {
     features = await multiselect({
       message: "Select features to include:",
-      options: [...FEATURES],
+      choices: [...FEATURES],
     });
   }
 
@@ -202,7 +202,7 @@ async function runWizard(
   if (features.includes("profiles")) {
     profiles = await multiselect({
       message: "Select environment profiles to create:",
-      options: [...DEFAULT_PROFILES],
+      choices: [...DEFAULT_PROFILES],
     });
   }
 

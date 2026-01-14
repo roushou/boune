@@ -121,7 +121,7 @@ describe("String validation", () => {
   describe("refine", () => {
     test("accepts value passing custom rule", () => {
       const validate = compileValidation(
-        { refine: (val) => val.startsWith("@") || "Must start with @" },
+        { refine: (val: string) => val.startsWith("@") || "Must start with @" },
         "string",
       );
       expect(validate("@user")).toBe(true);
@@ -129,7 +129,7 @@ describe("String validation", () => {
 
     test("rejects value failing custom rule", () => {
       const validate = compileValidation(
-        { refine: (val) => val.startsWith("@") || "Must start with @" },
+        { refine: (val: string) => val.startsWith("@") || "Must start with @" },
         "string",
       );
       expect(validate("user")).toBe("Must start with @");
@@ -267,7 +267,7 @@ describe("Number validation", () => {
   describe("refine", () => {
     test("accepts value passing custom rule", () => {
       const validate = compileValidation(
-        { refine: (val) => val % 2 === 0 || "Must be even" },
+        { refine: (val: number) => val % 2 === 0 || "Must be even" },
         "number",
       );
       expect(validate(4)).toBe(true);
@@ -275,7 +275,7 @@ describe("Number validation", () => {
 
     test("rejects value failing custom rule", () => {
       const validate = compileValidation(
-        { refine: (val) => val % 2 === 0 || "Must be even" },
+        { refine: (val: number) => val % 2 === 0 || "Must be even" },
         "number",
       );
       expect(validate(3)).toBe("Must be even");
@@ -298,7 +298,7 @@ describe("Boolean validation", () => {
   describe("refine", () => {
     test("accepts value passing custom rule", () => {
       const validate = compileValidation(
-        { refine: (val) => val === true || "Must be true" },
+        { refine: (val: boolean) => val === true || "Must be true" },
         "boolean",
       );
       expect(validate(true)).toBe(true);
@@ -306,7 +306,7 @@ describe("Boolean validation", () => {
 
     test("rejects value failing custom rule", () => {
       const validate = compileValidation(
-        { refine: (val) => val === true || "Must be true" },
+        { refine: (val: boolean) => val === true || "Must be true" },
         "boolean",
       );
       expect(validate(false)).toBe("Must be true");

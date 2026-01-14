@@ -135,7 +135,7 @@ const isGlobalFlag =
 const isNewCommand = firstArg === "new";
 
 if (!firstArg || (!isGlobalFlag && !isNewCommand)) {
-  cli.run(["new", ...argv]);
+  void cli.run(["new", ...argv]);
 } else {
-  cli.run(argv);
+  void cli.run(argv);
 }

@@ -380,7 +380,7 @@ const releaseCommand = defineCommand({
   },
 });
 
-defineCli({
+void defineCli({
   name: "release",
   version: "0.1.0",
   description: "Release tool for boune monorepo",

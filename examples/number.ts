@@ -57,7 +57,7 @@ async function main() {
   const evenNumber = await number({
     message: "Enter an even number:",
     integer: true,
-    validate: (value) => (value % 2 === 0 ? true : "Must be an even number"),
+    validator: (value) => ((value as number) % 2 === 0 ? true : "Must be an even number"),
   });
   console.log(color.dim(`  Even number: ${evenNumber}\n`));
 

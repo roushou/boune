@@ -179,7 +179,7 @@ const remote = defineCommand({
 });
 
 // Create CLI
-defineCli({
+void defineCli({
   name: "git-example",
   version: "1.0.0",
   description: "A git-like CLI example",

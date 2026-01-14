@@ -210,7 +210,7 @@ function formatSize(bytes: number): string {
   return `${size.toFixed(unit > 0 ? 1 : 0)} ${units[unit]}`;
 }
 
-defineCli({
+void defineCli({
   name: "ft",
   version: "1.0.0",
   description: "File manipulation tool built with Bun",

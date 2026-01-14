@@ -100,11 +100,11 @@ async function showProfile(
   if (!profileName) {
     profileName = await select({
       message: "Select a profile to view:",
-      options: profiles.map((p) => ({ label: p, value: p })),
+      choices: profiles.map((p) => ({ label: p, value: p })),
     });
   }
 
-  const profileConfig = config.profiles?.[profileName];
+  const profileConfig = config.profiles?.[profileName as string];
   if (!profileConfig) {
     console.error(formatError(`Profile not found: ${profileName}`));
     console.log(color.dim(`\nAvailable profiles: ${profiles.join(", ")}`));
@@ -112,7 +112,7 @@ async function showProfile(
   }
 
   console.log("");
-  console.log(color.bold(`Profile: ${color.cyan(profileName)}`));
+  console.log(color.bold(`Profile: ${color.cyan(profileName as string)}`));
   console.log(color.dim("─".repeat(30)));
   console.log("");
 
@@ -158,11 +158,11 @@ async function useProfile(name: string | undefined, profiles: string[]): Promise
   if (!profileName) {
     profileName = await select({
       message: "Select a profile to use:",
-      options: profiles.map((p) => ({ label: p, value: p })),
+      choices: profiles.map((p) => ({ label: p, value: p })),
     });
   }
 
-  if (!profiles.includes(profileName)) {
+  if (!profiles.includes(profileName as string)) {
     console.error(formatError(`Profile not found: ${profileName}`));
     console.log(color.dim(`\nAvailable profiles: ${profiles.join(", ")}`));
     process.exit(1);
@@ -176,7 +176,7 @@ async function useProfile(name: string | undefined, profiles: string[]): Promise
   console.log("");
 
   // Show what was applied
-  const profileConfig = config.profiles?.[profileName];
+  const profileConfig = config.profiles?.[profileName as string];
   if (profileConfig?.env) {
     console.log(color.dim("Environment variables set:"));
     for (const [key, value] of Object.entries(profileConfig.env)) {

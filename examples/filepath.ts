@@ -55,7 +55,7 @@ async function main() {
   // With validation
   const validatedFile = await filepath({
     message: "Select a package.json file:",
-    validate: (path) => {
+    validator: (path: string) => {
       if (!path.endsWith("package.json")) {
         return "Please select a package.json file";
       }

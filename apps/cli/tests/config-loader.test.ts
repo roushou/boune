@@ -188,8 +188,10 @@ describe("profile resolution", () => {
 
     await loadConfig({ cwd: tempDir, profile: "prod", skipGlobal: true });
 
-    expect(process.env.NODE_ENV).toBe("production");
-    expect(process.env.DEBUG).toBe("false");
+    expect(process.env.NODE_ENV).toBeDefined();
+    expect(process.env.NODE_ENV!).toBe("production");
+    expect(process.env.DEBUG).toBeDefined();
+    expect(process.env.DEBUG!).toBe("false");
 
     // Clean up
     delete process.env.NODE_ENV;

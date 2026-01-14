@@ -12,7 +12,7 @@ async function main() {
   // Framework selection
   const framework = await autocomplete({
     message: "Select a frontend framework:",
-    options: [
+    choices: [
       { label: "React", value: "react" },
       { label: "Vue", value: "vue" },
       { label: "Svelte", value: "svelte" },
@@ -28,7 +28,7 @@ async function main() {
   // Country selection with many options
   const country = await autocomplete({
     message: "Select your country:",
-    options: [
+    choices: [
       { label: "United States", value: "us" },
       { label: "United Kingdom", value: "uk" },
       { label: "Canada", value: "ca" },
@@ -57,7 +57,7 @@ async function main() {
   // Package manager with initial value
   const packageManager = await autocomplete({
     message: "Select a package manager:",
-    options: [
+    choices: [
       { label: "npm", value: "npm" },
       { label: "yarn", value: "yarn" },
       { label: "pnpm", value: "pnpm" },
@@ -70,7 +70,7 @@ async function main() {
   // Allow custom input
   const favoriteFood = await autocomplete({
     message: "What's your favorite food?",
-    options: [
+    choices: [
       { label: "Pizza", value: "pizza" },
       { label: "Sushi", value: "sushi" },
       { label: "Tacos", value: "tacos" },
@@ -87,7 +87,7 @@ async function main() {
   // Custom filter function (exact prefix match)
   const command = await autocomplete({
     message: "Select a git command:",
-    options: [
+    choices: [
       { label: "git add", value: "add" },
       { label: "git commit", value: "commit" },
       { label: "git push", value: "push" },

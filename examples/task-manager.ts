@@ -259,7 +259,7 @@ function formatPriority(priority: string): string {
   }
 }
 
-defineCli({
+void defineCli({
   name: "tasks",
   version: "1.0.0",
   description: "Simple task manager",

@@ -210,7 +210,7 @@ function formatSize(bytes: number): string {
   return `${size.toFixed(unit > 0 ? 1 : 0)} ${units[unit]}`;
 }
 
-defineCli({
+void defineCli({
   name: "http",
   version: "1.0.0",
   description: "HTTP client CLI",

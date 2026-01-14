@@ -64,7 +64,7 @@ describe("defineCli", () => {
             name: { type: "string", required: true, description: "Name" },
           },
           action: (ctx) => {
-            receivedContext = ctx;
+            receivedContext = ctx as unknown as { args: { name: string } };
           },
         },
       },
@@ -87,7 +87,7 @@ describe("defineCli", () => {
             port: { type: "number", short: "p", default: 3000, description: "Port" },
           },
           action: (ctx) => {
-            receivedContext = ctx;
+            receivedContext = ctx as unknown as { options: { port: number } };
           },
         },
       },
@@ -331,7 +331,7 @@ describe("defineCli", () => {
         build: {
           name: "build",
           action: (ctx) => {
-            receivedContext = ctx;
+            receivedContext = ctx as unknown as { options: { verbose: boolean } };
           },
         },
       },
